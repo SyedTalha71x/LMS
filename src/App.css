@@ -10,6 +10,12 @@ body{
   font-style: normal;
 }
 
+.poppins-thin_bold{
+  font-family: "Poppins", sans-serif;
+  font-weight:700;
+  font-style: normal;
+}
+
 .karma {
   font-family: "Karma", serif;
   font-weight: 700;
