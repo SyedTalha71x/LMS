@@ -83,9 +83,11 @@ const Signin = () => {
                   <option value="" disabled>
                     Select...
                   </option>
-                  <option value="user">User</option>
+                  <option value="instructor">Instructor</option>
+                  <option value="learner">Learner</option>
                   <option value="admin">Admin</option>
-                  <option value="manager">Manager</option>
+                  <option value="superadmin">Super Admin</option>
+
                 </select>
                 <ChevronDown className="pointer-events-none absolute right-3 top-2.5 h-4 w-4 opacity-50" />
               </div>
