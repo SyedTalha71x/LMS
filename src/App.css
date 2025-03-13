@@ -10,6 +10,12 @@ body{
   font-style: normal;
 }
 
+.poppins-thin_600 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
 .poppins-thin_bold{
   font-family: "Poppins", sans-serif;
   font-weight:700;
@@ -22,4 +28,17 @@ body{
   font-style: normal;
 }
 
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #e6e1e1;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #e6e1e1;
+  border-radius: 20px;
+}
 
