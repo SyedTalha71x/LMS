@@ -14,6 +14,8 @@ import { FaRegMessage } from "react-icons/fa6";
 import { MdPayment } from "react-icons/md";
 import { PiNotification } from "react-icons/pi";
 import { Bell } from "lucide-react";
+import { FaUserGroup } from "react-icons/fa6";
+
 
 const Sidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -222,9 +224,9 @@ const Sidebar = () => {
               
               {[
                 {
-                  icon: GrAchievement,
-                  label: "Achievements",
-                  to: "/learner-dashboard/achievements",
+                  icon: FaUserGroup,
+                  label: "Group",
+                  to: "/learner-dashboard/groups",
                 },
                 { icon: FaRegMessage, label: "Messages", to: "/learner-dashboard/messages" },
                 { icon: MdPayment, label: "Payments", to: "/learner-dashboard/payments" },

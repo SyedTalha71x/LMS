@@ -12,6 +12,7 @@ import Overview from "./dashboardPages/learner-dashboard/overview";
 import ProgressCourse from './dashboardPages/learner-dashboard/progress-courses'
 import ProgressCertificates from './dashboardPages/learner-dashboard/progress-certificates'
 import ProgressBadges from './dashboardPages/learner-dashboard/progress-badges'
+import Group from './dashboardPages/learner-dashboard/group'
 
 function App() {
   const location = useLocation();
@@ -30,6 +31,8 @@ function App() {
           <Route path="courses" element={<ProgressCourse />} />
           <Route path="certificates" element={<ProgressCertificates />} />
           <Route path="badges" element={<ProgressBadges />} />
+          <Route path="groups" element={<Group />} />
+
 
         </Route>
       </Routes>
