@@ -13,6 +13,9 @@ import ProgressCourse from './dashboardPages/learner-dashboard/progress-courses'
 import ProgressCertificates from './dashboardPages/learner-dashboard/progress-certificates'
 import ProgressBadges from './dashboardPages/learner-dashboard/progress-badges'
 import Group from './dashboardPages/learner-dashboard/group'
+import Messages from './dashboardPages/learner-dashboard/messages'
+import Notifications from "./dashboardPages/learner-dashboard/notifications";
+import Courses from './dashboardPages/learner-dashboard/courses'
 
 function App() {
   const location = useLocation();
@@ -32,6 +35,9 @@ function App() {
           <Route path="certificates" element={<ProgressCertificates />} />
           <Route path="badges" element={<ProgressBadges />} />
           <Route path="groups" element={<Group />} />
+          <Route path="messages" element={<Messages />} />
+          <Route path="notifications" element={<Notifications />} />
+          <Route path="all-courses" element={<Courses />} />
 
 
         </Route>
