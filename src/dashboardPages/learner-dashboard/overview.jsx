@@ -546,7 +546,7 @@ function Overview() {
               )}
             </div>
 
-            <form className="space-y-4 custom-scrollbar overflow-y-auto max-h-[60vh]">
+            <form className="space-y-4 custom-scrollbar overflow-y-auto max-h-[50vh]">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   First Name

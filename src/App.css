@@ -22,6 +22,11 @@ body{
   font-style: normal;
 }
 
+.poppins-thin_800{
+  font-family: "Poppins", sans-serif;
+  font-weight:800;
+  font-style: normal;
+}
 .karma {
   font-family: "Karma", serif;
   font-weight: 700;
