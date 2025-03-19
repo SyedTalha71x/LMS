@@ -6,7 +6,8 @@ import {
   X,
   ChevronDown,
   ChevronUp,
-  Book
+  Book,
+  Notebook
 } from "lucide-react";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { GiProgression } from "react-icons/gi";
@@ -233,6 +234,8 @@ const Sidebar = () => {
                 { icon: Book, label: "Courses", to: "/learner-dashboard/all-courses" },
 
                 { icon: MdPayment, label: "Payments", to: "/learner-dashboard/payments" },
+                { icon: Notebook, label: "Assignments", to: "/learner-dashboard/assignments" },
+
                 { icon: PiNotification, label: "Notification", to: "/learner-dashboard/notifications" },
               ].map((item) => (
                 <li key={item.label}>

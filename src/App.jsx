@@ -16,6 +16,7 @@ import Group from './dashboardPages/learner-dashboard/group'
 import Messages from './dashboardPages/learner-dashboard/messages'
 import Notifications from "./dashboardPages/learner-dashboard/notifications";
 import Courses from './dashboardPages/learner-dashboard/courses'
+import Assignments from './dashboardPages/learner-dashboard/assignments'
 
 function App() {
   const location = useLocation();
@@ -38,6 +39,7 @@ function App() {
           <Route path="messages" element={<Messages />} />
           <Route path="notifications" element={<Notifications />} />
           <Route path="all-courses" element={<Courses />} />
+          <Route path="assignments" element={<Assignments />} />
 
 
         </Route>
