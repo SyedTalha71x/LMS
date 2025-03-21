@@ -90,29 +90,27 @@ export default function Courses() {
           </div>
 
           {/* Mobile Notification Sidebar - Shown as overlay when bell is clicked */}
-          {showMobileNotifications && (
-            <div className="fixed inset-0 bg-black/50 bg-opacity-50 z-50 lg:hidden">
-              <div className="absolute right-0 top-0 h-full w-4/5 bg-white p-4 overflow-y-auto">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl poppins-thin_600">Notification</h2>
-                  <button 
-                    onClick={toggleMobileNotifications}
-                    className="p-1 rounded-full hover:bg-gray-100"
-                  >
-                    <span className="text-2xl">&times;</span>
-                  </button>
-                </div>
-                <div className="space-y-4">
-                  {notifications.map((notification) => (
-                    <NotificationItem
-                      key={notification.id}
-                      notification={notification}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+          <div className={`fixed inset-0 bg-black/50 z-50 transition-opacity duration-500 ${showMobileNotifications ? 'opacity-100' : 'opacity-0 pointer-events-none'} lg:hidden`}>
+  <div className={`absolute right-0 top-0 h-full w-4/5 bg-white p-4 overflow-y-auto transition-transform duration-500 ${showMobileNotifications ? 'translate-x-0' : 'translate-x-full'}`}>
+    <div className="flex justify-between items-center mb-4">
+      <h2 className="text-2xl poppins-thin_600">Notification</h2>
+      <button 
+        onClick={toggleMobileNotifications}
+        className="p-1 rounded-full hover:bg-gray-100"
+      >
+        <span className="text-2xl">&times;</span>
+      </button>
+    </div>
+    <div className="space-y-4">
+      {notifications.map((notification) => (
+        <NotificationItem
+          key={notification.id}
+          notification={notification}
+        />
+      ))}
+    </div>
+  </div>
+</div>
         </div>
       </div>
     </div>
