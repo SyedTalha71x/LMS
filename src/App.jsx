@@ -17,6 +17,7 @@ import Messages from './dashboardPages/learner-dashboard/messages'
 import Notifications from "./dashboardPages/learner-dashboard/notifications";
 import Courses from './dashboardPages/learner-dashboard/courses'
 import Assignments from './dashboardPages/learner-dashboard/assignments'
+import Calender from './dashboardPages/learner-dashboard/calender'
 
 function App() {
   const location = useLocation();
@@ -40,6 +41,8 @@ function App() {
           <Route path="notifications" element={<Notifications />} />
           <Route path="all-courses" element={<Courses />} />
           <Route path="assignments" element={<Assignments />} />
+          <Route path="calender" element={<Calender />} />
+
 
 
         </Route>

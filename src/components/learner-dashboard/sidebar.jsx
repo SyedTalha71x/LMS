@@ -7,7 +7,8 @@ import {
   ChevronDown,
   ChevronUp,
   Book,
-  Notebook
+  Notebook,
+  Calendar
 } from "lucide-react";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { GiProgression } from "react-icons/gi";
@@ -233,7 +234,7 @@ const Sidebar = () => {
                 { icon: FaRegMessage, label: "Messages", to: "/learner-dashboard/messages" },
                 { icon: Book, label: "Courses", to: "/learner-dashboard/all-courses" },
 
-                { icon: MdPayment, label: "Payments", to: "/learner-dashboard/payments" },
+                { icon: Calendar, label: "Calender", to: "/learner-dashboard/calender" },
                 { icon: Notebook, label: "Assignments", to: "/learner-dashboard/assignments" },
 
                 { icon: PiNotification, label: "Notification", to: "/learner-dashboard/notifications" },
