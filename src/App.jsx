@@ -9,20 +9,28 @@ import Main from "./pages/main";
 // Learner Dashboard Routes
 import LearnerDashboardLayout from "./layouts/learner-dashboard-layout";
 import Overview from "./dashboardPages/learner-dashboard/overview";
-import ProgressCourse from './dashboardPages/learner-dashboard/progress-courses'
-import ProgressCertificates from './dashboardPages/learner-dashboard/progress-certificates'
-import ProgressBadges from './dashboardPages/learner-dashboard/progress-badges'
-import Group from './dashboardPages/learner-dashboard/group'
-import Messages from './dashboardPages/learner-dashboard/messages'
+import ProgressCourse from "./dashboardPages/learner-dashboard/progress-courses";
+import ProgressCertificates from "./dashboardPages/learner-dashboard/progress-certificates";
+import ProgressBadges from "./dashboardPages/learner-dashboard/progress-badges";
+import Group from "./dashboardPages/learner-dashboard/group";
+import Messages from "./dashboardPages/learner-dashboard/messages";
 import Notifications from "./dashboardPages/learner-dashboard/notifications";
-import Courses from './dashboardPages/learner-dashboard/courses'
-import Assignments from './dashboardPages/learner-dashboard/assignments'
-import Calender from './dashboardPages/learner-dashboard/calender'
+import Courses from "./dashboardPages/learner-dashboard/courses";
+import Assignments from "./dashboardPages/learner-dashboard/assignments";
+import Calender from "./dashboardPages/learner-dashboard/calender";
+
+//Instructor Dashboard Routes
+import InstructorDashboardlayout from "./layouts/instructor-dashboard";
+import Profile from "./dashboardPages/instructor-dashboard/profile";
+import InstructorOverview from "./dashboardPages/instructor-dashboard/overview";
+import Students from './dashboardPages/instructor-dashboard/students'
 
 function App() {
   const location = useLocation();
 
-  const isLoginRoute = location.pathname.startsWith("/login") || location.pathname.startsWith("/learner-dashboard");
+  const isLoginRoute =
+    location.pathname.startsWith("/login") ||
+    location.pathname.startsWith("/learner-dashboard") || location.pathname.startsWith("/instructor-dashboard");
 
   return (
     <>
@@ -42,8 +50,15 @@ function App() {
           <Route path="all-courses" element={<Courses />} />
           <Route path="assignments" element={<Assignments />} />
           <Route path="calender" element={<Calender />} />
+        </Route>
 
-
+        <Route
+          path="instructor-dashboard"
+          element={<InstructorDashboardlayout />}
+        >
+          <Route path="overview" element={<InstructorOverview/>}/>
+          <Route path="profile" element={<Profile />} />
+          <Route path="students" element={<Students />} />
 
         </Route>
       </Routes>
