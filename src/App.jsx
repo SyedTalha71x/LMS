@@ -24,6 +24,10 @@ import InstructorDashboardlayout from "./layouts/instructor-dashboard";
 import Profile from "./dashboardPages/instructor-dashboard/profile";
 import InstructorOverview from "./dashboardPages/instructor-dashboard/overview";
 import Students from './dashboardPages/instructor-dashboard/students'
+import InstructorGroup from './dashboardPages/instructor-dashboard/groups'
+import Discussion from "./dashboardPages/instructor-dashboard/discussion";
+import InstructorAssignments from "./dashboardPages/instructor-dashboard/assignments";
+import InstructorEvents from './dashboardPages/instructor-dashboard/events'
 
 function App() {
   const location = useLocation();
@@ -59,6 +63,10 @@ function App() {
           <Route path="overview" element={<InstructorOverview/>}/>
           <Route path="profile" element={<Profile />} />
           <Route path="students" element={<Students />} />
+          <Route path="groups" element={<InstructorGroup />} />
+          <Route path="discussion" element={<Discussion />} />
+          <Route path="assignments" element={<InstructorAssignments/>}/>
+          <Route path="events" element={<InstructorEvents/>}/>
 
         </Route>
       </Routes>

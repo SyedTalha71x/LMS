@@ -9,13 +9,14 @@ import {
   Book,
   Notebook,
   Calendar,
-  User2
+  User2,
+  MessageCircle
 } from "lucide-react";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { GiProgression } from "react-icons/gi";
 import { GrAchievement } from "react-icons/gr";
 import { FaRegMessage } from "react-icons/fa6";
-import { MdPayment } from "react-icons/md";
+import { MdEvent, MdPayment } from "react-icons/md";
 import { PiNotification } from "react-icons/pi";
 import { Bell } from "lucide-react";
 import { FaUserGroup } from "react-icons/fa6";
@@ -155,12 +156,12 @@ const Sidebar = () => {
                   to: "/instructor-dashboard/profile",
                 },
                 { icon: User2, label: "Students", to: "/instructor-dashboard/students" },
-                { icon: Book, label: "Courses", to: "/instructor-dashboard/all-courses" },
+                { icon: Book, label: "Groups", to: "/instructor-dashboard/groups" },
 
-                { icon: Calendar, label: "Calender", to: "/instructor-dashboard/calender" },
+                { icon: MessageCircle, label: "Discussion", to: "/instructor-dashboard/discussion" },
                 { icon: Notebook, label: "Assignments", to: "/instructor-dashboard/assignments" },
 
-                { icon: PiNotification, label: "Notification", to: "/instructor-dashboard/notifications" },
+                { icon: MdEvent, label: "Events", to: "/instructor-dashboard/events" },
               ].map((item) => (
                 <li key={item.label}>
                   <button
