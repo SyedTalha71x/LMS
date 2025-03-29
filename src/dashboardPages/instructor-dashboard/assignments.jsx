@@ -379,7 +379,7 @@ export default function Assignments() {
 
             <form onSubmit={handleSubmit}>
               <div className="mb-4 mt-10">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Name:</label>
                 <input
                   type="text"
                   name="name"
