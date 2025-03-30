@@ -28,6 +28,7 @@ import InstructorGroup from './dashboardPages/instructor-dashboard/groups'
 import Discussion from "./dashboardPages/instructor-dashboard/discussion";
 import InstructorAssignments from "./dashboardPages/instructor-dashboard/assignments";
 import InstructorEvents from './dashboardPages/instructor-dashboard/events'
+import Conference from './dashboardPages/instructor-dashboard/conference'
 
 function App() {
   const location = useLocation();
@@ -67,6 +68,7 @@ function App() {
           <Route path="discussion" element={<Discussion />} />
           <Route path="assignments" element={<InstructorAssignments/>}/>
           <Route path="events" element={<InstructorEvents/>}/>
+          <Route path="conference" element={<Conference/>}/>
 
         </Route>
       </Routes>

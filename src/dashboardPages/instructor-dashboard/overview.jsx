@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, BookOpen, Award, MoreHorizontal, Menu } from "lucide-react";
+import { Calendar, BookOpen, Award, MoreHorizontal, Menu, Check } from "lucide-react";
 import Vector1 from "../../../public/Vector.png";
 import Vector2 from "../../../public/Vector (1).png";
 import Vector3 from "../../../public/Frame.png";
@@ -16,6 +16,31 @@ export default function Overview() {
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
+
+  const classes = [
+    {
+      name: "Pharmaceutics-1",
+      time: "08:00 AM",
+      completed: false,
+    },
+    {
+      name: "Physical Pharmacy",
+      time: "",
+      completed: false,
+    },
+    {
+      name: "Research Objective User",
+      subtext: "Product Design",
+      time: "02:40 PM",
+      completed: false,
+    },
+    {
+      name: "Report Analysis PDF Business",
+      subtext: "Webinar (Done)",
+      time: "04:50 PM",
+      completed: true,
+    },
+  ];
 
   return (
     <div className="flex flex-col md:flex-row w-full min-h-screen bg-white">
@@ -71,23 +96,23 @@ export default function Overview() {
           </div>
         </div>
 
-        <div className="bg-white border border-gray-100 rounded-lg p-4 mb-8">
+        <div className="bg-[#F9F9F9]  rounded-lg p-6 mb-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
             <div>
-              <h2 className="font-bold text-lg">Attendance</h2>
-              <div className="flex items-center">
-                <span className="text-green-500 text-sm">↑ 5% more</span>
-                <span className="text-gray-500 text-sm ml-1">in 2024</span>
+              <h2 className="poppins-thin_500 text-lg">Attendance</h2>
+              <div className="flex items-center gap-1 mt-2">
+                <span className="text-green-500 poppins-thin_500 text-sm">↑ 4% more</span>
+                <span className="text-black poppins-thin_500 text-sm ml-1">in 2024</span>
               </div>
             </div>
             <div className="flex items-center mt-2 sm:mt-0">
               <div className="flex items-center mr-4">
-                <div className="w-4 h-2 bg-green-600 rounded-full mr-2"></div>
-                <span className="text-sm">Present</span>
+                <div className="w-6 h-4 bg-green-600 rounded-full mr-2"></div>
+                <span className="text-sm poppins-thin_500">Present</span>
               </div>
               <div className="flex items-center">
-                <div className="w-4 h-2 bg-gray-800 rounded-full mr-2"></div>
-                <span className="text-sm">Absent</span>
+                <div className="w-6 h-4 bg-gray-800 rounded-full mr-2"></div>
+                <span className="text-sm poppins-thin_500">Absent</span>
               </div>
             </div>
           </div>
@@ -151,11 +176,11 @@ export default function Overview() {
                   className="w-10 h-10 rounded-full mr-3"
                 />
                 <div>
-                  <h4 className="font-medium">Wade Warren</h4>
-                  <p className="text-gray-500 text-sm">Student 1</p>
+                  <h4 className="poppins-thin_500">Wade Warren</h4>
+                  <p className="text-gray-400 poppins-thin_500 text-xs">Student 1</p>
                 </div>
               </div>
-              <button className="bg-gray-800 text-white text-xs px-3 py-1 rounded-md">
+              <button className="bg-[#272829] text-white text-xs px-4 py-1.5 rounded-xl">
                 VIEW
               </button>
             </div>
@@ -168,11 +193,11 @@ export default function Overview() {
                   className="w-10 h-10 rounded-full mr-3"
                 />
                 <div>
-                  <h4 className="font-medium">Robert Fox</h4>
-                  <p className="text-gray-500 text-sm">Student 1</p>
+                  <h4 className="poppins-thin_500">Robert Fox</h4>
+                  <p className="text-gray-400 poppins-thin_500 text-xs">Student 1</p>
                 </div>
               </div>
-              <button className="bg-gray-800 text-white text-xs px-3 py-1 rounded-md">
+              <button className="bg-[#272829] text-white text-xs px-4 py-1.5 rounded-xl">
                 VIEW
               </button>
             </div>
@@ -185,11 +210,11 @@ export default function Overview() {
                   className="w-10 h-10 rounded-full mr-3"
                 />
                 <div>
-                  <h4 className="font-medium">Jane Cooper</h4>
-                  <p className="text-gray-500 text-sm">Student 1</p>
+                  <h4 className="poppins-thin_500">Jane Cooper</h4>
+                  <p className="text-gray-400 poppins-thin_500 text-xs">Student 1</p>
                 </div>
               </div>
-              <button className="bg-gray-800 text-white text-xs px-3 py-1 rounded-md">
+              <button className="bg-[#272829] text-white text-xs px-4 py-1.5 rounded-xl">
                 VIEW
               </button>
             </div>
@@ -202,71 +227,59 @@ export default function Overview() {
                   className="w-10 h-10 rounded-full mr-3"
                 />
                 <div>
-                  <h4 className="font-medium">Natalia</h4>
-                  <p className="text-gray-500 text-sm">Student 1</p>
+                  <h4 className="poppins-thin_500">Natalia</h4>
+                  <p className="text-gray-400 poppins-thin_500 text-xs">Student 1</p>
                 </div>
               </div>
-              <button className="bg-gray-800 text-white text-xs px-3 py-1 rounded-md">
+              <button className="bg-[#272829] text-white text-xs px-4 py-1.5 rounded-xl">
                 VIEW
               </button>
             </div>
           </div>
 
-          <div className="flex justify-between items-center mt-4 bg-gray-50 p-3 rounded-md">
-            <span className="text-xs font-medium text-gray-500">
+          <div className="flex justify-between items-center mt-7 bg-gray-50 p-3 rounded-md">
+            <span className="text-xs poppins-thin_500  text-gray-500">
               54 STUDENT
             </span>
-            <a href="#" className="text-xs font-medium">
+            <a href="#" className="text-xs  text-black poppins-thin_500">
               VIEW ALL MEMBER
             </a>
           </div>
         </div>
 
         <div>
-          <h3 className="font-bold mb-4">Classes</h3>
-          <div className="space-y-4">
-            <div>
-              <div className="flex items-center mb-1">
-                <input
-                  type="checkbox"
-                  id="class1"
-                  className="h-4 w-4 mr-2 border-gray-300 rounded"
-                />
-                <label htmlFor="class1" className="text-sm font-medium">
-                  Pharmaceutics-1
-                </label>
+          <h3 className="text-lg poppins-thin_600 mb-4 mt-10">Classes</h3>
+          <div className="space-y-3">
+            {classes.map((classItem, index) => (
+              <div key={index} className="flex items-start poppins-thin_600">
+                <div
+                  className={`w-5 h-5 mt-0.5 m-2 border rounded flex-shrink-0 mr-3 ${
+                    classItem.completed
+                      ? "bg-green-500 border-green-500 flex items-center justify-center"
+                      : "border-gray-300"
+                  }`}
+                >
+                  {classItem.completed && (
+                    <Check size={14} className="text-white" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm  font-medium">{classItem.name}</p>
+                  <div className="flex items-center  gap-3 ">
+                    {classItem.subtext && (
+                      <p className="text-xs text-gray-500">
+                        {classItem.subtext}
+                      </p>
+                    )}
+                    {classItem.time && (
+                      <p className="text-xs text-black font-semibold">
+                        {classItem.time}
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center ml-6">
-                <span className="text-xs text-gray-500 mr-2">Class</span>
-                <span className="text-xs font-medium">08:00 AM</span>
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center mb-1">
-                <input
-                  type="checkbox"
-                  id="class2"
-                  className="h-4 w-4 mr-2 border-gray-300 rounded"
-                />
-                <label htmlFor="class2" className="text-sm font-medium">
-                  Physical Pharmacy
-                </label>
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center mb-1">
-                <input
-                  type="checkbox"
-                  id="class3"
-                  className="h-4 w-4 mr-2 border-gray-300 rounded"
-                />
-                <label htmlFor="class3" className="text-sm font-medium">
-                  Research Objective User
-                </label>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
@@ -277,8 +290,7 @@ export default function Overview() {
 function AttendanceChart() {
   return (
     <div className="relative h-full w-full">
-      {/* Y-axis labels */}
-      <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-gray-500">
+      <div className="absolute poppins-thin_500 left-0 top-0 h-full flex flex-col justify-between text-xs text-gray-500">
         <div>500</div>
         <div>400</div>
         <div>300</div>
@@ -288,7 +300,7 @@ function AttendanceChart() {
       </div>
 
       {/* Chart area */}
-      <div className="absolute left-8 right-0 top-0 bottom-4 bg-white">
+      <div className="absolute left-8 right-0 top-0 bottom-4 bg-[#F9F9F9]">
         {/* Chart SVG */}
         <svg
           className="w-full h-full"

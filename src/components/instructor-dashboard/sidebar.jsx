@@ -162,6 +162,7 @@ const Sidebar = () => {
                 { icon: Notebook, label: "Assignments", to: "/instructor-dashboard/assignments" },
 
                 { icon: MdEvent, label: "Events", to: "/instructor-dashboard/events" },
+                { icon: MdEvent, label: "Conference", to: "/instructor-dashboard/conference" },
               ].map((item) => (
                 <li key={item.label}>
                   <button
