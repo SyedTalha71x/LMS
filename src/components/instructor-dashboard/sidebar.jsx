@@ -10,7 +10,8 @@ import {
   Notebook,
   Calendar,
   User2,
-  MessageCircle
+  MessageCircle,
+  BookDashed
 } from "lucide-react";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { GiProgression } from "react-icons/gi";
@@ -159,6 +160,8 @@ const Sidebar = () => {
                 { icon: Book, label: "Groups", to: "/instructor-dashboard/groups" },
 
                 { icon: MessageCircle, label: "Discussion", to: "/instructor-dashboard/discussion" },
+                { icon: BookDashed, label: "Courses", to: "/instructor-dashboard/courses" },
+
                 { icon: Notebook, label: "Assignments", to: "/instructor-dashboard/assignments" },
 
                 { icon: MdEvent, label: "Events", to: "/instructor-dashboard/events" },
