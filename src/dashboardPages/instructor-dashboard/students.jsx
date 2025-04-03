@@ -247,7 +247,7 @@ const Students = () => {
 
           {selectedStudent && (
             <div className="fixed inset-0 bg-black/50 bg-opacity-50 z-50 flex items-center justify-center p-4">
-              <div className="bg-white rounded-lg w-full max-w-lg p-6 overflow-y-auto custom-scrollbar relative">
+              <div className="bg-white rounded-lg w-full max-w-lg p-6 overflow-y-auto max-h-[75vh] custom-scrollbar relative">
                 <button
                   onClick={closeModal}
                   className="absolute top-3 right-3 cursor-pointer bg-black p-1 text-sm rounded-md text-white z-10"
