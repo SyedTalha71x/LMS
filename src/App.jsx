@@ -30,6 +30,7 @@ import InstructorAssignments from "./dashboardPages/instructor-dashboard/assignm
 import InstructorEvents from './dashboardPages/instructor-dashboard/events'
 import Conference from './dashboardPages/instructor-dashboard/conference'
 import InstructorCourses from './dashboardPages/instructor-dashboard/courses'
+import InstructorNotifcations from './dashboardPages/instructor-dashboard/notification'
 
 function App() {
   const location = useLocation();
@@ -71,6 +72,7 @@ function App() {
           <Route path="events" element={<InstructorEvents/>}/>
           <Route path="conference" element={<Conference/>}/>
           <Route path="courses" element={<InstructorCourses/>}/>
+          <Route path="notifications" element={<InstructorNotifcations/>}/>
 
         </Route>
       </Routes>

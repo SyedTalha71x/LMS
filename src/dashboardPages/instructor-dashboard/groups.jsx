@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Search, MoreVertical, Bell, X, Menu, Edit } from "lucide-react"
+import { Search, MoreVertical, Bell, X, Menu, Edit, ChevronDown } from "lucide-react"
 import Image from "../../../public/image.svg"
 import UserGroups from "../../../public/avatar-group.png"
 import ProfilePicture from "../../../public/image (4).png"
@@ -11,6 +11,7 @@ const GroupsPage = () => {
   const [showGroupModal, setShowGroupModal] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState(null)
   const [profileImage, setProfileImage] = useState(ProfilePicture)
+  const [openDropdownId, setOpenDropdownId] = useState(null)
 
   const [groups] = useState([
     {
@@ -110,8 +111,22 @@ const GroupsPage = () => {
     setSelectedGroup(null)
   }
 
+  const toggleDropdown = (id, e) => {
+    e.stopPropagation() // Prevent card click event
+    setOpenDropdownId(openDropdownId === id ? null : id)
+  }
+
+  const handleDropdownClick = (e) => {
+    e.stopPropagation() // Prevent closing when clicking inside dropdown
+  }
+
+  // Close dropdown when clicking outside
+  const closeDropdown = () => {
+    setOpenDropdownId(null)
+  }
+
   return (
-    <div className="flex flex-col md:flex-row min-h-screen relative">
+    <div className="flex flex-col md:flex-row min-h-screen relative" onClick={closeDropdown}>
       <div className="flex-1 p-4 md:p-6">
         <div className="flex justify-between items-center flex-col gap-4 w-full md:flex-row mb-6">
           <h1 className="text-2xl poppins-thin_600">Groups</h1>
@@ -132,7 +147,15 @@ const GroupsPage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {groups.map((group) => (
-            <GroupCard key={group.id} group={group} onClick={() => openGroupModal(group)} />
+            <GroupCard 
+              key={group.id} 
+              group={group} 
+              onClick={() => openGroupModal(group)} 
+              openDropdownId={openDropdownId}
+              toggleDropdown={toggleDropdown}
+              handleDropdownClick={handleDropdownClick}
+              viewDetails={() => openGroupModal(group)}
+            />
           ))}
         </div>
       </div>
@@ -367,9 +390,9 @@ const GroupsPage = () => {
   )
 }
 
-function GroupCard({ group, onClick }) {
+function GroupCard({ group, openDropdownId, toggleDropdown, handleDropdownClick, viewDetails }) {
   return (
-    <div className="bg-[#F9F9F9] rounded-2xl p-8 cursor-pointer" onClick={onClick}>
+    <div className="bg-[#F9F9F9] rounded-2xl p-8 cursor-pointer">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-3">
           <div className="relative w-16 h-16 rounded-full bg-gray-200 overflow-hidden">
@@ -380,9 +403,33 @@ function GroupCard({ group, onClick }) {
             <p className="text-sm text-gray-500 poppins-thin">{group.subtitle}</p>
           </div>
         </div>
-        <button className="">
-          <MoreVertical className="h-5 w-5" />
-        </button>
+        <div className="relative">
+          <button className="" onClick={(e) => toggleDropdown(group.id, e)}>
+            <MoreVertical className="h-5 w-5" />
+          </button>
+          
+          {/* Dropdown menu */}
+          {openDropdownId === group.id && (
+            <div 
+              className="absolute right-0 mt-2 w-36 rounded-md shadow-lg bg-white  z-10"
+              onClick={handleDropdownClick}
+            >
+              <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                <button
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  role="menuitem"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    viewDetails();
+                  }}
+                >
+                  View Details
+                </button>
+            
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="mb-4">
@@ -420,5 +467,3 @@ function GroupCard({ group, onClick }) {
 }
 
 export default GroupsPage
-
-// 1, 5, 10, 30, 50

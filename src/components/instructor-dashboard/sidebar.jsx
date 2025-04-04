@@ -14,12 +14,8 @@ import {
   BookDashed
 } from "lucide-react";
 import { LuLayoutDashboard } from "react-icons/lu";
-import { GiProgression } from "react-icons/gi";
-import { GrAchievement } from "react-icons/gr";
-import { FaRegMessage } from "react-icons/fa6";
-import { MdEvent, MdPayment } from "react-icons/md";
+import { MdEvent } from "react-icons/md";
 import { PiNotification } from "react-icons/pi";
-import { Bell } from "lucide-react";
 import { FaUserGroup } from "react-icons/fa6";
 
 
@@ -160,6 +156,8 @@ const Sidebar = () => {
                 { icon: Book, label: "Groups", to: "/instructor-dashboard/groups" },
 
                 { icon: MessageCircle, label: "Discussion", to: "/instructor-dashboard/discussion" },
+                { icon: PiNotification, label: "Notification", to: "/instructor-dashboard/notifications" },
+
                 { icon: BookDashed, label: "Courses", to: "/instructor-dashboard/courses" },
 
                 { icon: Notebook, label: "Assignments", to: "/instructor-dashboard/assignments" },
