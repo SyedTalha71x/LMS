@@ -103,16 +103,25 @@ export default function ConferencePage() {
 
   return (
     <div className="flex rounded-3xl text-black min-h-screen overflow-hidden">
-      <div className="flex-1 p-4 overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
+      <div className="flex-1 md:p-4 p-2 overflow-y-auto">
+        <div className="flex justify-between md:items-center md:flex-row flex-col gap-3 items-start mb-6">
           <h1 className="text-2xl poppins-thin_600">Conference</h1>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <input
-              type="text"
-              placeholder="Search"
-              className="bg-gray-100 rounded-2xl text-sm outline-none py-2 pl-10 pr-4 w-full md:w-64"
-            />
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <input
+                type="text"
+                placeholder="Search"
+                className="bg-gray-100 rounded-2xl text-sm outline-none py-2 pl-10 pr-4 w-full md:w-64"
+              />
+            </div>
+            {/* Bell icon for mobile - only visible on small screens */}
+            <button 
+              className="md:hidden flex items-center justify-center bg-gray-100 rounded-full p-2"
+              onClick={toggleSidebar}
+            >
+              <Bell className="h-5 w-5 text-gray-500" />
+            </button>
           </div>
         </div>
 
@@ -183,6 +192,7 @@ export default function ConferencePage() {
         </div>
       </div>
 
+      {/* Overlay for sidebar on mobile */}
       {showSidebar && (
         <div
           className="fixed inset-0 bg-black/50 bg-opacity-50 z-40 md:hidden"
@@ -190,6 +200,7 @@ export default function ConferencePage() {
         ></div>
       )}
 
+      {/* Right sidebar */}
       <div
         className={`fixed md:static top-0 right-0 h-full z-40 w-80 bg-white p-4 md:p-6 transform transition-transform duration-500 ease-in-out ${
           showSidebar ? "translate-x-0" : "translate-x-full md:translate-x-0"

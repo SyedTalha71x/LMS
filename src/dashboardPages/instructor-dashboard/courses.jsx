@@ -12,6 +12,7 @@ export default function Courses() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [profileImage, setProfileImage] = useState(Image23);
+  const [showSidebar, setShowSidebar] = useState(false);
   const [courses, setCourses] = useState([
     {
       id: 1,
@@ -36,6 +37,23 @@ export default function Courses() {
     { id: 8, title: "Title", color: "bg-salmon" },
   ]);
 
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      name: "Dr. Smith",
+      time: "Now",
+      message:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    },
+    {
+      id: 2,
+      name: "Dr. Smith",
+      time: "Now",
+      message:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    },
+  ]);
+
   const handleImageChange = (event) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -57,43 +75,17 @@ export default function Courses() {
     setShowDetailsModal(false);
   };
 
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      name: "Dr. Smith",
-      time: "1 hour ago",
-      message:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 2,
-      name: "Dr. Smith",
-      time: "2 hours ago",
-      message:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-  ]);
-
-  // Add state to control notification sidebar visibility on mobile
-  const [showMobileNotifications, setShowMobileNotifications] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(false);
-
-  // Toggle notification sidebar on mobile
-  const toggleMobileNotifications = () => {
-    setShowMobileNotifications(!showMobileNotifications);
-  };
-
   const toggleSidebar = () => {
     setShowSidebar(!showSidebar);
   };
 
   return (
     <div className="flex rounded-3xl text-black min-h-screen overflow-hidden">
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto md:p-4 p-2">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Courses Section */}
           <div className="w-full lg:w-2/3">
-            <div className="flex items-center md:flex-row flex-col gap-4 justify-between mb-4">
+            <div className="flex md:items-center items-start md:flex-row flex-col gap-4 justify-between mb-4">
               <h2 className="text-2xl poppins-thin_600">Courses</h2>
               <div className="flex items-center gap-2">
                 <div className="relative">
@@ -104,9 +96,9 @@ export default function Courses() {
                     className="pl-10 pr-4 py-2 bg-gray-100 outline-none rounded-2xl text-sm w-full md:w-60"
                   />
                 </div>
-                {/* Bell Icon for Mobile - Only visible on small screens */}
+                {/* Bell Icon for Mobile - Toggle sidebar on small screens */}
                 <button
-                  onClick={toggleMobileNotifications}
+                  onClick={toggleSidebar}
                   className="lg:hidden p-2 bg-gray-100 rounded-full hover:bg-gray-200"
                   aria-label="Toggle notifications"
                 >
@@ -126,16 +118,13 @@ export default function Courses() {
             </div>
           </div>
 
-          {/* Notification Sidebar - Desktop (always visible on large screens) */}
+          {/* Unified Sidebar for both mobile and desktop */}
           <div
-            className={`fixed md:static top-0 right-0 h-full z-40 w-90 p-4 md:p-6 transform transition-transform duration-500 ease-in-out ${
-              showSidebar
-                ? "translate-x-0"
-                : "translate-x-full md:translate-x-0"
+            className={`fixed lg:static top-0 right-0 h-full z-40 w-4/5 lg:w-1/3 bg-white p-4 md:p-6 transform transition-transform duration-500 ease-in-out ${
+              showSidebar ? "translate-x-0" : "translate-x-full lg:translate-x-0"
             }`}
           >
-            <div className="flex justify-end items-center mb-4 md:hidden">
-              {/* <h2 className="font-medium">Notifications</h2> */}
+            <div className="flex justify-end items-center mb-4 lg:hidden">
               <button onClick={toggleSidebar} className="p-1">
                 <X className="h-5 w-5" />
               </button>
@@ -146,7 +135,6 @@ export default function Courses() {
             </div>
 
             <div className="">
-              {/* <h1 className="poppins-thin_600 text-black mb-6" onClick={toggleModal}>Join Group</h1> */}
               <button
                 onClick={() => setShowCreateModal(true)}
                 className="w-full md:w-auto py-2 bg-[#0B5D3A] text-sm px-7 text-white rounded-xl mb-6 font-semibold"
@@ -160,12 +148,13 @@ export default function Courses() {
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className=" pb-4 bg-[#EDEDEDE0] p-3 rounded-md"
+                  className="pb-4 bg-[#EDEDEDE0] p-3 rounded-md"
                 >
-                  <div className="flex items-start mb-2">
+                  <div className="flex items-start mb-1">
                     <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="h-2 w-2 bg-green-500 rounded-full"></span>
+                      <div className="flex items-center gap-1">
+                        <span className="h-2 w-2 bg-[#0B5D3A] rounded-full"></span>
+                        <div className="text-sm">Title</div>
                         <span className="font-medium">
                           {notification.title}
                         </span>
@@ -178,6 +167,7 @@ export default function Courses() {
                       <ChevronRight className="h-5 w-5" />
                     </button>
                   </div>
+                  <div><span className="poppins-thin text-gray-900 text-md">Hi Name!</span></div>
                   <p className="text-sm text-gray-600">
                     {notification.message}
                   </p>
@@ -186,44 +176,12 @@ export default function Courses() {
             </div>
             </div>
           </div>
-
-          {/* Mobile Notification Sidebar - Shown as overlay when bell is clicked */}
-          <div
-            className={`fixed inset-0 bg-black/50 z-50 transition-opacity duration-500 ${
-              showMobileNotifications
-                ? "opacity-100"
-                : "opacity-0 pointer-events-none"
-            } lg:hidden`}
-          >
-            <div
-              className={`absolute right-0 top-0 h-full w-4/5 bg-white p-4 overflow-y-auto transition-transform duration-500 ${
-                showMobileNotifications ? "translate-x-0" : "translate-x-full"
-              }`}
-            >
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl poppins-thin_600">Notification</h2>
-                <button
-                  onClick={toggleMobileNotifications}
-                  className="p-1 rounded-full hover:bg-gray-100"
-                >
-                  <span className="text-2xl">&times;</span>
-                </button>
-              </div>
-              <div className="space-y-4">
-                {notifications.map((notification) => (
-                  <NotificationItem
-                    key={notification.id}
-                    notification={notification}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
         </div>
       </div>
+      {/* Overlay for mobile sidebar */}
       {showSidebar && (
         <div
-          className="fixed inset-0 bg-black/50 bg-opacity-50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/50 bg-opacity-50 z-30 lg:hidden"
           onClick={toggleSidebar}
         ></div>
       )}
@@ -508,7 +466,6 @@ function CourseCard({ course, onViewDetails }) {
                 >
                   <span>View Details</span>
                 </button>
-               
               </div>
             )}
           </div>
@@ -552,11 +509,11 @@ function CourseDetailsModal({ course, onClose }) {
             </button>
           </div>
 
-          <div className="w-full h-full  rounded-lg">
+          <div className="w-full h-full rounded-lg">
             <img
               src={CourseImage}
               alt={course.title}
-              className="w-full h-full  object-center "
+              className="w-full h-full object-center"
             />
           </div>
 
@@ -620,50 +577,49 @@ function CourseDetailsModal({ course, onClose }) {
 
           <div className="mb-4">
             <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Certificate</h3>
-            <button className="flex items-center justify-center w-auto text-white poppins-thin_bold  py-2 bg-[#1E1E1F] rounded-xl text-xs px-6 cursor-pointer transition-colors">
+            <button className="flex items-center justify-center w-auto text-white poppins-thin_bold py-2 bg-[#1E1E1F] rounded-xl text-xs px-6 cursor-pointer transition-colors">
               View PDF
             </button>
           </div>
 
           <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Assign to
-                  </label>
-                  <select
-                    className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm text-gray-500"
-                    defaultValue=""
-                  >
-                    <option value="" disabled>
-                      Assign
-                    </option>
-                  
-                  </select>
-                </div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Assign to
+            </label>
+            <select
+              className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm text-gray-500"
+              defaultValue=""
+            >
+              <option value="" disabled>
+                Assign
+              </option>
+            </select>
+          </div>
 
-                <div className=" mt-6">
-              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-                Progress
-              </h3>
-              <div className="space-y-1">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-green-800 font-bold md:text-md text-xs">Success</span>
-                  <span className="col-span-2 text-gray-400">
-                    {course.progress}%
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-1">
-                  <div
-                    className="bg-[#0B5D3A] h-1 rounded-full"
-                    style={{ width: `${course.progress}%` }}
-                  ></div>
-                </div>
+          <div className="mt-6">
+            <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">
+              Progress
+            </h3>
+            <div className="space-y-1">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-green-800 font-bold md:text-md text-xs">Success</span>
+                <span className="col-span-2 text-gray-400">
+                  {course.progress}%
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-1">
+                <div
+                  className="bg-[#0B5D3A] h-1 rounded-full"
+                  style={{ width: `${course.progress}%` }}
+                ></div>
               </div>
             </div>
+          </div>
 
           <div className="mb-2 mt-5">
             <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Documentation</h3>
             <div className="flex flex-col justify-start items-start gap-2">
-              <button className="px-6 py-2 cursor-pointer bg-[#1E1E1F] text-sm text-white rounded-xl  transition-colors">
+              <button className="px-6 py-2 cursor-pointer bg-[#1E1E1F] text-sm text-white rounded-xl transition-colors">
                 View PDF
               </button>
               <button className="px-6 py-2 cursor-pointer bg-[#C77373] text-sm text-white rounded-xl transition-colors">
@@ -672,27 +628,6 @@ function CourseDetailsModal({ course, onClose }) {
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function NotificationItem({ notification }) {
-  return (
-    <div className="flex gap-3 bg-[#EDEDEDE0] p-4 rounded-xl">
-      <div className="flex-shrink-0">
-        <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-medium">
-          {notification.name.charAt(0)}
-        </div>
-      </div>
-      <div className="flex-1">
-        <div className="flex justify-between items-start">
-          <h4 className="font-medium text-sm">{notification.name}</h4>
-          <span className="text-xs text-gray-500">{notification.time}</span>
-        </div>
-        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-          {notification.message}
-        </p>
       </div>
     </div>
   );

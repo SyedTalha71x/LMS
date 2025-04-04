@@ -1,5 +1,6 @@
+/* eslint-disable no-unused-vars */
 import { useState } from "react"
-import { Search, MoreVertical, Bell, X, Menu, Edit, ChevronDown } from "lucide-react"
+import { Search, MoreVertical, Bell, X, Menu, Edit, ChevronDown, ChevronRight } from "lucide-react"
 import Image from "../../../public/image.svg"
 import UserGroups from "../../../public/avatar-group.png"
 import ProfilePicture from "../../../public/image (4).png"
@@ -125,10 +126,21 @@ const GroupsPage = () => {
     setOpenDropdownId(null)
   }
 
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      name: "Dr. Smith",
+      time: "Now",
+      message:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    },
+
+  ]);
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen relative" onClick={closeDropdown}>
-      <div className="flex-1 p-4 md:p-6">
-        <div className="flex justify-between items-center flex-col gap-4 w-full md:flex-row mb-6">
+      <div className="flex-1 p-2 md:p-6">
+        <div className="flex justify-between md:items-center items-start flex-col gap-4 w-full md:flex-row mb-6">
           <h1 className="text-2xl poppins-thin_600">Groups</h1>
           <div className="flex items-center gap-4">
             <div className="relative">
@@ -136,7 +148,7 @@ const GroupsPage = () => {
               <input
                 type="text"
                 placeholder="Search..."
-                className="pl-10 pr-4 py-2 bg-[#F9F9F9] outline-none rounded-2xl text-sm w-48 md:w-64"
+                className="pl-10 pr-4 py-2 bg-[#F9F9F9] outline-none rounded-2xl text-sm w-full md:w-64"
               />
             </div>
             <button className="p-4 md:hidden bg-[#F9F9F9] rounded-full" onClick={toggleSidebar}>
@@ -350,7 +362,7 @@ const GroupsPage = () => {
       )}
 
       <div
-        className={`fixed md:static top-0 right-0 h-full z-40 w-80 bg-white p-4 md:p-6 transform transition-transform duration-500 ease-in-out ${
+        className={`fixed md:static top-0 right-0 h-full z-40 w-90 bg-white p-4 md:p-6 transform transition-transform duration-500 ease-in-out ${
           showSidebar ? "translate-x-0" : "translate-x-full md:translate-x-0"
         }`}
       >
@@ -361,7 +373,7 @@ const GroupsPage = () => {
         </div>
 
         <div>
-          <h1 className="font-bold mb-4">Add Entity</h1>
+          <h1 className="text-lg poppins-thin_600 mb-4">Add Entity</h1>
         </div>
 
         <div className="">
@@ -373,18 +385,39 @@ const GroupsPage = () => {
           </button>
         </div>
 
-        <div className="mb-4">
-          <h2 className="text-lg font-medium mb-4 poppins-thin_600">Notification</h2>
-          <div className="flex items-start gap-4 text-sm bg-[#F9F9F9] p-3 rounded-xl text-gray-600">
-            <div className="mt-1">
-              <Bell className="h-4 w-4 text-green-500" />
+        <div className="">
+              <h2 className="text-lg poppins-thin_600 mb-4">Notification</h2>
+              <div className="space-y-4">
+              {notifications.map((notification) => (
+                <div
+                  key={notification.id}
+                  className="pb-4 bg-[#EDEDEDE0] p-3 rounded-md"
+                >
+                  <div className="flex items-start mb-1">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-1">
+                        <span className="h-2 w-2 bg-[#0B5D3A] rounded-full"></span>
+                        <div className="text-sm">Title</div>
+                        <span className="font-medium">
+                          {notification.title}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {notification.time}
+                        </span>
+                      </div>
+                    </div>
+                    <button className="text-gray-400 hover:text-gray-600">
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
+                  </div>
+                  <div><span className="poppins-thin text-gray-900 text-md">Hi Name!</span></div>
+                  <p className="text-sm text-gray-600">
+                    {notification.message}
+                  </p>
+                </div>
+              ))}
             </div>
-            <p>
-              You have been invited to collaborate on a new project. Accept the invitation to join the collaborative
-              workspace and start working on the project.
-            </p>
-          </div>
-        </div>
+            </div>
       </div>
     </div>
   )

@@ -132,11 +132,11 @@ export default function Assignments() {
         />
       )}
 
-      <div className="p-4">
-        <div className="max-w-4xl mr-auto flex flex-col gap-4 md:flex-row items-center justify-between">
+      <div className="md:p-4 p-2">
+        <div className="max-w-4xl mr-auto flex flex-col gap-4 md:flex-row md:items-center items-start justify-between">
           <h1 className="text-2xl poppins-thin_600">Assignments</h1>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full md:w-auto">
             <div className="relative flex-1 max-w-md">
               <input
                 type="text"
@@ -160,7 +160,7 @@ export default function Assignments() {
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        <main className={`flex-1 md:p-6 p-3 overflow-y-auto`}>
+        <main className={`flex-1 md:p-6 p-3 overflow-y-auto ${isMobile && isNotificationOpen ? 'hidden md:block' : ''}`}>
           <div className="container mx-auto">
             <section className="mb-10">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -206,7 +206,7 @@ export default function Assignments() {
                     </p>
                     <div className="flex items-start gap-2 flex-col justify-start">
                       <span
-                        className={` text-xs px-3 py-1 rounded-full  font-medium bg-[#E8E8E8] `}
+                        className={` text-xs px-3 py-1 rounded-full font-medium bg-[#E8E8E8] `}
                       >
                         {quiz.status}
                       </span>
@@ -228,8 +228,8 @@ export default function Assignments() {
           className={`
             ${
               isMobile
-                ? "fixed inset-y-0 right-0 z-50 w-80 transform transition-transform duration-500 ease-in-out"
-                : "w-80 "
+                ? "fixed inset-y-0 right-0 z-50 w-80 transform transition-transform duration-500 ease-in-out shadow-lg"
+                : "w-90 "
             }
             ${
               isNotificationOpen || !isMobile
@@ -239,12 +239,23 @@ export default function Assignments() {
             bg-white overflow-y-auto
           `}
         >
-          <div>
+          <div className="flex justify-end items-end p-3">
+
+           {isMobile && (
+             <button
+             onClick={() => setIsNotificationOpen(false)}
+             className="p-1 flex justify-end items-end rounded-full hover:bg-gray-100"
+             >
+                  <X className="h-5 w-5 text-gray-600" />
+                </button>
+              )}
+              </div>
+          <div className="p-6 ">
             <h1 className="text-xl poppins-thin_600">Add Entity</h1>
-            <div className="mt-5">
+            <div className="mt-4">
               <button
                 onClick={() => setIsAddModalOpen(true)}
-                className="w-full md:w-auto py-2 bg-[#0B5D3A] text-sm px-7 text-white rounded-xl mb-6 font-semibold"
+                className="w-full py-2 bg-[#0B5D3A] text-sm px-7 text-white rounded-xl font-semibold hover:bg-opacity-90 transition-colors"
               >
                 Add quiz/assignment
               </button>
@@ -253,21 +264,14 @@ export default function Assignments() {
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl poppins-thin_600">Notification</h2>
-              {isMobile && (
-                <button
-                  onClick={() => setIsNotificationOpen(false)}
-                  className="p-1 rounded-full hover:bg-gray-100"
-                >
-                  <X className="h-5 w-5 text-gray-600" />
-                </button>
-              )}
+             
             </div>
 
             <div className="space-y-4">
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className=" pb-4 bg-[#EDEDEDE0] p-3 rounded-md"
+                  className="bg-[#EDEDEDE0] p-4 rounded-md"
                 >
                   <div className="flex items-start mb-2">
                     <div className="flex-1">
@@ -297,10 +301,10 @@ export default function Assignments() {
 
       {selectedAssignment && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-md relative">
+          <div className="bg-white rounded-lg w-full max-w-md m-4 relative">
             <button
               onClick={() => setSelectedAssignment(null)}
-              className="absolute top-4 right-4 text-white rounded-md cursor-pointer p-1  bg-black "
+              className="absolute top-4 right-4 text-white rounded-md cursor-pointer p-1 bg-black hover:bg-gray-800"
             >
               <X className="h-4 w-4" />
             </button>
@@ -322,19 +326,19 @@ export default function Assignments() {
 
               <div className="grid grid-cols-1 gap-2 mb-4 text-sm">
                 <div className="flex gap-4">
-                  <p className="text-gray-600  font-semibold">Due date</p>
+                  <p className="text-gray-600 font-semibold w-20">Due date</p>
                   <p className="text-gray-700 text-sm">03/31/25</p>
                 </div>
                 <div className="flex gap-4">
-                  <p className="text-gray-600  font-semibold">Start date</p>
+                  <p className="text-gray-600 font-semibold w-20">Start date</p>
                   <p className="text-gray-700 text-sm">03/01/25</p>
                 </div>
                 <div className="flex gap-4">
-                  <p className="text-gray-600  font-semibold">Subject</p>
+                  <p className="text-gray-600 font-semibold w-20">Subject</p>
                   <p className="text-gray-700 text-sm">Physics I</p>
                 </div>
                 <div className="flex gap-4">
-                  <p className="text-gray-600  font-semibold">Status</p>
+                  <p className="text-gray-600 font-semibold w-20">Status</p>
                   <p className="text-gray-700 text-sm">
                     {selectedAssignment.status}
                   </p>
@@ -344,14 +348,12 @@ export default function Assignments() {
               <h3 className="text-md mt-10 text-gray-600 poppins-thin_800 mb-2">
                 Documentation
               </h3>
-              <div className="flex flex-col justify-start items-start">
-                <button className="bg-[#1E1E1F] poppins-thin_600 text-white text-xs py-1.5 cursor-pointer px-6 rounded-lg mt-2 mb-4">
+              <div className="flex flex-col justify-start items-start gap-3">
+                <button className="bg-[#1E1E1F] poppins-thin_600 text-white text-xs py-2 cursor-pointer px-6 rounded-lg hover:bg-opacity-90 transition-colors w-full md:w-auto">
                   View PDF
                 </button>
 
-                {/* <h3 className="text-md mt-4 text-gray-600 poppins-thin_800 mb-2">Submit</h3> */}
-
-                <button className="bg-[#C77373] poppins-thin_600 text-white text-xs py-1.5 cursor-pointer px-6 rounded-lg mt-2 mb-4">
+                <button className="bg-[#C77373] poppins-thin_600 text-white text-xs py-2 cursor-pointer px-6 rounded-lg hover:bg-opacity-90 transition-colors w-full md:w-auto">
                   Delete
                 </button>
               </div>
@@ -362,10 +364,10 @@ export default function Assignments() {
 
       {selectedQuiz && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-md relative">
+          <div className="bg-white rounded-lg w-full max-w-md m-4 relative">
             <button
               onClick={() => setSelectedQuiz(null)}
-              className="absolute top-4 right-4 text-white rounded-md cursor-pointer p-1 bg-[#1E1E1F] hover:bg-[#1E1E1F]"
+              className="absolute top-4 right-4 text-white rounded-md cursor-pointer p-1 bg-black hover:bg-gray-800"
             >
               <X className="h-4 w-4" />
             </button>
@@ -387,19 +389,19 @@ export default function Assignments() {
 
               <div className="grid grid-cols-1 gap-2 mb-4 text-sm">
                 <div className="flex gap-4">
-                  <p className="text-[#4A5568] font-semibold">Due date</p>
+                  <p className="text-[#4A5568] font-semibold w-20">Due date</p>
                   <p className="text-[#2D3748] text-sm">03/31/25</p>
                 </div>
                 <div className="flex gap-4">
-                  <p className="text-[#4A5568] font-semibold">Start date</p>
+                  <p className="text-[#4A5568] font-semibold w-20">Start date</p>
                   <p className="text-[#2D3748] text-sm">03/01/25</p>
                 </div>
                 <div className="flex gap-4">
-                  <p className="text-[#4A5568] font-semibold">Subject</p>
+                  <p className="text-[#4A5568] font-semibold w-20">Subject</p>
                   <p className="text-[#2D3748] text-sm">Physics I</p>
                 </div>
                 <div className="flex gap-4">
-                  <p className="text-[#4A5568] font-semibold">Status</p>
+                  <p className="text-[#4A5568] font-semibold w-20">Status</p>
                   <p className="text-[#2D3748] text-sm">
                     {selectedQuiz.status}
                   </p>
@@ -410,14 +412,12 @@ export default function Assignments() {
                 Documentation
               </h3>
 
-              <div className="flex flex-col justify-start items-start">
-                <button className="bg-[#1E1E1F] poppins-thin_600 text-white text-xs py-1.5 cursor-pointer px-6 rounded-lg mt-2 mb-4">
+              <div className="flex flex-col justify-start items-start gap-3">
+                <button className="bg-[#1E1E1F] poppins-thin_600 text-white text-xs py-2 cursor-pointer px-6 rounded-lg hover:bg-opacity-90 transition-colors w-full md:w-auto">
                   View PDF
                 </button>
 
-                {/* <h3 className="text-md mt-4 text-gray-600 poppins-thin_800 mb-2">Submit</h3> */}
-
-                <button className="bg-[#C77373] poppins-thin_600 text-white text-xs py-1.5 cursor-pointer px-6 rounded-lg mt-2 mb-4">
+                <button className="bg-[#C77373] poppins-thin_600 text-white text-xs py-2 cursor-pointer px-6 rounded-lg hover:bg-opacity-90 transition-colors w-full md:w-auto">
                   Delete
                 </button>
               </div>
@@ -428,16 +428,16 @@ export default function Assignments() {
 
       {isAddModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-md relative p-8">
+          <div className="bg-white rounded-lg w-full max-w-md m-4 relative p-8">
             <button
               onClick={() => setIsAddModalOpen(false)}
-              className="absolute top-4 right-4 text-white rounded-md cursor-pointer p-1  bg-black "
+              className="absolute top-4 right-4 text-white rounded-md cursor-pointer p-1 bg-black hover:bg-gray-800"
             >
               <X className="h-4 w-4" />
             </button>
 
             <form onSubmit={handleSubmit}>
-              <div className="mb-4 mt-10">
+              <div className="mb-4 mt-6">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Name:
                 </label>
@@ -447,7 +447,7 @@ export default function Assignments() {
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="Name"
-                  className="w-full p-2 bg-[#F1F1F1] text-sm outline-none rounded-md "
+                  className="w-full p-2 bg-[#F1F1F1] text-sm outline-none rounded-md"
                   required
                 />
               </div>
@@ -461,7 +461,7 @@ export default function Assignments() {
                   value={formData.description}
                   onChange={handleInputChange}
                   placeholder="Description"
-                  className="w-full p-2 bg-[#F1F1F1] text-sm outline-none rounded-md "
+                  className="w-full p-2 bg-[#F1F1F1] text-sm outline-none rounded-md"
                   rows={3}
                   required
                 />
@@ -475,7 +475,7 @@ export default function Assignments() {
                   name="category"
                   value={formData.category}
                   onChange={handleInputChange}
-                  className="w-full p-2 bg-[#F1F1F1] text-sm outline-none rounded-md "
+                  className="w-full p-2 bg-[#F1F1F1] text-sm outline-none rounded-md"
                   required
                 >
                   <option value="" disabled>
@@ -495,7 +495,7 @@ export default function Assignments() {
                   name="dueDate"
                   value={formData.dueDate}
                   onChange={handleInputChange}
-                  className="w-full p-2 bg-[#F1F1F1] text-sm outline-none rounded-md "
+                  className="w-full p-2 bg-[#F1F1F1] text-sm outline-none rounded-md"
                   required
                 />
               </div>
@@ -511,17 +511,17 @@ export default function Assignments() {
                 />
               </div>
 
-              <div className="flex justify-center items-center flex-col gap-4 ">
+              <div className="flex justify-center items-center gap-4 flex-col sm:flex-row">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-6 py-2 text-sm bg-[#1E1E1F] text-white rounded-xl "
+                  className="px-6 py-2 text-sm bg-[#1E1E1F] text-white rounded-xl w-full sm:w-auto hover:bg-opacity-90 transition-colors"
                 >
                   Upload
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 text-sm bg-[#0B5D3A] text-white rounded-xl "
+                  className="px-6 py-2 text-sm bg-[#0B5D3A] text-white rounded-xl w-full sm:w-auto hover:bg-opacity-90 transition-colors"
                 >
                   Create Quiz
                 </button>

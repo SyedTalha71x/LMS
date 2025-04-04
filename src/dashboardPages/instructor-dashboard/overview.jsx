@@ -43,8 +43,9 @@ export default function Overview() {
   ];
 
   return (
-    <div className="flex flex-col md:flex-row w-full min-h-screen bg-white">
-      <div className="flex-1 p-3">
+    <div className="flex flex-col md:flex-row w-full min-h-screen bg-white relative">
+      {/* Main Content */}
+      <div className="flex-1 p-3 md:p-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-black text-2xl poppins-thin_600">Overview</h1>
           <button
@@ -96,7 +97,7 @@ export default function Overview() {
           </div>
         </div>
 
-        <div className="bg-[#F9F9F9]  rounded-lg p-6 mb-8">
+        <div className="bg-[#F9F9F9] rounded-lg p-6 mb-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
             <div>
               <h2 className="poppins-thin_500 text-lg">Attendance</h2>
@@ -123,14 +124,23 @@ export default function Overview() {
         </div>
       </div>
 
+      {/* Overlay for mobile when sidebar is open */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 bg-opacity-50 z-10 md:hidden"
+          onClick={toggleSidebar}
+        ></div>
+      )}
+
+      {/* Sidebar */}
       <div
         className={`
-        fixed md:static top-0 right-0 h-full w-full md:w-96 
-        bg-white  p-6 overflow-y-auto
-        transform transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? "translate-x-0" : "translate-x-full md:translate-x-0"}
-        z-20
-      `}
+          fixed md:static top-0 right-0 h-full w-3/4 sm:w-96 md:w-96
+          bg-white shadow-lg md:shadow-none p-6 overflow-y-auto
+          transform transition-transform duration-500 ease-in-out
+          ${sidebarOpen ? "translate-x-0" : "translate-x-full md:translate-x-0"}
+          z-20 
+        `}
       >
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-black text-lg poppins-thin_600">Other card</h2>
@@ -238,10 +248,10 @@ export default function Overview() {
           </div>
 
           <div className="flex justify-between items-center mt-7 bg-gray-50 p-3 rounded-md">
-            <span className="text-xs poppins-thin_500  text-gray-500">
+            <span className="text-xs poppins-thin_500 text-gray-500">
               54 STUDENT
             </span>
-            <a href="#" className="text-xs  text-black poppins-thin_500">
+            <a href="#" className="text-xs text-black poppins-thin_500">
               VIEW ALL MEMBER
             </a>
           </div>
@@ -264,8 +274,8 @@ export default function Overview() {
                   )}
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm  font-medium">{classItem.name}</p>
-                  <div className="flex items-center  gap-3 ">
+                  <p className="text-sm font-medium">{classItem.name}</p>
+                  <div className="flex items-center gap-3">
                     {classItem.subtext && (
                       <p className="text-xs text-gray-500">
                         {classItem.subtext}

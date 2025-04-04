@@ -93,14 +93,14 @@ const NotificationPage = () => {
   return (
     <div className="flex rounded-3xl text-black min-h-screen overflow-hidden">
       <div className="w-full max-w-4xl mr-auto p-2">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between md:flex-row flex-col gap-3 md:items-center items-start mb-6">
           <h1 className="text-2xl poppins-thin_600">Notification</h1>
           <div className="flex items-center gap-4">
             <div className="relative">
               <input
                 type="text"
                 placeholder="Search"
-                className="px-4 py-2 pl-8 bg-gray-100 rounded-full text-sm w-64"
+                className="px-4 py-2 pl-8 bg-gray-100 rounded-full text-sm md:w-64 w-full"
               />
               <svg
                 className="absolute left-2 top-2.5 text-gray-400"
@@ -129,47 +129,45 @@ const NotificationPage = () => {
         </div>
 
         <div className="space-y-4">
-  {notifications.map((notification) => (
-    <div
-      key={notification.id}
-      className="flex flex-col sm:flex-row items-center sm:items-start bg-[#F9F9F9] rounded-lg p-3 shadow-sm"
-    >
-      {/* Image section */}
-      <div className="flex-shrink-0 mb-2 sm:mb-0 sm:mr-3">
-        <div className="rounded-lg bg-blue-200 overflow-hidden ">
-          <img
-            src={notification.image}
-            alt=""
-            className="object-cover h-full w-full"
-          />
-        </div>
-      </div>
+          {notifications.map((notification) => (
+            <div
+              key={notification.id}
+              className="flex flex-col sm:flex-row items-center sm:items-start bg-[#F9F9F9] rounded-lg p-3 shadow-sm"
+            >
+              {/* Image section */}
+              <div className="flex-shrink-0 mb-2 sm:mb-0 sm:mr-3">
+                <div className="rounded-lg bg-blue-200 overflow-hidden ">
+                  <img
+                    src={notification.image}
+                    alt=""
+                    className="object-cover h-full w-full"
+                  />
+                </div>
+              </div>
 
-      <div className="flex-1 text-center sm:text-left mt-3">
-        <div className="text-sm poppins-thin_500 text-gray-400">
-          {notification.purchaser}
-        </div>
-        <div className="poppins-thin_500 text-[#0B5D3A]">
-          {notification.title}
-        </div>
-        <div className="text-sm poppins-thin_500 text-gray-400">
-          {notification.description}
-        </div>
-      </div>
+              <div className="flex-1 text-center sm:text-left mt-3">
+                <div className="text-sm poppins-thin_500 text-gray-400">
+                  {notification.purchaser}
+                </div>
+                <div className="poppins-thin_500 text-[#0B5D3A]">
+                  {notification.title}
+                </div>
+                <div className="text-sm poppins-thin_500 text-gray-400">
+                  {notification.description}
+                </div>
+              </div>
 
-      <div className="flex flex-row sm:flex-col justify-start w-full sm:w-auto sm:ml-2 mt-6 gap-4 sm:mt-0 items-center sm:items-end">
-      
-        <button className="md:mt-4 mt-0">
-          <HiDotsHorizontal size={20} />
-        </button>
-        <div className="text-sm poppins-thin_500 text-gray-400">
-          {notification.timeAgo || "3 Minutes Ago"}
+              <div className="flex flex-row sm:flex-col justify-start w-full sm:w-auto sm:ml-2 mt-6 gap-4 sm:mt-0 items-center sm:items-end">
+                <button className="md:mt-4 mt-0">
+                  <HiDotsHorizontal size={20} />
+                </button>
+                <div className="text-sm poppins-thin_500 text-gray-400">
+                  {notification.timeAgo || "3 Minutes Ago"}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-      </div>
-    </div>
-  ))}
-</div>
-
       </div>
 
       {showSidebar && (
@@ -255,7 +253,6 @@ const NotificationPage = () => {
                     <option value="" disabled>
                       Select
                     </option>
-                  
                   </select>
                 </div>
 
