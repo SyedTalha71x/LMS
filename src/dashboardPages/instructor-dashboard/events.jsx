@@ -186,7 +186,7 @@ export default function Events() {
           <h2 className="text-2xl font-semibold">Calendar</h2>
         </div>
 
-        <div className="flex justify-between items-center mt-10 mb-2">
+        <div className="flex justify-between flex-col md:flex-row gap-2  md:items-center items-start mt-10  mb-2">
           <div className="flex gap-2 items-center">
             <div className="text-sm text-gray-500">{formatWeekRange()}</div>
             <div className="flex space-x-2">

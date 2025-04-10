@@ -60,8 +60,8 @@ const GroupsPage = () => {
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen relative">
-      <div className="flex-1 p-4 md:p-6">
-        <div className="flex justify-between items-center flex-col gap-4 w-full md:flex-row mb-6">
+      <div className="flex-1 p-2 md:p-6">
+        <div className="flex justify-between md:items-center items-start flex-col gap-4 w-full md:flex-row mb-6">
           <h1 className="text-2xl poppins-thin_600">Groups</h1>
           <div className="flex items-center gap-4">
             <div className="relative">

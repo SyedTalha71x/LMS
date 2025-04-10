@@ -192,14 +192,14 @@ export default function Calendar() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 p-4 bg-white rounded-lg">
+    <div className="flex flex-col lg:flex-row gap-8 md:p-4 p-2 bg-white rounded-lg">
       {/* Weekly Calendar View */}
       <div className="w-full lg:w-3/4">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl poppins-thin_600">Calendar</h2>
         </div>
 
-        <div className="flex justify-between items-center mt-10  mb-2">
+        <div className="flex justify-between flex-col md:flex-row gap-2  md:items-center items-start mt-10  mb-2">
           <div className="flex gap-2 items-center">
             <div className="text-sm text-gray-500 poppins-thin">{formatWeekRange()}</div>
             <div className="flex space-x-2">

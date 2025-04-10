@@ -92,8 +92,8 @@ export default function Assignments() {
         />
       )}
 
-      <div className="p-4">
-        <div className="max-w-4xl mr-auto flex flex-col gap-4 md:flex-row items-center justify-between">
+      <div className="md:p-4 p-2">
+        <div className="max-w-4xl mr-auto flex flex-col gap-4 md:flex-row md:items-center items-start justify-between">
           <h1 className="text-2xl poppins-thin_600">Assignments</h1>
 
           <div className="flex items-center gap-2">
