@@ -135,11 +135,15 @@ export default function Overview() {
       {/* Sidebar */}
       <div
         className={`
-          fixed md:static top-0 right-0 h-full w-3/4 sm:w-96 md:w-96
-          bg-white shadow-lg md:shadow-none p-6 overflow-y-auto
-          transform transition-transform duration-500 ease-in-out
-          ${sidebarOpen ? "translate-x-0" : "translate-x-full md:translate-x-0"}
-          z-20 
+          fixed top-0 right-0 bottom-0 w-[320px] bg-white p-6 z-40 
+          lg:static lg:w-80 lg:block lg:rounded-3xl
+          transform ${
+            sidebarOpen
+              ? "translate-x-0"
+              : "translate-x-full lg:translate-x-0"
+          }
+          transition-all duration-500 ease-in-out
+          overflow-y-auto
         `}
       >
         <div className="flex justify-between items-center mb-6">

@@ -1,17 +1,21 @@
 /* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react"
-import { ChevronLeft, ChevronRight, ChevronDown, Video } from "lucide-react"
+import { ChevronLeft, ChevronRight, ChevronDown, Video, FileText } from "lucide-react"
 import Image1 from "../../../public/image 50.png"
 import Image2 from "../../../public/image 51.png"
 import ImageCard from "../../../public/image-card.png"
-import EventsImg from '../../../public/events.png'
-
+import EventsImg from "../../../public/events.png"
+import Image23 from '../../../public/image (23).png'
 
 export default function Events() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth())
   const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear())
   const [weekStart, setWeekStart] = useState(new Date())
+
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [showDetailModal, setShowDetailModal] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState(null)
 
   const events = [
     {
@@ -312,10 +316,25 @@ export default function Events() {
           <div className="mt-8">
             <h2 className="text-xl poppins-thin_600 mb-4">All event</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-[#F9F9F9] p-4 rounded-lg flex items-center gap-4">
+              <div
+                className="bg-[#F9F9F9] p-4 rounded-lg flex items-center gap-4 cursor-pointer"
+                onClick={() => {
+                  setSelectedEvent({
+                    title: "Clinical Pharmacy-II",
+                    instructor: "Jane Copper",
+                    description:
+                      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+                    studentCreated: "https://github.com/",
+                    location: "Internet",
+                    timing: "10:00 AM - 12:00 PM",
+                    progress: 80,
+                  })
+                  setShowDetailModal(true)
+                }}
+              >
                 <div className="w-16 h-16 rounded-lg overflow-hidden">
                   <img
-                    src={EventsImg}
+                    src={EventsImg || "/placeholder.svg"}
                     alt="Clinical Pharmacy"
                     className="w-full h-full object-cover"
                   />
@@ -337,7 +356,7 @@ export default function Events() {
               <div className="bg-[#F9F9F9] p-4 rounded-lg flex items-center gap-4">
                 <div className="w-16 h-16 rounded-lg overflow-hidden">
                   <img
-                    src={EventsImg}
+                    src={EventsImg || "/placeholder.svg"}
                     alt="Clinical Pharmacy"
                     className="w-full h-full object-cover"
                   />
@@ -364,7 +383,12 @@ export default function Events() {
           <div className="flex flex-col justify-between items-start gap-6 mb-4">
             <h2 className="text-xl poppins-thin_600">Add Entity</h2>
             <div className="">
-              <button className="bg-[#0B5D3A] text-white text-sm font-medium py-2 px-4 rounded-xl cursor-pointer">Add event</button>
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="bg-[#0B5D3A] text-white text-sm font-medium py-2 px-4 rounded-xl cursor-pointer"
+              >
+                Add event
+              </button>
             </div>
           </div>
 
@@ -411,6 +435,156 @@ export default function Events() {
           </div>
         </div>
       </div>
+
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg md:p-4 p-0 w-full max-w-md relative">
+            <button className="absolute cursor-pointer top-2 right-2 bg-black rounded-md text-white" onClick={() => setShowAddModal(false)}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+
+            <div className="p-6 flex flex-col gap-4">
+              <div className=" rounded-lg p-4 flex flex-col items-center justify-center">
+                <div className="w-32 h-32  rounded-lg mb-2 overflow-hidden">
+                  <img src={Image23} alt="Event" className="w-full h-full object-cover" />
+                </div>
+                <button className="bg-black text-white text-sm py-1.5 cursor-pointer px-4 rounded-full">Upload picture</button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                  <input type="text" className="w-full p-2 bg-[#F1F1F1] outline-none text-sm rounded-xl" placeholder="Title" />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <div className="relative">
+                    <select className="w-full p-2 bg-[#F1F1F1] text-sm rounded-xl appearance-none">
+                      <option>Select category</option>
+                      <option>Class</option>
+                      <option>Meeting</option>
+                      <option>Webinar</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 outline-none flex items-center pr-2 pointer-events-none">
+                      <ChevronDown className="h-4 w-4 text-gray-500" />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Select date</label>
+                  <input type="date" className="w-full p-2 bg-[#F1F1F1] text-sm outline-none rounded-xl" />
+                  <input type="text" className="w-full p-2 bg-[#F1F1F1] text-sm mt-2 outline-none rounded-xl" placeholder="Link" />
+                </div>
+
+
+                <div className="flex flex-col items-center justify-center gap-2">
+                  <button className="bg-[#1E1E1F] text-white py-2  w-auto text-sm px-8 rounded-xl">Generate link</button>
+                  <button className="bg-[#0B5D3A] text-white py-2 w-auto text-sm px-6 rounded-xl">Create event</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDetailModal && selectedEvent && (
+        <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-md relative">
+          <button className="absolute cursor-pointer top-2 right-2 bg-black rounded-md text-white" onClick={() => setShowDetailModal(false)}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+
+            <div className="p-6">
+              <div className="flex items-center gap-3">
+                <div><img className="rounded-full h-16 w-16" src={EventsImg} alt="" /></div>
+
+              <h2 className="text-xl font-semibold">{selectedEvent.title}</h2>
+              </div>
+
+              <div className="mb-6 mt-4">
+                <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Description</h3>
+                <p className="text-sm text-gray-600">{selectedEvent.description}</p>
+              </div>
+
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between">
+                  <span className="text-gray-500 md:text-sm text-xs font-bold">Student Created:</span>
+                  <a href={selectedEvent.studentCreated} className="md:text-sm text-xs text-gray-700">
+                    https://github.com/
+                  </a>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500 md:text-sm text-xs font-bold">Instructor:</span>
+                  <span className="md:text-sm text-xs text-gray-700">{selectedEvent.instructor}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500 md:text-sm text-xs font-bold">Location:</span>
+                  <span className="md:text-sm text-xs text-gray-700">{selectedEvent.location}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500 md:text-sm text-xs font-bold">Timing:</span>
+                  <span className="md:text-sm text-xs text-gray-700">{selectedEvent.timing}</span>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Progress</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium">Group activity</span>
+                    <span className="text-sm">{selectedEvent.progress}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-[#0B5D3A] h-2 rounded-full"
+                      style={{ width: `${selectedEvent.progress}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 mt-2">
+              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">
+                Documentation
+              </h3>
+              <button className="flex items-center justify-center w-auto text-white poppins-thin_bold py-2 bg-[#1E1E1F] rounded-xl text-xs px-6 cursor-pointer transition-colors">
+                View PDF
+              </button>
+              <button className="flex items-center mt-2 justify-center w-auto text-white poppins-thin_bold py-2 bg-[#C77373] rounded-xl text-xs px-6 cursor-pointer transition-colors">
+Delete              </button>
+            </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
