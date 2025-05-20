@@ -1,20 +1,17 @@
-import { useState } from "react";
-import { X, FileText, Edit } from "lucide-react";
-// Import the images you're using
-import Frame31 from "../../../public/Frame 31.svg";
-import CourseImage from "../../../public/course_image.svg";
-import PhotoImage from "../../../public/image 50.svg";
+import { useState } from "react"
+import { X, FileText } from "lucide-react"
+import PhotoImage from "../../../public/image 50.svg"
 
 const CertificateProgress = () => {
-  const [selectedCertificate, setSelectedCertificate] = useState(null);
+  const [selectedCertificate, setSelectedCertificate] = useState(null)
 
   const certificates = [
     {
       id: 1,
       title: "Basic of Pharma",
-      percentage: 87,
+      percentage: 100,
       stage: "Stage 1-5",
-      completedStages: 3,
+      completedStages: 5,
       trainer: "Dr. Sarah Johnson",
       date: "15 Apr 2025 Thursday",
       time: "09:00 AM",
@@ -189,17 +186,17 @@ const CertificateProgress = () => {
       },
       image: PhotoImage,
     },
-  ];
+  ]
 
   const openModal = (certificate) => {
-    setSelectedCertificate(certificate);
-    document.body.style.overflow = "hidden";
-  };
+    setSelectedCertificate(certificate)
+    document.body.style.overflow = "hidden"
+  }
 
   const closeModal = () => {
-    setSelectedCertificate(null);
-    document.body.style.overflow = "auto";
-  };
+    setSelectedCertificate(null)
+    document.body.style.overflow = "auto"
+  }
 
   return (
     <div className="p-4 md:p-6">
@@ -207,18 +204,14 @@ const CertificateProgress = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {certificates.map((certificate) => (
-          <div 
-            key={certificate.id} 
+          <div
+            key={certificate.id}
             className="bg-[#F2F2F2] p-5 rounded-xl cursor-pointer hover:shadow-md transition-shadow"
             onClick={() => openModal(certificate)}
           >
             <h3 className="text-sm poppins-thin_600 mb-1">{certificate.title}</h3>
-            <div className="text-4xl font-bold mb-1">
-              {certificate.percentage}%
-            </div>
-            <p className="text-sm text-gray-600 mb-4">
-              of customers recommend this product
-            </p>
+            <div className="text-4xl font-bold mb-1">{certificate.percentage}%</div>
+            <p className="text-sm text-gray-600 mb-4">of customers recommend this product</p>
 
             <div className="space-y-2">
               <div className="text-sm font-medium">Progress</div>
@@ -228,12 +221,8 @@ const CertificateProgress = () => {
                   <div
                     key={stage}
                     className={`h-2 flex-1 ${
-                      stage <= certificate.completedStages
-                        ? "bg-[#0B5D3A]"
-                        : "bg-gray-200"
-                    } ${stage === 1 ? "rounded-l-full" : ""} ${
-                      stage === 5 ? "rounded-r-full" : ""
-                    }`}
+                      stage <= certificate.completedStages ? "bg-[#0B5D3A]" : "bg-gray-200"
+                    } ${stage === 1 ? "rounded-l-full" : ""} ${stage === 5 ? "rounded-r-full" : ""}`}
                   ></div>
                 ))}
               </div>
@@ -256,37 +245,28 @@ const CertificateProgress = () => {
 
             <div className="flex items-center justify-between p-2">
               <div className="flex items-center gap-3">
-                <h2 className="text-lg font-semibold">
-                  {selectedCertificate.title}
-                </h2>
+                <h2 className="text-lg font-semibold">{selectedCertificate.title}</h2>
               </div>
             </div>
 
             <div className="p-2 ">
-              <p className="text-sm text-[#505050]">
-                {selectedCertificate.description}
-              </p>
+              <p className="text-sm text-[#505050]">{selectedCertificate.description}</p>
             </div>
 
-            <div className="p-3 mt-2">
+            {/* <div className="p-3 mt-2">
               <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-                Completion
+                {selectedCertificate.percentage === 100 ? "Completed" : "Completion"}
               </h3>
               <button className="flex items-center justify-center w-auto text-white poppins-thin_bold py-2 bg-[#1E1E1F] rounded-xl text-xs px-6 cursor-pointer transition-colors">
-              Continue
+                {selectedCertificate.percentage === 100 ? "Completed" : "Continue"}
               </button>
-            </div>
+            </div> */}
 
             <div className="p-3 mt-2">
-              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-                Tags
-              </h3>
+              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Tags</h3>
               <div className="flex flex-wrap gap-2">
                 {selectedCertificate.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-2 bg-gray-100 text-gray-700 text-xs rounded-xl poppins-thin"
-                  >
+                  <span key={index} className="px-3 py-2 bg-gray-100 text-gray-700 text-xs rounded-xl poppins-thin">
                     {tag}
                   </span>
                 ))}
@@ -294,54 +274,40 @@ const CertificateProgress = () => {
             </div>
 
             <div className="p-3 mt-2">
-              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-                Details
-              </h3>
+              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Details</h3>
               <div className="space-y-2">
                 <div className="grid grid-cols-3 gap-4 text-sm">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">
-                    Students Enrolled:
-                  </span>
+                  <span className="text-gray-500 md:text-sm text-xs font-bold">Students Enrolled:</span>
                   <span className="col-span-2 md:text-sm text-xs text-gray-700">
                     {selectedCertificate.details.studentsEnrolled}
                   </span>
                 </div>
                 <div className="grid grid-cols-3 gap-4 text-sm">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">
-                    Assign Teacher:
-                  </span>
+                  <span className="text-gray-500 md:text-sm text-xs font-bold">Assign Teacher:</span>
                   <span className="col-span-2 md:text-sm text-xs text-gray-700">
                     {selectedCertificate.details.AssignTeacher}
                   </span>
                 </div>
                 <div className="grid grid-cols-3 gap-4 text-sm">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">
-                    Category:
-                  </span>
+                  <span className="text-gray-500 md:text-sm text-xs font-bold">Category:</span>
                   <span className="col-span-2 md:text-sm text-xs text-gray-700">
                     {selectedCertificate.details.category}
                   </span>
                 </div>
                 <div className="grid grid-cols-3 gap-4 text-sm">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">
-                    Location:
-                  </span>
+                  <span className="text-gray-500 md:text-sm text-xs font-bold">Location:</span>
                   <span className="col-span-2 md:text-sm text-xs text-gray-700">
                     {selectedCertificate.details.location}
                   </span>
                 </div>
                 <div className="grid grid-cols-3 gap-4 md:text-sm text-xs">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">
-                    Timing:
-                  </span>
+                  <span className="text-gray-500 md:text-sm text-xs font-bold">Timing:</span>
                   <span className="col-span-2 md:text-sm text-xs text-gray-700">
                     {selectedCertificate.details.timing}
                   </span>
                 </div>
                 <div className="grid grid-cols-3 gap-4 md:text-sm text-xs">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">
-                    Titles:
-                  </span>
+                  <span className="text-gray-500 md:text-sm text-xs font-bold">Titles:</span>
                   <span className="col-span-2 md:text-sm text-xs text-gray-700">
                     {selectedCertificate.details.titles}
                   </span>
@@ -349,11 +315,8 @@ const CertificateProgress = () => {
               </div>
             </div>
 
-
             <div className="p-3 mt-2">
-              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-                Progress
-              </h3>
+              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Progress</h3>
               <div className="space-y-2">
                 <div className="mt-2">
                   <div className="flex space-x-1">
@@ -361,12 +324,8 @@ const CertificateProgress = () => {
                       <div
                         key={stage}
                         className={`h-2 flex-1 ${
-                          stage <= selectedCertificate.completedStages
-                            ? "bg-[#0B5D3A]"
-                            : "bg-gray-200"
-                        } ${stage === 1 ? "rounded-l-full" : ""} ${
-                          stage === 5 ? "rounded-r-full" : ""
-                        }`}
+                          stage <= selectedCertificate.completedStages ? "bg-[#0B5D3A]" : "bg-gray-200"
+                        } ${stage === 1 ? "rounded-l-full" : ""} ${stage === 5 ? "rounded-r-full" : ""}`}
                       ></div>
                     ))}
                   </div>
@@ -376,19 +335,25 @@ const CertificateProgress = () => {
             </div>
 
             <div className="p-3 mt-2">
-              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-                Documentation
-              </h3>
-              <button className="flex items-center justify-center w-auto text-white poppins-thin_bold py-2 bg-[#1E1E1F] rounded-xl text-xs px-6 cursor-pointer transition-colors">
+              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Certificate</h3>
+              <button
+                className={`flex items-center justify-center w-auto text-white poppins-thin_bold py-2 rounded-xl text-xs px-6 cursor-pointer transition-colors ${
+                  selectedCertificate.percentage === 100 ? "bg-[#1E1E1F]" : "bg-[#1E1E1F] opacity-50 cursor-not-allowed"
+                }`}
+                disabled={selectedCertificate.percentage !== 100}
+              >
                 <FileText size={16} className="mr-2" />
-                View PDF
+                {selectedCertificate.percentage === 100 ? "Download Certificate" : "Certificate Locked"}
               </button>
+              {selectedCertificate.percentage !== 100 && (
+                <p className="text-xs text-gray-500 mt-1">Complete the course to unlock your certificate</p>
+              )}
             </div>
           </div>
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default CertificateProgress;
+export default CertificateProgress

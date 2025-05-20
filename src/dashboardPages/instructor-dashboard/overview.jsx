@@ -62,9 +62,9 @@ export default function Overview() {
               <div className="bg-[#E9EED6] p-3 rounded-lg">
                 <img src={Vector1} alt="" />
               </div>
-              <button className="text-black hover:bg-gray-100 rounded-full p-1">
+              {/* <button className="text-black hover:bg-gray-100 rounded-full p-1">
                 <MoreHorizontal size={25} />
-              </button>
+              </button> */}
             </div>
             <h2 className="text-4xl font-bold">05</h2>
             <p className="text-gray-400 text-sm poppins-thin_500">Events</p>
@@ -75,9 +75,9 @@ export default function Overview() {
               <div className="bg-[#EED6D6] p-3 rounded-lg">
                 <img src={Vector2} alt="" />
               </div>
-              <button className="text-black hover:bg-gray-100 rounded-full p-1">
+              {/* <button className="text-black hover:bg-gray-100 rounded-full p-1">
                 <MoreHorizontal size={25} />
-              </button>
+              </button> */}
             </div>
             <h2 className="text-4xl font-bold">05</h2>
             <p className="text-gray-400 text-sm poppins-thin_500">Total students</p>
@@ -88,9 +88,9 @@ export default function Overview() {
               <div className="bg-[#D8D6EE] p-3 rounded-lg">
                 <img src={Vector3} alt="" />
               </div>
-              <button className="text-black hover:bg-gray-100 rounded-full p-1">
+              {/* <button className="text-black hover:bg-gray-100 rounded-full p-1">
                 <MoreHorizontal size={25} />
-              </button>
+              </button> */}
             </div>
             <h2 className="text-4xl font-bold">05</h2>
             <p className="text-gray-400 text-sm poppins-thin_500">Total courses</p>
@@ -136,7 +136,7 @@ export default function Overview() {
       <div
         className={`
           fixed top-0 right-0 bottom-0 w-[320px] bg-white p-6 z-40 
-          lg:static lg:w-80 lg:block lg:rounded-3xl
+          lg:static lg:w-96 lg:block lg:rounded-3xl
           transform ${
             sidebarOpen
               ? "translate-x-0"

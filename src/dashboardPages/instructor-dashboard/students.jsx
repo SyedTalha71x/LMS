@@ -1,36 +1,54 @@
-import { useState } from "react";
-import { X, Edit2, Bell, Menu, Search, Edit } from "lucide-react";
-import Avatar from "../../../public/avatar.png";
-import ProfilePicture from '../../../public/image (2).png'
+import { useState } from "react"
+import { X, Menu, Search, Edit } from "lucide-react"
+import Avatar from "../../../public/avatar.png"
+import ProfilePicture from "../../../public/image (2).png"
+
 const Students = () => {
-  const [selectedStudent, setSelectedStudent] = useState(null);
-  const [showSidebar, setShowSidebar] = useState(false);
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [profileImage, setProfileImage] = useState(ProfilePicture);
-  
-    const handleImageChange = (event) => {
-      const file = event.target.files?.[0];
-      if (file) {
-        const imageUrl = URL.createObjectURL(file);
-        setProfileImage(imageUrl);
-      }
-    };
-  
-  
-    const openAddModal = () => {
-      setIsAddModalOpen(true);
-    };
-  
-    const closeAddModal = () => {
-      setIsAddModalOpen(false);
-    };
-  
+  const [selectedStudent, setSelectedStudent] = useState(null)
+  const [showSidebar, setShowSidebar] = useState(false)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [profileImage, setProfileImage] = useState(ProfilePicture)
+  const [customFields, setCustomFields] = useState([])
+  const [showCustomPrompt, setShowCustomPrompt] = useState(false)
+  const [customFieldName, setCustomFieldName] = useState("")
+  const [customFieldValue, setCustomFieldValue] = useState("")
+
+
+  const roleOptions = ["Student", "Janitor", "Pharmacist", "Technician", "IT"]
+  const [selectedRole, setSelectedRole] = useState("Student")
+
+
+
+  const handleImageChange = (event) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      const imageUrl = URL.createObjectURL(file)
+      setProfileImage(imageUrl)
+    }
+  }
+
+  const openAddModal = () => {
+    setIsAddModalOpen(true)
+  }
+
+  const closeAddModal = () => {
+    setIsAddModalOpen(false)
+    setCustomFields([])
+  }
+
   // Toggle functions
   const toggleSidebar = () => {
-    setShowSidebar(!showSidebar);
-  };
+    setShowSidebar(!showSidebar)
+  }
 
-
+  const addCustomField = () => {
+    if (customFieldName.trim()) {
+      setCustomFields([...customFields, { name: customFieldName, value: customFieldValue }])
+      setCustomFieldName("")
+      setCustomFieldValue("")
+      setShowCustomPrompt(false)
+    }
+  }
 
   const students = [
     {
@@ -183,17 +201,17 @@ const Students = () => {
         singleRange2: 90,
       },
     },
-  ];
+  ]
 
   const openModal = (student) => {
-    setSelectedStudent(student);
-    document.body.style.overflow = "hidden";
-  };
+    setSelectedStudent(student)
+    document.body.style.overflow = "hidden"
+  }
 
   const closeModal = () => {
-    setSelectedStudent(null);
-    document.body.style.overflow = "auto";
-  };
+    setSelectedStudent(null)
+    document.body.style.overflow = "auto"
+  }
 
   return (
     <div className="flex rounded-3xl text-black min-h-screen overflow-hidden">
@@ -210,10 +228,7 @@ const Students = () => {
                   className="pl-10 pr-4 py-2 bg-[#F9F9F9] outline-none rounded-2xl text-sm w-48 md:w-64"
                 />
               </div>
-              <button
-                className="p-2 md:hidden bg-[#F9F9F9] rounded-full"
-                onClick={toggleSidebar}
-              >
+              <button className="p-2 md:hidden bg-[#F9F9F9] rounded-full" onClick={toggleSidebar}>
                 <Menu className="h-5 w-5 text-gray-600" />
               </button>
             </div>
@@ -226,11 +241,7 @@ const Students = () => {
                 onClick={() => openModal(student)}
               >
                 <div className="relative w-12 h-12 flex-shrink-0">
-                  <img
-                    src={Avatar}
-                    alt="Student avatar"
-                    className="object-contain"
-                  />
+                  <img src={Avatar || "/placeholder.svg"} alt="Student avatar" className="object-contain" />
                 </div>
                 <div className="md:ml-4 ml-0 flex-grow text-center md:text-left">
                   <h3 className="text-md poppins-thin_600">{student.name}</h3>
@@ -259,15 +270,13 @@ const Students = () => {
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 relative">
                       <img
-                        src={Avatar}
+                        src={Avatar || "/placeholder.svg"}
                         alt="Student avatar"
                         className="object-cover  w-full h-full"
                       />
                     </div>
                     <div>
-                      <h2 className="text-xl font-semibold">
-                        {selectedStudent.name}
-                      </h2>
+                      <h2 className="text-xl font-semibold">{selectedStudent.name}</h2>
                       <p className="text-sm text-gray-500">
                         {selectedStudent.age} / {selectedStudent.gender}
                       </p>
@@ -276,15 +285,11 @@ const Students = () => {
                 </div>
 
                 <div className="mb-6">
-                  <p className="text-sm text-[#505050] poppins-thin_500">
-                    {selectedStudent.description}
-                  </p>
+                  <p className="text-sm text-[#505050] poppins-thin_500">{selectedStudent.description}</p>
                 </div>
 
                 <div className="mb-6">
-                  <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-                    Achievements
-                  </h3>
+                  <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Achievements</h3>
                   <div className="flex gap-2">
                     {selectedStudent.achievements.map((achievement, index) => (
                       <span
@@ -292,18 +297,19 @@ const Students = () => {
                         className="px-3 py-2 bg-gray-100 poppins-thin_500  text-gray-700 text-xs rounded-xl inline-flex items-center"
                       >
                         {achievement.name}
-                        {achievement.icon && (
-                          <span className="ml-1">{achievement.icon}</span>
-                        )}
+                        {achievement.icon && <span className="ml-1">{achievement.icon}</span>}
                       </span>
                     ))}
                   </div>
                 </div>
 
                 <div className="mb-6">
-                  <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-                    Certificates
-                  </h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Certificates</h3>
+                    {/* <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                      Real-time updates
+                    </span> */}
+                  </div>
                   <div className="flex flex-wrap gap-2">
                     {selectedStudent.certificates.map((certificate, index) => (
                       <span
@@ -311,27 +317,24 @@ const Students = () => {
                         className="px-3 py-2 bg-gray-100 poppins-thin_500  text-gray-700 text-xs rounded-xl"
                       >
                         {certificate.name}
-                        {certificate.icon && (
-                          <span className="ml-1">{certificate.icon}</span>
-                        )}
+                        {certificate.icon && <span className="ml-1">{certificate.icon}</span>}
                       </span>
                     ))}
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-                    Progress
-                  </h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Progress</h3>
+                    {/* <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                      Real-time updates
+                    </span> */}
+                  </div>
                   <div className="space-y-3">
                     <div className="">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-black">
-                          Group activity
-                        </span>
-                        <span className="text-sm text-gray-700">
-                          {selectedStudent.progress.groupActivity}%
-                        </span>
+                        <span className="text-sm text-black">Group activity</span>
+                        <span className="text-sm text-gray-700">{selectedStudent.progress.groupActivity}%</span>
                       </div>
                       <div className="bg-gray-200 h-2 rounded-full">
                         <div
@@ -345,9 +348,7 @@ const Students = () => {
                     <div>
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-sm text-black">Single Range</span>
-                        <span className="text-sm text-gray-600">
-                          {selectedStudent.progress.singleRange1}%
-                        </span>
+                        <span className="text-sm text-gray-600">{selectedStudent.progress.singleRange1}%</span>
                       </div>
                       <div className="bg-gray-200 h-2 rounded-full">
                         <div
@@ -361,9 +362,7 @@ const Students = () => {
                     <div>
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-sm text-black">Single Range</span>
-                        <span className="text-sm text-gray-600">
-                          {selectedStudent.progress.singleRange2}%
-                        </span>
+                        <span className="text-sm text-gray-600">{selectedStudent.progress.singleRange2}%</span>
                       </div>
                       <div className="bg-gray-200 h-2 rounded-full">
                         <div
@@ -389,10 +388,7 @@ const Students = () => {
       </div>
 
       {showSidebar && (
-        <div
-          className="fixed inset-0 bg-black/50 bg-opacity-50 z-40 md:hidden"
-          onClick={toggleSidebar}
-        ></div>
+        <div className="fixed inset-0 bg-black/50 bg-opacity-50 z-40 md:hidden" onClick={toggleSidebar}></div>
       )}
 
       <div
@@ -425,20 +421,13 @@ const Students = () => {
       {isAddModalOpen && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg w-full max-w-md relative p-6 mx-4">
-            <button
-              onClick={closeAddModal}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-            >
+            <button onClick={closeAddModal} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
               <X size={20} />
             </button>
 
             <div className="flex flex-col items-center mb-6">
               <div className="relative w-24 h-24 mb-3 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden">
-                <img
-                  src={profileImage}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
+                <img src={profileImage || "/placeholder.svg"} alt="Profile" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
                   <label
                     htmlFor="profile-upload"
@@ -470,18 +459,12 @@ const Students = () => {
                   onChange={handleImageChange}
                 />
               </div>
-              {profileImage !== ProfilePicture && (
-                <p className="text-green-600 text-xs mt-1">
-                  New image selected
-                </p>
-              )}
+              {profileImage !== ProfilePicture && <p className="text-green-600 text-xs mt-1">New image selected</p>}
             </div>
 
             <form className="space-y-4 custom-scrollbar overflow-y-auto max-h-[50vh]">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  First Name
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
                 <input
                   type="text"
                   className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm "
@@ -490,9 +473,7 @@ const Students = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Last Name
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
                 <input
                   type="text"
                   className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm "
@@ -501,9 +482,7 @@ const Students = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                 <input
                   type="email"
                   className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm "
@@ -512,9 +491,7 @@ const Students = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone No
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone No</label>
                 <input
                   type="tel"
                   className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm "
@@ -523,34 +500,83 @@ const Students = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Input
-                </label>
-                <input
-                  type="text"
-                  className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm "
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                <select
+                  className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm"
+                  value={selectedRole}
+                  onChange={(e) => setSelectedRole(e.target.value)}
+                >
+                  {roleOptions.map((role) => (
+                    <option key={role} value={role}>
+                      {role}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Input
-                </label>
-                <input
-                  type="text"
-                  className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm "
-                />
-              </div>
+              {customFields.map((field, index) => (
+                <div key={index}>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{field.name}</label>
+                  <input
+                    type="text"
+                    className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm"
+                    value={field.value}
+                    onChange={(e) => {
+                      const updatedFields = [...customFields]
+                      updatedFields[index].value = e.target.value
+                      setCustomFields(updatedFields)
+                    }}
+                  />
+                </div>
+              ))}
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Input
-                </label>
-                <input
-                  type="text"
-                  className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm "
-                />
-              </div>
+              {showCustomPrompt ? (
+                <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
+                  <h4 className="text-sm font-medium mb-2">Add Custom Field</h4>
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      placeholder="Field Name"
+                      className="w-full p-2 border border-gray-300 rounded-md outline-none text-sm"
+                      value={customFieldName}
+                      onChange={(e) => setCustomFieldName(e.target.value)}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Default Value (optional)"
+                      className="w-full p-2 border border-gray-300 rounded-md outline-none text-sm"
+                      value={customFieldValue}
+                      onChange={(e) => setCustomFieldValue(e.target.value)}
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        className="bg-[#0B5D3A] text-white text-xs py-1.5 px-3 rounded-md"
+                        onClick={addCustomField}
+                      >
+                        Add Field
+                      </button>
+                      <button
+                        type="button"
+                        className="bg-gray-200 text-gray-700 text-xs py-1.5 px-3 rounded-md"
+                        onClick={() => setShowCustomPrompt(false)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <button
+                    type="button"
+                    className="text-[#0B5D3A] text-sm font-medium flex items-center"
+                    onClick={() => setShowCustomPrompt(true)}
+                  >
+                    + Add Custom Field
+                  </button>
+                </div>
+              )}
 
               <div className="pt-2 flex justify-center">
                 <button
@@ -566,7 +592,7 @@ const Students = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default Students;
+export default Students

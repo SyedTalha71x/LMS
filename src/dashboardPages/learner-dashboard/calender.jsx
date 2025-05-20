@@ -1,9 +1,11 @@
+"use client"
+
 /* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight, ChevronDown, Video } from "lucide-react"
-import Image1 from '../../../public/image 50.png'
-import Image2 from '../../../public/image 51.png'
-import ImageCard from '../../../public/image-card.png'
+import Image1 from "../../../public/image 50.png"
+import Image2 from "../../../public/image 51.png"
+import ImageCard from "../../../public/image-card.png"
 
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -22,6 +24,8 @@ export default function Calendar() {
       participants: 2,
       startHour: 11,
       dayIndex: 0,
+      courseId: 101,
+      courseLink: "/learner-dashboard/courses",
     },
     {
       id: 2,
@@ -33,6 +37,8 @@ export default function Calendar() {
       participants: 2,
       startHour: 12,
       dayIndex: 0,
+      courseId: 107,
+      courseLink: "/learner-dashboard/courses",
     },
     {
       id: 3,
@@ -44,6 +50,8 @@ export default function Calendar() {
       participants: 2,
       startHour: 14,
       dayIndex: 0,
+      courseId: 203,
+      courseLink: "/learner-dashboard/courses",
     },
     {
       id: 4,
@@ -56,6 +64,7 @@ export default function Calendar() {
       isZoom: true,
       startHour: 11,
       dayIndex: 4,
+      zoomLink: "https://zoom.us/j/123456789",
     },
   ]
 
@@ -177,6 +186,16 @@ export default function Calendar() {
     return "w-[calc(400%-8px)]"
   }
 
+  const handleEventClick = (event) => {
+    if (event.isZoom && event.zoomLink) {
+      // Open Zoom link in a new tab
+      window.open(event.zoomLink, "_blank")
+    } else if (event.courseLink) {
+      // Navigate to course page
+      window.location.href = event.courseLink
+    }
+  }
+
   return (
     <div className="flex flex-col lg:flex-row gap-8 md:p-4 p-2 bg-white rounded-lg">
       <div className="w-full lg:w-3/4">
@@ -227,20 +246,27 @@ export default function Calendar() {
                             shouldDisplayEvent(event, dayIndex, time) && (
                               <div
                                 key={event.id}
-                                className={`absolute left-1 ${getEventWidth(event)} p-1.5 rounded-lg ${event.color} ${event.textColor} z-10`}
+                                className={`absolute left-1 ${getEventWidth(event)} p-1.5 rounded-lg ${event.color} ${event.textColor} z-10 cursor-pointer hover:opacity-90 transition-opacity`}
                                 style={{ top: "0px", height: event.isZoom ? "128px" : "64px" }}
+                                onClick={() => handleEventClick(event)}
                               >
                                 <div className="flex justify-between items-start">
                                   <div className="flex items-start">
                                     {!event.isZoom && (
                                       <div className="mr-2">
-                                        <img src={ImageCard} alt="Event" className="h-full w-full rounded-xl object-cover" />
+                                        <img
+                                          src={ImageCard || "/placeholder.svg"}
+                                          alt="Event"
+                                          className="h-full w-full rounded-xl object-cover"
+                                        />
                                       </div>
                                     )}
                                     <div>
                                       <h4 className="text-sm poppins-thin_500">{event.title}</h4>
                                       <div className="text-xs mt-1 poppins-thin_500">{event.days}</div>
-                                      {event.isZoom && <div className="text-xs poppins-thin_500">{event.startTime}</div>}
+                                      {event.isZoom && (
+                                        <div className="text-xs poppins-thin_500">{event.startTime}</div>
+                                      )}
                                     </div>
                                   </div>
                                   {event.isZoom && (
@@ -250,11 +276,30 @@ export default function Calendar() {
                                   )}
                                   {event.participants > 0 && (
                                     <div className="flex -space-x-1">
-                                      <img src={Image1} alt="Participant" className="h-5 w-5 rounded-full border-1 border-white object-cover" />
-                                      <img src={Image2} alt="Participant" className="h-5 w-5 rounded-full border-1 border-white object-cover" />
+                                      <img
+                                        src={Image1 || "/placeholder.svg"}
+                                        alt="Participant"
+                                        className="h-5 w-5 rounded-full border-1 border-white object-cover"
+                                      />
+                                      <img
+                                        src={Image2 || "/placeholder.svg"}
+                                        alt="Participant"
+                                        className="h-5 w-5 rounded-full border-1 border-white object-cover"
+                                      />
                                     </div>
                                   )}
                                 </div>
+                                {/* <div className="mt-1 text-xs">
+                                  {event.isZoom ? (
+                                    <span className="bg-white bg-opacity-30 px-2 py-0.5 rounded text-xs">
+                                      Join Zoom
+                                    </span>
+                                  ) : (
+                                    <span className="bg-white bg-opacity-30 px-2 py-0.5 rounded text-xs">
+                                      View Course
+                                    </span>
+                                  )}
+                                </div> */}
                               </div>
                             ),
                         )}
@@ -312,6 +357,28 @@ export default function Calendar() {
                 {day.day}
               </div>
             ))}
+          </div>
+        </div>
+
+        <div className="mt-6 bg-[#F9F9F9] p-4 rounded-md">
+          <h3 className="text-md font-medium mb-3">Legend</h3>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-sm bg-[#FFFFFF] border border-gray-200"></div>
+              <span className="text-sm">Regular Course</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-sm bg-[#0177FB]"></div>
+              <span className="text-sm">Advanced Course</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-sm bg-[#FE6470]"></div>
+              <span className="text-sm">Special Course</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-sm bg-[#01D7DF]"></div>
+              <span className="text-sm">Zoom Meeting</span>
+            </div>
           </div>
         </div>
       </div>

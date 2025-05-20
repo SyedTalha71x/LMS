@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { X, FileText, Edit } from "lucide-react";
-import PhotoImage from "../../../public/image 50.svg";
-import Frame31 from "../../../public/Frame 31.svg";
-import CourseImage from "../../../public/course_image.svg";
+import { useState } from "react"
+import { X, FileText } from "lucide-react"
+import PhotoImage from "../../../public/image 50.svg"
+import Frame31 from "../../../public/Frame 31.svg"
+import CourseImage from "../../../public/course_image.svg"
 
 const CoursesProgress = () => {
-  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [selectedCourse, setSelectedCourse] = useState(null)
 
   const courses = [
     {
@@ -148,17 +148,17 @@ const CoursesProgress = () => {
       },
       image: PhotoImage,
     },
-  ];
+  ]
 
   const openModal = (course) => {
-    setSelectedCourse(course);
-    document.body.style.overflow = "hidden";
-  };
+    setSelectedCourse(course)
+    document.body.style.overflow = "hidden"
+  }
 
   const closeModal = () => {
-    setSelectedCourse(null);
-    document.body.style.overflow = "auto";
-  };
+    setSelectedCourse(null)
+    document.body.style.overflow = "auto"
+  }
 
   return (
     <div className="p-1 md:p-6">
@@ -175,7 +175,7 @@ const CoursesProgress = () => {
               <div className="flex items-center md:w-1/3">
                 <div className="relative w-14 h-14 rounded-full overflow-hidden bg-gray-200 mr-4">
                   <img
-                    src={course.image}
+                    src={course.image || "/placeholder.svg"}
                     alt="Trainer avatar"
                     className="object-cover w-full h-full"
                   />
@@ -195,15 +195,10 @@ const CoursesProgress = () => {
               <div className="md:w-5/12 mt-4 md:mt-0">
                 <div className="flex justify-between mb-1">
                   <span className="text-sm font-medium">Progress</span>
-                  <span className="text-sm text-gray-400">
-                    {course.progress}%
-                  </span>
+                  <span className="text-sm text-gray-400">{course.progress}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-[#0B5D3A] h-2 rounded-full relative"
-                    style={{ width: `${course.progress}%` }}
-                  >
+                  <div className="bg-[#0B5D3A] h-2 rounded-full relative" style={{ width: `${course.progress}%` }}>
                     <div className="absolute -right-1.5 -top-1 w-4 h-4 bg-[#0B5D3A] rounded-full border-2 border-white"></div>
                   </div>
                 </div>
@@ -223,47 +218,32 @@ const CoursesProgress = () => {
               <X size={15} />
             </button>
 
-            <div className="flex items-center justify-between p-6 ">
+            <div className="flex items-center p-6">
               <div className="flex items-center gap-3">
                 <div className="relative h-16 w-16">
-                  <img src={Frame31} className="h-full w-full" alt="" />
+                  <img src={Frame31 || "/placeholder.svg"} className="h-full w-full" alt="" />
                 </div>
-                <h2 className="text-lg font-semibold">
-                  {selectedCourse.title}
-                </h2>
+                <h2 className="text-lg font-semibold">{selectedCourse.title}</h2>
               </div>
-              <button
-                onClick={closeModal}
-                className="p-2 rounded-md border border-slate-300 cursor-pointer"
-              >
-                <Edit size={20} className="" />
-              </button>
             </div>
 
             <div className="w-full h-full  rounded-lg">
               <img
-                src={CourseImage}
+                src={CourseImage || "/placeholder.svg"}
                 alt={selectedCourse.title}
                 className="w-full h-full  object-center "
               />
             </div>
 
             <div className="p-2 mt-4">
-              <p className="text-sm text-[#505050]">
-                {selectedCourse.description}
-              </p>
+              <p className="text-sm text-[#505050]">{selectedCourse.description}</p>
             </div>
 
             <div className="p-3 mt-2">
-              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-                Tags
-              </h3>
+              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Tags</h3>
               <div className="flex flex-wrap gap-2">
                 {selectedCourse.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-2 bg-gray-100 text-gray-700 text-xs rounded-xl poppins-thin"
-                  >
+                  <span key={index} className="px-3 py-2 bg-gray-100 text-gray-700 text-xs rounded-xl poppins-thin">
                     {tag}
                   </span>
                 ))}
@@ -271,151 +251,83 @@ const CoursesProgress = () => {
             </div>
 
             <div className="p-3 mt-2">
-              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-                Details
-              </h3>
+              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Details</h3>
               <div className="space-y-2">
                 <div className="grid grid-cols-3 gap-4 text-sm">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">
-                    Students Enrolled:
-                  </span>
+                  <span className="text-gray-500 md:text-sm text-xs font-bold">Students Enrolled:</span>
                   <span className="col-span-2 md:text-sm text-xs text-gray-700">
                     {selectedCourse.details.studentsEnrolled}
                   </span>
                 </div>
                 <div className="grid grid-cols-3 gap-4  text-sm">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">
-                    Assign Teacher:
-                  </span>
+                  <span className="text-gray-500 md:text-sm text-xs font-bold">Assign Teacher:</span>
                   <span className="col-span-2 md:text-sm text-xs text-gray-700">
                     {selectedCourse.details.AssignTeacher}
                   </span>
                 </div>
                 <div className="grid grid-cols-3 gap-4  text-sm">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">
-                    Category:
-                  </span>
-                  <span className="col-span-2 md:text-sm text-xs text-gray-700">
-                    {selectedCourse.details.category}
-                  </span>
+                  <span className="text-gray-500 md:text-sm text-xs font-bold">Category:</span>
+                  <span className="col-span-2 md:text-sm text-xs text-gray-700">{selectedCourse.details.category}</span>
                 </div>
                 <div className="grid grid-cols-3 gap-4  text-sm">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">
-                    Location:
-                  </span>
-                  <span className="col-span-2 md:text-sm text-xs text-gray-700">
-                    {selectedCourse.details.location}
-                  </span>
+                  <span className="text-gray-500 md:text-sm text-xs font-bold">Location:</span>
+                  <span className="col-span-2 md:text-sm text-xs text-gray-700">{selectedCourse.details.location}</span>
                 </div>
                 <div className="grid grid-cols-3 gap-4  md:text-sm text-xs">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">
-                    Timing:
-                  </span>
-                  <span className="col-span-2 md:text-sm text-xs text-gray-700">
-                    {selectedCourse.details.timing}
-                  </span>
+                  <span className="text-gray-500 md:text-sm text-xs font-bold">Timing:</span>
+                  <span className="col-span-2 md:text-sm text-xs text-gray-700">{selectedCourse.details.timing}</span>
                 </div>
                 <div className="grid grid-cols-3 gap-4  md:text-sm text-xs">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">
-                    Titles:
-                  </span>
-                  <span className="col-span-2 md:text-sm text-xs text-gray-700">
-                    {selectedCourse.details.titles}
-                  </span>
+                  <span className="text-gray-500 md:text-sm text-xs font-bold">Titles:</span>
+                  <span className="col-span-2 md:text-sm text-xs text-gray-700">{selectedCourse.details.titles}</span>
                 </div>
               </div>
             </div>
 
-            <div className="p-3 mt-2">
-              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-                Materials
-              </h3>
+            {/* <div className="p-3 mt-2">
+              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Course Materials</h3>
               <div className="space-y-2">
                 <div className="grid grid-cols-3 gap-4 text-sm">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">
-                    Students Enrolled:
-                  </span>
-                  <span className="col-span-2 md:text-sm text-xs text-gray-700">
-                    {selectedCourse.details.studentsEnrolled}
-                  </span>
+                  <span className="text-gray-500 md:text-sm text-xs font-bold">Type:</span>
+                  <span className="col-span-2 md:text-sm text-xs text-gray-700">Video Lectures</span>
                 </div>
-                <div className="grid grid-cols-3 gap-4  text-sm">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">
-                    Assign Teacher:
-                  </span>
-                  <span className="col-span-2 md:text-sm text-xs text-gray-700">
-                    {selectedCourse.details.AssignTeacher}
-                  </span>
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <span className="text-gray-500 md:text-sm text-xs font-bold">Duration:</span>
+                  <span className="col-span-2 md:text-sm text-xs text-gray-700">4 hours</span>
                 </div>
-                <div className="grid grid-cols-3 gap-4  text-sm">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">
-                    Category:
-                  </span>
-                  <span className="col-span-2 md:text-sm text-xs text-gray-700">
-                    {selectedCourse.details.category}
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-4  text-sm">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">
-                    Location:
-                  </span>
-                  <span className="col-span-2 md:text-sm text-xs text-gray-700">
-                    {selectedCourse.details.location}
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-4  md:text-sm text-xs">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">
-                    Timing:
-                  </span>
-                  <span className="col-span-2 md:text-sm text-xs text-gray-700">
-                    {selectedCourse.details.timing}
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-4  md:text-sm text-xs">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">
-                    Titles:
-                  </span>
-                  <span className="col-span-2 md:text-sm text-xs text-gray-700">
-                    {selectedCourse.details.titles}
-                  </span>
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <span className="text-gray-500 md:text-sm text-xs font-bold">Modules:</span>
+                  <span className="col-span-2 md:text-sm text-xs text-gray-700">6 modules</span>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             <div className="p-3 mt-2">
-              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-                Progress
-              </h3>
+              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Progress</h3>
               <div className="space-y-2">
                 <div className="grid grid-cols-3 gap-4  text-sm">
                   <span className="text-gray-800 md:text-md text-xs">Group activity</span>
-                  <span className="col-span-2 text-gray-400">
-                    {selectedCourse.progress}%
-                  </span>
+                  <span className="col-span-2 text-gray-400">{selectedCourse.progress}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-1">
-                  <div
-                    className="bg-[#0B5D3A] h-1 rounded-full"
-                    style={{ width: `${selectedCourse.progress}%` }}
-                  ></div>
+                  <div className="bg-[#0B5D3A] h-1 rounded-full" style={{ width: `${selectedCourse.progress}%` }}></div>
                 </div>
               </div>
             </div>
 
-            <div className="p-3 mt-2">
-              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-                Documentation
-              </h3>
-              <button className="flex items-center justify-center w-auto text-white poppins-thin_bold  py-2 bg-[#1E1E1F] rounded-xl text-xs px-6 cursor-pointer transition-colors">
+            {/* <div className="p-3 mt-2">
+              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Course PDF Materials</h3>
+              <p className="text-xs text-gray-500 mb-2">Additional reading materials and resources in PDF format</p>
+              <button className="flex items-center justify-center w-auto text-white poppins-thin_bold py-2 bg-[#1E1E1F] rounded-xl text-xs px-6 cursor-pointer transition-colors">
                 <FileText size={16} className="mr-2" />
                 View PDF
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default CoursesProgress;
+export default CoursesProgress

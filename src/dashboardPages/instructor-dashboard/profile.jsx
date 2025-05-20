@@ -6,12 +6,12 @@ import ProfileImage from '../../../public/image (2).png'
 function Profile() {
 
   return (
-    <div className="flex rounded-3xl   min-h-screen relative">
+    <div className=" rounded-3xl   min-h-screen relative">
+            <h1 className="  text-black text-2xl p-4 poppins-thin_600">Profile</h1>
 
-      <main className="max-w-6xl  mr-auto">
-        <div className="p-4 md:p-6">
+      <main className="lg:w-[40%] w-full  mx-auto">
+        <div className="p-2 md:p-6">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="  text-black text-2xl poppins-thin_600">Profile</h1>
           </div>
 
           <div className="mb-8 flex flex-col justify-center items-center">
@@ -25,7 +25,7 @@ function Profile() {
             </div>
           </div>
 
-          <div className="max-h-[calc(100vh-300px)] overflow-y-auto pr-4 custom-scrollbar">
+          <div className="max-h-[calc(100vh-300px)  overflow-y-auto pr-4 custom-scrollbar">
             <form className="space-y-6 w-full max-w-md p-2 open_sans_font">
               <div className="space-y-4">
                 {[

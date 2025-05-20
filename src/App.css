@@ -4,6 +4,10 @@
 body{
     background-color: #F9FAFC;
 }
+
+html{
+    scroll-behavior: smooth;
+}
 .poppins-thin {
   font-family: "Poppins", sans-serif;
   font-weight: 400;
@@ -52,4 +56,6 @@ body{
   background-color: #e6e1e1;
   border-radius: 20px;
 }
+
+
 

@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Search, MoreVertical, Bell, X, Menu, Plus } from "lucide-react"
 import Image from '../../../public/image.svg'
 import UserGroups from '../../../public/avatar-group.png'
+import { Link } from "react-router-dom"
 
 const GroupsPage = () => {
   const [groups] = useState([
@@ -176,6 +177,8 @@ const GroupsPage = () => {
 
 function GroupCard({ group }) {
   return (
+    <Link to={"/learner-dashboard/messages"}>
+   
     <div className="bg-[#F9F9F9] rounded-2xl p-8">
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-3">
@@ -191,9 +194,9 @@ function GroupCard({ group }) {
             <p className="text-sm text-gray-500 poppins-thin">{group.subtitle}</p>
           </div>
         </div>
-        <button className="text-gray-400">
+        {/* <button className="text-gray-400">
           <MoreVertical className="h-5 w-5" />
-        </button>
+        </button> */}
       </div>
 
       <div className="mb-4">
@@ -215,6 +218,7 @@ function GroupCard({ group }) {
         ))}
       </div>
     </div>
+    </Link>
   )
 }
 

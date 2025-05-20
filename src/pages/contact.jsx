@@ -24,7 +24,7 @@ const ContactPage = () => {
   }
 
   return (
-    <div className="min-h-screen  flex flex-col items-center py-20 px-4 sm:px-6 lg:px-8">
+    <div id="contact" className="min-h-screen  flex flex-col items-center py-20 px-4 sm:px-6 lg:px-8">
       <h1 className="text-5xl font-bold text-center text-black karma mb-2">Contact Us</h1>
       <p className="text-center text-gray-600 mb-10 max-w-md">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do

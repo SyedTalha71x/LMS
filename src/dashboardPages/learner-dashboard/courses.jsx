@@ -1,17 +1,12 @@
+"use client"
+
 /* eslint-disable no-unused-vars */
-import { useState, useRef, useEffect } from "react";
-import {
-  Search,
-  MoreHorizontal,
-  Bell,
-  X,
-  ChevronRight,
-  Edit,
-} from "lucide-react";
-import CalenderImage from "../../../public/Frame 31.svg";
-import { FiUsers } from "react-icons/fi";
-import Frame31 from "../../../public/Frame 31.svg";
-import CourseImage from "../../../public/course_image.svg";
+import { useState, useRef, useEffect } from "react"
+import { Search, MoreHorizontal, Bell, X, Edit } from "lucide-react"
+import CalenderImage from "../../../public/Frame 31.svg"
+import { FiUsers } from "react-icons/fi"
+import Frame31 from "../../../public/Frame 31.svg"
+import CourseImage from "../../../public/course_image.svg"
 
 export default function Courses() {
   const [courses, setCourses] = useState([
@@ -123,7 +118,7 @@ export default function Courses() {
       link: "https://example.com",
       progress: 60,
     },
-  ]);
+  ])
 
   const [notifications, setNotifications] = useState([
     {
@@ -140,35 +135,35 @@ export default function Courses() {
       message:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     },
-  ]);
+  ])
 
   // Add state to control notification sidebar visibility on mobile
-  const [showMobileNotifications, setShowMobileNotifications] = useState(false);
+  const [showMobileNotifications, setShowMobileNotifications] = useState(false)
 
   // Toggle notification sidebar on mobile
   const toggleMobileNotifications = () => {
-    setShowMobileNotifications(!showMobileNotifications);
-  };
+    setShowMobileNotifications(!showMobileNotifications)
+  }
 
   // State for course modal
-  const [selectedCourse, setSelectedCourse] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null)
+  const [showModal, setShowModal] = useState(false)
 
   // State to manage open dropdown
-  const [openDropdownId, setOpenDropdownId] = useState(null);
+  const [openDropdownId, setOpenDropdownId] = useState(null)
 
   // Open course modal
   const openCourseModal = (course) => {
-    setSelectedCourse(course);
-    setShowModal(true);
+    setSelectedCourse(course)
+    setShowModal(true)
     // Close any open dropdowns when opening modal
-    setOpenDropdownId(null);
-  };
+    setOpenDropdownId(null)
+  }
 
   // Close course modal
   const closeCourseModal = () => {
-    setShowModal(false);
-  };
+    setShowModal(false)
+  }
 
   return (
     <div className="min-h-screen">
@@ -199,24 +194,20 @@ export default function Courses() {
 
             <div className="grid grid-cols-1 md:p-4 p-0 md:grid-cols-2 gap-4">
               {courses.map((course) => (
-                <CourseCard
-                  key={course.id}
-                  course={course}
-                  onViewDetails={openCourseModal}
-                />
+                <CourseCard key={course.id} course={course} onViewDetails={openCourseModal} />
               ))}
             </div>
           </div>
 
           {/* Notification Sidebar - Desktop (always visible on large screens) */}
           <div className="w-full lg:w-1/3 hidden lg:block">
-            <h2 className="text-2xl poppins-thin_600 mb-4">Notification</h2>
+            <h2 className="text-2xl poppins-thin_600 mb-2">Notification</h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Stay updated with course announcements, deadlines, and instructor messages.
+            </p>
             <div className="space-y-4 max-h-[600px] overflow-y-auto">
               {notifications.map((notification) => (
-                <NotificationItem
-                  key={notification.id}
-                  notification={notification}
-                />
+                <NotificationItem key={notification.id} notification={notification} />
               ))}
             </div>
           </div>
@@ -224,9 +215,7 @@ export default function Courses() {
           {/* Mobile Notification Sidebar - Shown as overlay when bell is clicked */}
           <div
             className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-500 ${
-              showMobileNotifications
-                ? "opacity-100"
-                : "opacity-0 pointer-events-none"
+              showMobileNotifications ? "opacity-100" : "opacity-0 pointer-events-none"
             } lg:hidden`}
           >
             <div
@@ -234,21 +223,18 @@ export default function Courses() {
                 showMobileNotifications ? "translate-x-0" : "translate-x-full"
               }`}
             >
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-2">
                 <h2 className="text-2xl poppins-thin_600">Notification</h2>
-                <button
-                  onClick={toggleMobileNotifications}
-                  className="p-1 rounded-full hover:bg-gray-100"
-                >
+                <button onClick={toggleMobileNotifications} className="p-1 rounded-full hover:bg-gray-100">
                   <span className="text-2xl">&times;</span>
                 </button>
               </div>
+              <p className="text-sm text-gray-500 mb-4">
+                Stay updated with course announcements, deadlines, and instructor messages.
+              </p>
               <div className="space-y-4">
                 {notifications.map((notification) => (
-                  <NotificationItem
-                    key={notification.id}
-                    notification={notification}
-                  />
+                  <NotificationItem key={notification.id} notification={notification} />
                 ))}
               </div>
             </div>
@@ -257,41 +243,35 @@ export default function Courses() {
       </div>
 
       {/* Course Details Modal */}
-      {showModal && selectedCourse && (
-        <CourseModal course={selectedCourse} onClose={closeCourseModal} />
-      )}
+      {showModal && selectedCourse && <CourseModal course={selectedCourse} onClose={closeCourseModal} />}
     </div>
-  );
+  )
 }
 
 function CourseCard({ course, onViewDetails }) {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const dropdownRef = useRef(null)
 
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
+        setIsDropdownOpen(false)
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside)
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
 
   const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
+    setIsDropdownOpen(!isDropdownOpen)
+  }
 
   return (
-    <div
-      className={`rounded-lg p-4 h-full flex flex-col justify-between ${getColorClass(
-        course.color
-      )}`}
-    >
+    <div className={`rounded-lg p-4 h-full flex flex-col justify-between ${getColorClass(course.color)}`}>
       <div className="">
         <div className="flex justify-between items-start">
           <div className="bg-white rounded-full p-2 w-14 h-14 flex items-center justify-center">
@@ -312,8 +292,8 @@ function CourseCard({ course, onViewDetails }) {
                 <button
                   className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
                   onClick={() => {
-                    setIsDropdownOpen(false);
-                    onViewDetails(course);
+                    setIsDropdownOpen(false)
+                    onViewDetails(course)
                   }}
                 >
                   <span>View Details</span>
@@ -324,9 +304,7 @@ function CourseCard({ course, onViewDetails }) {
           </div>
         </div>
         <div className="mt-8 rounded-md">
-          <h3 className="text-[#1F1D39] ml-1 text-lg poppins-thin_600">
-            {course.title}
-          </h3>
+          <h3 className="text-[#1F1D39] ml-1 text-lg poppins-thin_600">{course.title}</h3>
           <div className="flex items-center justify-center gap-1.5 w-18 rounded-xl p-2 mt-2 text-sm text-black bg-[#FCF9FF]">
             <FiUsers className="font-semibold" />
             <span className="font-semibold">99</span>
@@ -334,38 +312,32 @@ function CourseCard({ course, onViewDetails }) {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 function CourseModal({ course, onClose }) {
   // Prevent clicks inside the modal from closing it
   const handleModalClick = (e) => {
-    e.stopPropagation();
-  };
+    e.stopPropagation()
+  }
 
   return (
-    <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={onClose}>
       <div
-        className="bg-white rounded-lg w-full relative max-w-md max-h-[90vh] md:p-3 p-0 custom-scrollbar overflow-y-auto"
+        className="bg-white rounded-lg w-full relative max-w-lg max-h-[90vh] md:p-3 p-0 custom-scrollbar overflow-y-auto"
         onClick={handleModalClick}
       >
         <div className=" ">
           <div className="flex items-center justify-between p-6 ">
             <div className="flex items-center gap-3">
               <div className="relative h-16 w-16">
-                <img src={Frame31} className="h-full w-full" alt="" />
+                <img src={Frame31 || "/placeholder.svg"} className="h-full w-full" alt="" />
               </div>
               <h2 className="text-lg font-semibold">{course.title}</h2>
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-md border border-slate-300 cursor-pointer"
-            >
+            {/* <button onClick={onClose} className="p-2 rounded-md border border-slate-300 cursor-pointer">
               <Edit size={20} className="" />
-            </button>
+            </button> */}
           </div>
           <button
             onClick={onClose}
@@ -377,11 +349,7 @@ function CourseModal({ course, onClose }) {
         </div>
 
         <div className="w-full h-full p-4  rounded-lg">
-          <img
-            src={CourseImage}
-            alt={course.title}
-            className="w-full h-full  object-center "
-          />
+          <img src={CourseImage || "/placeholder.svg"} alt={course.title} className="w-full h-full  object-center " />
         </div>
 
         <div className="px-4 pb-4">
@@ -389,15 +357,10 @@ function CourseModal({ course, onClose }) {
         </div>
 
         <div className="px-4 pb-4">
-          <h4 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-            Category
-          </h4>
+          <h4 className="text-lg text-gray-700 poppins-thin_800 mb-2">Category</h4>
           <div className="flex flex-wrap gap-2">
             {course.category.map((cat, index) => (
-              <span
-                key={index}
-                className="px-5 py-2 bg-gray-200 text-gray-800 text-xs rounded-xl"
-              >
+              <span key={index} className="px-5 py-2 bg-gray-200 text-gray-800 text-xs rounded-xl">
                 {cat}
               </span>
             ))}
@@ -405,38 +368,22 @@ function CourseModal({ course, onClose }) {
         </div>
 
         <div className="px-4 pb-4">
-          <h4 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-            Details
-          </h4>
+          <h4 className="text-lg text-gray-700 poppins-thin_800 mb-2">Details</h4>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-500 md:text-sm text-xs font-bold">
-                Duration
-              </span>
-              <span className="md:text-sm text-xs text-gray-700">
-                {course.duration}
-              </span>
+              <span className="text-gray-500 md:text-sm text-xs font-bold">Duration</span>
+              <span className="md:text-sm text-xs text-gray-700">{course.duration}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500 md:text-sm text-xs font-bold">
-                Course code
-              </span>
-              <span className="md:text-sm text-xs text-gray-700">
-                {course.courseCode}
-              </span>
+              <span className="text-gray-500 md:text-sm text-xs font-bold">Course code</span>
+              <span className="md:text-sm text-xs text-gray-700">{course.courseCode}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500 md:text-sm text-xs font-bold">
-                Price
-              </span>
-              <span className="md:text-sm text-xs text-gray-700">
-                {course.price}
-              </span>
+              <span className="text-gray-500 md:text-sm text-xs font-bold">Price</span>
+              <span className="md:text-sm text-xs text-gray-700">{course.price}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500 md:text-sm text-xs font-bold">
-                Link
-              </span>
+              <span className="text-gray-500 md:text-sm text-xs font-bold">Link</span>
               <a
                 href={course.link}
                 className="md:text-sm text-xs text-gray-700"
@@ -450,34 +397,62 @@ function CourseModal({ course, onClose }) {
         </div>
 
         <div className="px-4 pb-4">
-          <h4 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-            Certificate
-          </h4>
+          <h4 className="text-lg text-gray-700 poppins-thin_800 mb-2">Course Structure</h4>
+          <div className="space-y-3 border rounded-lg p-3 bg-gray-50">
+            <div className="flex items-center justify-between p-2 bg-white rounded-md border-l-4 border-l-[#0B5D3A]">
+              <div>
+                <h5 className="font-medium text-sm">Module 1: Introduction</h5>
+                <p className="text-xs text-gray-500">3 lessons • 45 minutes</p>
+              </div>
+              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Completed</span>
+            </div>
+
+            <div className="flex items-center justify-between p-2 bg-white rounded-md border-l-4 border-l-[#0B5D3A]">
+              <div>
+                <h5 className="font-medium text-sm">Module 2: Core Concepts</h5>
+                <p className="text-xs text-gray-500">5 lessons • 1.5 hours</p>
+              </div>
+              <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">In Progress</span>
+            </div>
+
+            <div className="flex items-center justify-between p-2 bg-white rounded-md border-l-4 border-l-gray-300">
+              <div>
+                <h5 className="font-medium text-sm">Module 3: Advanced Topics</h5>
+                <p className="text-xs text-gray-500">4 lessons • 2 hours</p>
+              </div>
+              <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">Locked</span>
+            </div>
+
+            <div className="flex items-center justify-between p-2 bg-white rounded-md border-l-4 border-l-gray-300">
+              <div>
+                <h5 className="font-medium text-sm">Module 4: Final Project</h5>
+                <p className="text-xs text-gray-500">2 lessons • 3 hours</p>
+              </div>
+              <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">Locked</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="px-4 pb-4">
+          <h4 className="text-lg text-gray-700 poppins-thin_800 mb-2">Certificate</h4>
           <button className="flex items-center justify-center w-auto text-white poppins-thin_bold  py-2 bg-[#1E1E1F] rounded-xl text-xs px-6 cursor-pointer transition-colors">
             View PDF
           </button>
         </div>
 
         <div className="px-4 pb-4">
-          <h4 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-            Progress
-          </h4>
+          <h4 className="text-lg text-gray-700 poppins-thin_800 mb-2">Progress</h4>
           <div className="flex items-center justify-between mb-1">
             <span className="text-sm text-gray-600">Success</span>
             <span className="text-sm font-medium">{course.progress}%</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-[#0B5D3A] h-2 rounded-full"
-              style={{ width: `${course.progress}%` }}
-            ></div>
+            <div className="bg-[#0B5D3A] h-2 rounded-full" style={{ width: `${course.progress}%` }}></div>
           </div>
         </div>
 
         <div className="px-4 pb-6">
-          <h4 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-            Documentation
-          </h4>
+          <h4 className="text-lg text-gray-700 poppins-thin_800 mb-2">Documentation</h4>
           <div className="space-y-2">
             <button className="flex items-center justify-center w-auto text-white poppins-thin_bold  py-2 bg-[#1E1E1F] rounded-xl text-xs px-6 cursor-pointer transition-colors">
               View Pdf
@@ -489,7 +464,7 @@ function CourseModal({ course, onClose }) {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 function NotificationItem({ notification }) {
@@ -502,28 +477,31 @@ function NotificationItem({ notification }) {
       </div>
       <div className="flex-1">
         <div className="flex justify-between items-start">
-          <h4 className="font-medium text-sm">{notification.name}</h4>
+          <div>
+            <h4 className="font-medium text-sm">{notification.name}</h4>
+            <span className="inline-block text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full mt-1">
+              Course Update
+            </span>
+          </div>
           <span className="text-xs text-gray-500">{notification.time}</span>
         </div>
-        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-          {notification.message}
-        </p>
+        <p className="text-sm text-gray-600 mt-1 line-clamp-2">{notification.message}</p>
       </div>
     </div>
-  );
+  )
 }
 
 function getColorClass(color) {
   switch (color) {
     case "bg-lavender":
-      return "bg-[#E1E2F6]";
+      return "bg-[#E1E2F6]"
     case "bg-peach":
-      return "bg-[#F8EFE2]";
+      return "bg-[#F8EFE2]"
     case "bg-mint":
-      return "bg-[#EFF7E2]";
+      return "bg-[#EFF7E2]"
     case "bg-salmon":
-      return "bg-[#F7E2E2]";
+      return "bg-[#F7E2E2]"
     default:
-      return "bg-[#F8EFE2]";
+      return "bg-[#F8EFE2]"
   }
 }

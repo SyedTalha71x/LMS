@@ -2,6 +2,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { useState, useEffect, useRef } from "react";
 import { Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,8 +34,8 @@ const Navbar = () => {
           <div className="font-bold text-xl">LMS</div>
           <div className="hidden md:flex items-center space-x-8">
             <a href="/" className="font-medium text-gray-900">Home</a>
-            <a href="/pricing" className="font-medium text-gray-500 hover:text-gray-900">Pricing</a>
-            <a href="/contact" className="font-medium text-gray-500 hover:text-gray-900">Contact</a>
+            <a href="#pricing" className="font-medium text-gray-500 hover:text-gray-900">Pricing</a>
+            <a href="#contact" className="font-medium text-gray-500 hover:text-gray-900">Contact</a>
           </div>
           <div className="hidden md:block">
             <button onClick={redirectToLogin} className="bg-[#0B5D3A] cursor-pointer text-sm text-white px-6 py-2 rounded-lg font-medium">
@@ -67,8 +68,8 @@ const Navbar = () => {
         </div>
         <div className="flex flex-col items-center space-y-6 mt-10">
           <a href="/" className="font-medium text-md text-gray-900">Home</a>
-          <a href="/pricing" className="font-medium text-md text-gray-500 hover:text-gray-900">Pricing</a>
-          <a href="/contact" className="font-medium text-md text-gray-500 hover:text-gray-900">Contact</a>
+          <a href="#pricing" className="font-medium text-md text-gray-500 hover:text-gray-900">Pricing</a>
+          <Link to={"#contact"} className="font-medium text-md text-gray-500 hover:text-gray-900">Contact</Link>
           <button onClick={redirectToLogin} className="bg-[#0B5D3A] cursor-pointer text-sm text-white px-6 py-2 rounded-lg font-medium">
             Sign In
           </button>

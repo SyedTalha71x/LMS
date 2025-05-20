@@ -1,20 +1,15 @@
+"use client"
+
 /* eslint-disable no-unused-vars */
-import { useState } from "react";
-import Notifcation from "../../../public/notfication.svg";
-import { HiDotsHorizontal } from "react-icons/hi";
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import Notifcation from "../../../public/notfication.svg"
+import { HiDotsHorizontal } from "react-icons/hi"
 
 const NotificationPage = () => {
+  const navigate = useNavigate()
+
   const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: "Title",
-      description: "Description",
-      date: "10-12-2020",
-      progress: 0,
-      type: "document",
-      phase: null,
-      image: Notifcation,
-    },
     {
       id: 2,
       title: "Course",
@@ -24,6 +19,7 @@ const NotificationPage = () => {
       type: "course",
       phase: 1,
       image: Notifcation,
+      link: "/learner-dashboard/courses",
     },
     {
       id: 3,
@@ -34,28 +30,47 @@ const NotificationPage = () => {
       type: "course",
       phase: 2,
       image: Notifcation,
+      link: "/learner-dashboard/courses",
     },
     {
       id: 4,
-      title: "Course",
-      description: "Phase 1",
+      title: "Course Assignment Due",
+      description: "Complete your assignment for Phase 3",
       date: "Progress",
       progress: 75,
       type: "course",
       phase: 3,
       image: Notifcation,
+      link: "/learner-dashboard/assignments",
+      isAssignment: true,
     },
     {
       id: 5,
-      title: "Course",
-      description: "Phase 1",
+      title: "Course Quiz Available",
+      description: "Take your quiz for Phase 4",
       date: "Progress",
       progress: 90,
       type: "course",
       phase: 4,
       image: Notifcation,
+      link: "/learner-dashboard/assignments",
+      isQuiz: true,
     },
-  ]);
+  ])
+
+  const handleNotificationClick = (notification) => {
+    // Navigate to the appropriate section based on notification type
+    if (notification.link) {
+      navigate(notification.link)
+    }
+  }
+
+  const getButtonText = (notification) => {
+    if (notification.type === "document") return "Documents"
+    if (notification.isAssignment) return "Go to Assignment"
+    if (notification.isQuiz) return "Take Quiz"
+    return "Continue Course"
+  }
 
   return (
     <div className="min-h-screen">
@@ -64,17 +79,19 @@ const NotificationPage = () => {
 
         <div className="space-y-4">
           {notifications.map((notification) => (
-            <div 
-              key={notification.id} 
+            <div
+              key={notification.id}
               className="flex flex-col md:flex-row md:items-center p-4 rounded-xl bg-[#F9F9F9]"
             >
               <div className="flex items-start md:items-center flex-1">
                 <div className="rounded overflow-hidden flex-shrink-0">
-                  <img src={notification.image} alt="" className="object-cover h-full w-full" />
+                  <img src={notification.image || "/placeholder.svg"} alt="" className="object-cover h-full w-full" />
                 </div>
 
                 <div className="ml-4 flex-1">
-                  {notification.subtitle && <p className="text-md poppins-thin_600 text-gray-500">{notification.subtitle}</p>}
+                  {notification.subtitle && (
+                    <p className="text-md poppins-thin_600 text-gray-500">{notification.subtitle}</p>
+                  )}
                   <p className="font-medium text-black">{notification.title}</p>
 
                   {notification.description && <p className="text-sm text-gray-500">{notification.description}</p>}
@@ -104,13 +121,16 @@ const NotificationPage = () => {
 
               <div className="flex justify-between items-center md:flex-col md:items-end md:space-y-8 mt-4 md:mt-0">
                 <button className="md:ml-4 md:block hidden">
-                  <HiDotsHorizontal className="" size={25}/>
+                  <HiDotsHorizontal className="" size={25} />
                 </button>
-                <button className="bg-[#1E1E1F] poppins-thin text-white text-sm cursor-pointer px-4 py-1.5 rounded-xl w-56 md:w-auto">
-                  {notification.type === "document" ? "Documents" : "Continue"}
+                <button
+                  onClick={() => handleNotificationClick(notification)}
+                  className="bg-[#1E1E1F] poppins-thin text-white text-sm cursor-pointer px-4 py-1.5 rounded-xl w-56 md:w-auto"
+                >
+                  {getButtonText(notification)}
                 </button>
                 <button className="md:ml-4 md:hidden block">
-                  <HiDotsHorizontal className="" size={25}/>
+                  <HiDotsHorizontal className="" size={25} />
                 </button>
               </div>
             </div>
@@ -118,7 +138,7 @@ const NotificationPage = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default NotificationPage;
+export default NotificationPage
