@@ -714,13 +714,43 @@ function CourseDetailsModal({ course, onClose, handleEditCourse, handleDeleteCou
             </button>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Assign to</label>
-            <select className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm text-gray-500" defaultValue="">
-              <option value="" disabled>
-                Assign
-              </option>
-            </select>
+          <div className="mb-4">
+            <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Assign Course</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Student Type</label>
+                <select
+                  className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm text-gray-500"
+                  defaultValue=""
+                >
+                  <option value="" disabled>
+                    Select Student Type
+                  </option>
+                  <option value="janitors">Janitors</option>
+                  <option value="nurses">Nurses</option>
+                  <option value="teachers">Teachers</option>
+                  <option value="administrators">Administrators</option>
+                  <option value="security">Security Personnel</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Course to Assign</label>
+                <select
+                  className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm text-gray-500"
+                  defaultValue=""
+                >
+                  <option value="" disabled>
+                    Select Course
+                  </option>
+                  <option value="fundamental1">Fundamental 1</option>
+                  <option value="fundamental2">Fundamental 2</option>
+                  <option value="advanced">Advanced Programming</option>
+                  <option value="dataScience">Data Science Basics</option>
+                  <option value="webDev">Web Development</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <div className="mt-6">

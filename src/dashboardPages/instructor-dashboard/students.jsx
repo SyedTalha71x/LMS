@@ -306,9 +306,9 @@ const Students = () => {
                 <div className="mb-6">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Certificates</h3>
-                    {/* <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                      Real-time updates
-                    </span> */}
+                      {/* <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                        Real-time updates
+                      </span> */}
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {selectedStudent.certificates.map((certificate, index) => (
