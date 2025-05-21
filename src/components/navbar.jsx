@@ -36,6 +36,7 @@ const Navbar = () => {
             <a href="/" className="font-medium text-gray-900">Home</a>
             <a href="#pricing" className="font-medium text-gray-500 hover:text-gray-900">Pricing</a>
             <a href="#contact" className="font-medium text-gray-500 hover:text-gray-900">Contact</a>
+            <a href="#about" className="font-medium text-gray-500 hover:text-gray-900">About</a>
           </div>
           <div className="hidden md:block">
             <button onClick={redirectToLogin} className="bg-[#0B5D3A] cursor-pointer text-sm text-white px-6 py-2 rounded-lg font-medium">
@@ -70,6 +71,7 @@ const Navbar = () => {
           <a href="/" className="font-medium text-md text-gray-900">Home</a>
           <a href="#pricing" className="font-medium text-md text-gray-500 hover:text-gray-900">Pricing</a>
           <Link to={"#contact"} className="font-medium text-md text-gray-500 hover:text-gray-900">Contact</Link>
+          <Link to={"#about"} className="font-medium text-md text-gray-500 hover:text-gray-900">About</Link>
           <button onClick={redirectToLogin} className="bg-[#0B5D3A] cursor-pointer text-sm text-white px-6 py-2 rounded-lg font-medium">
             Sign In
           </button>
