@@ -32,12 +32,26 @@ import Conference from './dashboardPages/instructor-dashboard/conference'
 import InstructorCourses from './dashboardPages/instructor-dashboard/courses'
 import InstructorNotifcations from './dashboardPages/instructor-dashboard/notification'
 
+
+// Admin Dashboard Layout
+import AdminDashboardlayout from "./layouts/admin-dashboard";
+import AdminOverview from './dashboardPages/admin-dashboard/overview'
+import AdminMyProfile from './dashboardPages/admin-dashboard/my-profile'
+import AdminStudents from './dashboardPages/admin-dashboard/students'
+import AdminCourses from './dashboardPages/admin-dashboard/courses'
+import AdminConference from './dashboardPages/admin-dashboard/conference'
+import AdminDiscussion from './dashboardPages/admin-dashboard/discussions'
+import AdminAssignments from './dashboardPages/admin-dashboard/assignements'
+import AdminNotifications from './dashboardPages/admin-dashboard/notifications'
+import AdminEvents from './dashboardPages/admin-dashboard/events'
+
+
 function App() {
   const location = useLocation();
 
   const isLoginRoute =
     location.pathname.startsWith("/login") ||
-    location.pathname.startsWith("/learner-dashboard") || location.pathname.startsWith("/instructor-dashboard");
+    location.pathname.startsWith("/learner-dashboard") || location.pathname.startsWith("/instructor-dashboard") || location.pathname.startsWith("/admin-dashboard");
 
   return (
     <>
@@ -73,6 +87,23 @@ function App() {
           <Route path="conference" element={<Conference/>}/>
           <Route path="courses" element={<InstructorCourses/>}/>
           <Route path="notifications" element={<InstructorNotifcations/>}/>
+
+        </Route>
+
+
+        <Route
+          path="admin-dashboard"
+          element={<AdminDashboardlayout />}
+        >
+          <Route path="overview" element={<AdminOverview/>}/>
+          <Route path="my-profile" element={<AdminMyProfile />} />
+          <Route path="students" element={<AdminStudents />} />
+          <Route path="courses" element={<AdminCourses />} />
+          <Route path="discussion" element={<AdminDiscussion />} />
+          <Route path="assignments" element={<AdminAssignments/>}/>
+          <Route path="events" element={<AdminEvents/>}/>
+          <Route path="conference" element={<AdminConference/>}/>
+          <Route path="notifications" element={<AdminNotifications/>}/>
 
         </Route>
       </Routes>
