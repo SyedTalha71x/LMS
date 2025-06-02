@@ -163,6 +163,8 @@ const Sidebar = () => {
 
                 { icon: MdEvent, label: "Events", to: "/admin-dashboard/events" },
                 { icon: MdEvent, label: "Conference", to: "/admin-dashboard/conference" },
+                { icon: MdEvent, label: "Payments", to: "/admin-dashboard/payments" },
+
               ].map((item) => (
                 <li key={item.label}>
                   <button

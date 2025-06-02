@@ -38,7 +38,7 @@ export default function Overview() {
                         <button
                             className="bg-[#1E1E1F] poppins-thin text-white px-4 py-2 rounded-xl  cursor-pointer text-sm"
                         >
-                            Download Report 
+                            Download Report
                         </button>
                         <button
                             className="md:hidden p-2 rounded-md hover:bg-gray-100"

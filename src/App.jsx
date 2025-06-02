@@ -44,6 +44,7 @@ import AdminDiscussion from './dashboardPages/admin-dashboard/discussions'
 import AdminAssignments from './dashboardPages/admin-dashboard/assignements'
 import AdminNotifications from './dashboardPages/admin-dashboard/notifications'
 import AdminEvents from './dashboardPages/admin-dashboard/events'
+import AdminPayments from './dashboardPages/admin-dashboard/payment'
 
 
 function App() {
@@ -59,7 +60,6 @@ function App() {
       <Routes>
         <Route path="/" element={<Main />} />
         <Route path="/login" element={<Login />} />
-
         <Route path="learner-dashboard" element={<LearnerDashboardLayout />}>
           <Route path="overview" element={<Overview />} />
           <Route path="courses" element={<ProgressCourse />} />
@@ -104,6 +104,8 @@ function App() {
           <Route path="events" element={<AdminEvents/>}/>
           <Route path="conference" element={<AdminConference/>}/>
           <Route path="notifications" element={<AdminNotifications/>}/>
+          <Route path="payments" element={<AdminPayments/>}/>
+
 
         </Route>
       </Routes>
