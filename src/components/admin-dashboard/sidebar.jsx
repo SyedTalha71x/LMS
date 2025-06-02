@@ -152,6 +152,8 @@ const Sidebar = () => {
                   label: "My Profile",
                   to: "/admin-dashboard/my-profile",
                 },
+                { icon: User2, label: "Instructors", to: "/admin-dashboard/instructors" },
+
                 { icon: User2, label: "Students", to: "/admin-dashboard/students" },
                 { icon: Book, label: "Courses   ", to: "/admin-dashboard/courses" },
 

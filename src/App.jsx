@@ -45,6 +45,7 @@ import AdminAssignments from './dashboardPages/admin-dashboard/assignements'
 import AdminNotifications from './dashboardPages/admin-dashboard/notifications'
 import AdminEvents from './dashboardPages/admin-dashboard/events'
 import AdminPayments from './dashboardPages/admin-dashboard/payment'
+import AdminInstructors from './dashboardPages/admin-dashboard/instructors'
 
 
 function App() {
@@ -105,6 +106,8 @@ function App() {
           <Route path="conference" element={<AdminConference/>}/>
           <Route path="notifications" element={<AdminNotifications/>}/>
           <Route path="payments" element={<AdminPayments/>}/>
+          <Route path="instructors" element={<AdminInstructors/>}/>
+
 
 
         </Route>

@@ -1,5 +1,7 @@
-import { useState } from "react"
-import { X, Menu, Search, Edit } from "lucide-react"
+"use client"
+
+import { useState, useRef, useEffect } from "react"
+import { X, Menu, Search, Edit, MoreVertical, Trash2 } from "lucide-react"
 import Avatar from "../../../public/avatar.png"
 import ProfilePicture from "../../../public/image (2).png"
 
@@ -7,17 +9,33 @@ const Students = () => {
   const [selectedStudent, setSelectedStudent] = useState(null)
   const [showSidebar, setShowSidebar] = useState(false)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [studentToEdit, setStudentToEdit] = useState(null)
   const [profileImage, setProfileImage] = useState(ProfilePicture)
   const [customFields, setCustomFields] = useState([])
   const [showCustomPrompt, setShowCustomPrompt] = useState(false)
   const [customFieldName, setCustomFieldName] = useState("")
   const [customFieldValue, setCustomFieldValue] = useState("")
+  const [openDropdownId, setOpenDropdownId] = useState(null)
 
+  const dropdownRef = useRef(null)
 
   const roleOptions = ["Student", "Janitor", "Pharmacist", "Technician", "IT"]
   const [selectedRole, setSelectedRole] = useState("Student")
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpenDropdownId(null)
+      }
+    }
 
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
 
   const handleImageChange = (event) => {
     const file = event.target.files?.[0]
@@ -36,9 +54,36 @@ const Students = () => {
     setCustomFields([])
   }
 
+  const openEditModal = (student, e) => {
+    e.stopPropagation()
+    setStudentToEdit(student)
+    setProfileImage(Avatar) // Set to student's avatar
+    setSelectedRole(student.designation)
+    setIsEditModalOpen(true)
+    setOpenDropdownId(null)
+  }
+
+  const closeEditModal = () => {
+    setIsEditModalOpen(false)
+    setStudentToEdit(null)
+    setCustomFields([])
+  }
+
   // Toggle functions
   const toggleSidebar = () => {
     setShowSidebar(!showSidebar)
+  }
+
+  const toggleDropdown = (studentId, e) => {
+    e.stopPropagation()
+    setOpenDropdownId(openDropdownId === studentId ? null : studentId)
+  }
+
+  const handleDeleteStudent = (studentId, e) => {
+    e.stopPropagation()
+    // Here you would implement the actual delete functionality
+    console.log(`Deleting student with ID: ${studentId}`)
+    setOpenDropdownId(null)
   }
 
   const addCustomField = () => {
@@ -248,9 +293,42 @@ const Students = () => {
                   <p className="text-sm text-gray-500">{student.designation}</p>
                 </div>
                 <div className="flex sm:flex-row justify-center items-center gap-3 sm:ml-4 w-full sm:w-auto mt-3 sm:mt-0">
-                  <button className="flex items-center justify-center w-auto text-white poppins-thin_bold py-2 bg-[#1E1E1F] rounded-xl text-xs px-6 cursor-pointer transition-colors">
+                  <button
+                    className="flex items-center justify-center w-auto text-white poppins-thin_bold py-2 bg-[#1E1E1F] rounded-xl text-xs px-6 cursor-pointer transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      openModal(student)
+                    }}
+                  >
                     View Details
                   </button>
+                  <div className="relative" ref={dropdownRef}>
+                    <button
+                      className="p-2 rounded-full hover:bg-gray-200"
+                      onClick={(e) => toggleDropdown(student.id, e)}
+                    >
+                      <MoreVertical className="h-5 w-5 text-gray-600" />
+                    </button>
+
+                    {openDropdownId === student.id && (
+                      <div className="absolute right-0 mt-1 w-36 bg-white rounded-md shadow-lg z-10 py-1">
+                        <button
+                          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={(e) => openEditModal(student, e)}
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit
+                        </button>
+                        <button
+                          className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                          onClick={(e) => handleDeleteStudent(student.id, e)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -272,7 +350,7 @@ const Students = () => {
                       <img
                         src={Avatar || "/placeholder.svg"}
                         alt="Student avatar"
-                        className="object-cover  w-full h-full"
+                        className="object-cover w-full h-full"
                       />
                     </div>
                     <div>
@@ -294,7 +372,7 @@ const Students = () => {
                     {selectedStudent.achievements.map((achievement, index) => (
                       <span
                         key={index}
-                        className="px-3 py-2 bg-gray-100 poppins-thin_500  text-gray-700 text-xs rounded-xl inline-flex items-center"
+                        className="px-3 py-2 bg-gray-100 poppins-thin_500 text-gray-700 text-xs rounded-xl inline-flex items-center"
                       >
                         {achievement.name}
                         {achievement.icon && <span className="ml-1">{achievement.icon}</span>}
@@ -306,15 +384,12 @@ const Students = () => {
                 <div className="mb-6">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Certificates</h3>
-                      {/* <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                        Real-time updates
-                      </span> */}
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {selectedStudent.certificates.map((certificate, index) => (
                       <span
                         key={index}
-                        className="px-3 py-2 bg-gray-100 poppins-thin_500  text-gray-700 text-xs rounded-xl"
+                        className="px-3 py-2 bg-gray-100 poppins-thin_500 text-gray-700 text-xs rounded-xl"
                       >
                         {certificate.name}
                         {certificate.icon && <span className="ml-1">{certificate.icon}</span>}
@@ -326,9 +401,6 @@ const Students = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Progress</h3>
-                    {/* <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                      Real-time updates
-                    </span> */}
                   </div>
                   <div className="space-y-3">
                     <div className="">
@@ -377,7 +449,7 @@ const Students = () => {
                 </div>
 
                 <div className="mt-6">
-                  <button className="w-auto bg-[#C77373] text-sm text-white py-2 px-7  rounded-xl cursor-pointer hover:bg-red-600 transition-colors">
+                  <button className="w-auto bg-[#C77373] text-sm text-white py-2 px-7 rounded-xl cursor-pointer hover:bg-red-600 transition-colors">
                     Delete
                   </button>
                 </div>
@@ -397,7 +469,6 @@ const Students = () => {
         }`}
       >
         <div className="flex justify-end items-center mb-4 md:hidden">
-          {/* <h2 className="font-medium">Notifications</h2> */}
           <button onClick={toggleSidebar} className="p-1">
             <X className="h-5 w-5" />
           </button>
@@ -408,7 +479,6 @@ const Students = () => {
         </div>
 
         <div className="">
-          {/* <h1 className="poppins-thin_600 text-black mb-6" onClick={toggleModal}>Join Group</h1> */}
           <button
             onClick={openAddModal}
             className="w-full md:w-auto py-2 bg-[#0B5D3A] text-sm px-7 text-white rounded-xl mb-6 font-semibold"
@@ -418,6 +488,7 @@ const Students = () => {
         </div>
       </div>
 
+      {/* Add Student Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg w-full max-w-md relative p-6 mx-4">
@@ -585,6 +656,235 @@ const Students = () => {
                   onClick={closeAddModal}
                 >
                   Create Student
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Student Modal */}
+      {isEditModalOpen && studentToEdit && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg w-full max-w-md relative p-6 mx-4">
+            <button onClick={closeEditModal} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
+              <X size={20} />
+            </button>
+
+            <h2 className="text-xl font-semibold mb-4 text-center">Edit Student</h2>
+
+            <div className="flex flex-col items-center mb-6">
+              <div className="relative w-24 h-24 mb-3 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden">
+                <img src={Avatar || "/placeholder.svg"} alt="Profile" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <label
+                    htmlFor="edit-profile-upload"
+                    className="cursor-pointer w-full h-full flex items-center justify-center text-white"
+                  >
+                    <Edit size={20} />
+                  </label>
+                  <input
+                    id="edit-profile-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageChange}
+                  />
+                </div>
+              </div>
+              <div className="mb-2">
+                <label
+                  htmlFor="edit-profile-upload-btn"
+                  className="bg-[#1E1E1F] cursor-pointer text-white text-sm py-2 px-7 rounded-xl block"
+                >
+                  Upload picture
+                </label>
+                <input
+                  id="edit-profile-upload-btn"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageChange}
+                />
+              </div>
+            </div>
+
+            <form className="space-y-4 custom-scrollbar overflow-y-auto max-h-[50vh]">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                <input
+                  type="text"
+                  className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm"
+                  defaultValue={studentToEdit.name.split(" ")[0] || ""}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                <input
+                  type="text"
+                  className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm"
+                  defaultValue={studentToEdit.name.split(" ")[1] || ""}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
+                <input
+                  type="number"
+                  className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm"
+                  defaultValue={studentToEdit.age}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                <select
+                  className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm"
+                  defaultValue={studentToEdit.gender}
+                >
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                <select
+                  className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm"
+                  value={selectedRole}
+                  onChange={(e) => setSelectedRole(e.target.value)}
+                >
+                  {roleOptions.map((role) => (
+                    <option key={role} value={role}>
+                      {role}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea
+                  className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm min-h-[100px]"
+                  defaultValue={studentToEdit.description}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Achievements</label>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {studentToEdit.achievements.map((achievement, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-xl flex items-center"
+                    >
+                      {achievement.name}
+                      <button className="ml-2 text-gray-500 hover:text-red-500">
+                        <X size={14} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Add achievement"
+                    className="flex-1 p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm"
+                  />
+                  <button type="button" className="bg-[#0B5D3A] text-white text-xs py-1.5 px-3 rounded-md">
+                    Add
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Certificates</label>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {studentToEdit.certificates.map((certificate, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-xl flex items-center"
+                    >
+                      {certificate.name}
+                      <button className="ml-2 text-gray-500 hover:text-red-500">
+                        <X size={14} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Add certificate"
+                    className="flex-1 p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm"
+                  />
+                  <button type="button" className="bg-[#0B5D3A] text-white text-xs py-1.5 px-3 rounded-md">
+                    Add
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Progress</label>
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm">Group activity</span>
+                      <span className="text-sm text-gray-600">{studentToEdit.progress.groupActivity}%</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      defaultValue={studentToEdit.progress.groupActivity}
+                      className="w-full"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm">Single Range 1</span>
+                      <span className="text-sm text-gray-600">{studentToEdit.progress.singleRange1}%</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      defaultValue={studentToEdit.progress.singleRange1}
+                      className="w-full"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm">Single Range 2</span>
+                      <span className="text-sm text-gray-600">{studentToEdit.progress.singleRange2}%</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      defaultValue={studentToEdit.progress.singleRange2}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 flex justify-between">
+                <button
+                  type="button"
+                  className="bg-gray-200 text-gray-700 text-sm py-2 px-6 rounded-xl hover:bg-gray-300 transition-colors"
+                  onClick={closeEditModal}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="bg-[#0B5D3A] text-white text-sm py-2 px-6 rounded-xl hover:bg-green-700 transition-colors"
+                  onClick={closeEditModal}
+                >
+                  Save Changes
                 </button>
               </div>
             </form>
