@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.12",
+    "chart.js": "^4.4.9",
     "lucide-react": "^0.479.0",
     "react": "^19.0.0",
     "react-apexcharts": "^1.7.0",

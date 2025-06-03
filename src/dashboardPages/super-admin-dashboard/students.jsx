@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState, useRef, useEffect } from "react"
 import { X, Menu, Search, Edit, MoreVertical, Trash2 } from "lucide-react"
 import Avatar from "../../../public/avatar.png"
@@ -8,8 +9,11 @@ const Students = () => {
   const [showSidebar, setShowSidebar] = useState(false)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [studentToEdit, setStudentToEdit] = useState(null)
+  const [studentToDelete, setStudentToDelete] = useState(null)
   const [profileImage, setProfileImage] = useState(ProfilePicture)
+  const [editProfileImage, setEditProfileImage] = useState(ProfilePicture)
   const [customFields, setCustomFields] = useState([])
   const [showCustomPrompt, setShowCustomPrompt] = useState(false)
   const [customFieldName, setCustomFieldName] = useState("")
@@ -20,6 +24,7 @@ const Students = () => {
 
   const roleOptions = ["Student", "Janitor", "Pharmacist", "Technician", "IT"]
   const [selectedRole, setSelectedRole] = useState("Student")
+  const [editSelectedRole, setEditSelectedRole] = useState("Student")
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -43,6 +48,14 @@ const Students = () => {
     }
   }
 
+  const handleEditImageChange = (event) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      const imageUrl = URL.createObjectURL(file)
+      setEditProfileImage(imageUrl)
+    }
+  }
+
   const openAddModal = () => {
     setIsAddModalOpen(true)
   }
@@ -52,11 +65,10 @@ const Students = () => {
     setCustomFields([])
   }
 
-  const openEditModal = (student, e) => {
-    e.stopPropagation()
+  const openEditModal = (student) => {
     setStudentToEdit(student)
-    setProfileImage(Avatar) // Set to student's avatar
-    setSelectedRole(student.designation)
+    setEditSelectedRole(student.designation)
+    setEditProfileImage(ProfilePicture)
     setIsEditModalOpen(true)
     setOpenDropdownId(null)
   }
@@ -67,21 +79,31 @@ const Students = () => {
     setCustomFields([])
   }
 
-  // Toggle functions
-  const toggleSidebar = () => {
-    setShowSidebar(!showSidebar)
+  const openDeleteModal = (student) => {
+    setStudentToDelete(student)
+    setIsDeleteModalOpen(true)
+    setOpenDropdownId(null)
   }
 
-  const toggleDropdown = (studentId, e) => {
-    e.stopPropagation()
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false)
+    setStudentToDelete(null)
+  }
+
+  const handleDeleteStudent = () => {
+    // Add your delete logic here
+    console.log("Deleting student:", studentToDelete)
+    closeDeleteModal()
+  }
+
+  const toggleDropdown = (studentId, event) => {
+    event.stopPropagation()
     setOpenDropdownId(openDropdownId === studentId ? null : studentId)
   }
 
-  const handleDeleteStudent = (studentId, e) => {
-    e.stopPropagation()
-    // Here you would implement the actual delete functionality
-    console.log(`Deleting student with ID: ${studentId}`)
-    setOpenDropdownId(null)
+  // Toggle functions
+  const toggleSidebar = () => {
+    setShowSidebar(!showSidebar)
   }
 
   const addCustomField = () => {
@@ -248,12 +270,12 @@ const Students = () => {
 
   const openModal = (student) => {
     setSelectedStudent(student)
-    document.body.style.overflow = "hidden"
+    // document.body.style.overflow = "hidden"
   }
 
   const closeModal = () => {
     setSelectedStudent(null)
-    document.body.style.overflow = "auto"
+    // document.body.style.overflow = "auto"
   }
 
   return (
@@ -300,30 +322,40 @@ const Students = () => {
                   >
                     View Details
                   </button>
+
+                  {/* 3-dots dropdown menu */}
                   <div className="relative" ref={dropdownRef}>
                     <button
-                      className="p-2 rounded-full hover:bg-gray-200"
+                      className="flex items-center justify-center w-8 h-8 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded-full transition-colors"
                       onClick={(e) => toggleDropdown(student.id, e)}
                     >
-                      <MoreVertical className="h-5 w-5 text-gray-600" />
+                      <MoreVertical className="h-4 w-4" />
                     </button>
 
                     {openDropdownId === student.id && (
-                      <div className="absolute right-0 mt-1 w-36 bg-white rounded-md shadow-lg z-10 py-1">
-                        <button
-                          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          onClick={(e) => openEditModal(student, e)}
-                        >
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit
-                        </button>
-                        <button
-                          className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                          onClick={(e) => handleDeleteStudent(student.id, e)}
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete
-                        </button>
+                      <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                        <div className="py-1">
+                          <button
+                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              openEditModal(student)
+                            }}
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit Student
+                          </button>
+                          <button
+                            className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              openDeleteModal(student)
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete Student
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -669,11 +701,15 @@ const Students = () => {
               <X size={20} />
             </button>
 
-            <h2 className="text-xl font-semibold mb-4 text-center">Edit Student</h2>
+            <h2 className="text-lg font-semibold mb-4">Edit Student</h2>
 
             <div className="flex flex-col items-center mb-6">
               <div className="relative w-24 h-24 mb-3 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden">
-                <img src={Avatar || "/placeholder.svg"} alt="Profile" className="w-full h-full object-cover" />
+                <img
+                  src={editProfileImage || "/placeholder.svg"}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
                 <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
                   <label
                     htmlFor="edit-profile-upload"
@@ -686,7 +722,7 @@ const Students = () => {
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={handleImageChange}
+                    onChange={handleEditImageChange}
                   />
                 </div>
               </div>
@@ -702,7 +738,7 @@ const Students = () => {
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={handleImageChange}
+                  onChange={handleEditImageChange}
                 />
               </div>
             </div>
@@ -713,7 +749,7 @@ const Students = () => {
                 <input
                   type="text"
                   className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm"
-                  defaultValue={studentToEdit.name.split(" ")[0] || ""}
+                  defaultValue={studentToEdit.name}
                 />
               </div>
 
@@ -722,7 +758,25 @@ const Students = () => {
                 <input
                   type="text"
                   className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm"
-                  defaultValue={studentToEdit.name.split(" ")[1] || ""}
+                  defaultValue=""
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm"
+                  defaultValue=""
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone No</label>
+                <input
+                  type="tel"
+                  className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm"
+                  defaultValue=""
                 />
               </div>
 
@@ -751,8 +805,8 @@ const Students = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
                 <select
                   className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm"
-                  value={selectedRole}
-                  onChange={(e) => setSelectedRole(e.target.value)}
+                  value={editSelectedRole}
+                  onChange={(e) => setEditSelectedRole(e.target.value)}
                 >
                   {roleOptions.map((role) => (
                     <option key={role} value={role}>
@@ -765,111 +819,12 @@ const Students = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                 <textarea
-                  className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm min-h-[100px]"
+                  className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm h-20 resize-none"
                   defaultValue={studentToEdit.description}
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Achievements</label>
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {studentToEdit.achievements.map((achievement, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-xl flex items-center"
-                    >
-                      {achievement.name}
-                      <button className="ml-2 text-gray-500 hover:text-red-500">
-                        <X size={14} />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Add achievement"
-                    className="flex-1 p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm"
-                  />
-                  <button type="button" className="bg-[#0B5D3A] text-white text-xs py-1.5 px-3 rounded-md">
-                    Add
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Certificates</label>
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {studentToEdit.certificates.map((certificate, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-xl flex items-center"
-                    >
-                      {certificate.name}
-                      <button className="ml-2 text-gray-500 hover:text-red-500">
-                        <X size={14} />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Add certificate"
-                    className="flex-1 p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm"
-                  />
-                  <button type="button" className="bg-[#0B5D3A] text-white text-xs py-1.5 px-3 rounded-md">
-                    Add
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Progress</label>
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm">Group activity</span>
-                      <span className="text-sm text-gray-600">{studentToEdit.progress.groupActivity}%</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      defaultValue={studentToEdit.progress.groupActivity}
-                      className="w-full"
-                    />
-                  </div>
-                  <div>
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm">Single Range 1</span>
-                      <span className="text-sm text-gray-600">{studentToEdit.progress.singleRange1}%</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      defaultValue={studentToEdit.progress.singleRange1}
-                      className="w-full"
-                    />
-                  </div>
-                  <div>
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm">Single Range 2</span>
-                      <span className="text-sm text-gray-600">{studentToEdit.progress.singleRange2}%</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      defaultValue={studentToEdit.progress.singleRange2}
-                      className="w-full"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-4 flex justify-between">
+              <div className="pt-2 flex justify-center gap-3">
                 <button
                   type="button"
                   className="bg-gray-200 text-gray-700 text-sm py-2 px-6 rounded-xl hover:bg-gray-300 transition-colors"
@@ -882,10 +837,47 @@ const Students = () => {
                   className="bg-[#0B5D3A] text-white text-sm py-2 px-6 rounded-xl hover:bg-green-700 transition-colors"
                   onClick={closeEditModal}
                 >
-                  Save Changes
+                  Update Student
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && studentToDelete && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg w-full max-w-md relative p-6 mx-4">
+            <button onClick={closeDeleteModal} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
+              <X size={20} />
+            </button>
+
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+                <Trash2 className="h-8 w-8 text-red-600" />
+              </div>
+
+              <h2 className="text-lg font-semibold mb-2">Delete Student</h2>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to delete <strong>{studentToDelete.name}</strong>? This action cannot be undone.
+              </p>
+
+              <div className="flex justify-center gap-3">
+                <button
+                  className="bg-gray-200 text-gray-700 text-sm py-2 px-6 rounded-xl hover:bg-gray-300 transition-colors"
+                  onClick={closeDeleteModal}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="bg-red-600 text-white text-sm py-2 px-6 rounded-xl hover:bg-red-700 transition-colors"
+                  onClick={handleDeleteStudent}
+                >
+                  Delete Student
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

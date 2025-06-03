@@ -1,17 +1,22 @@
-import { useState } from "react";
-import { Calendar, BookOpen, Award, MoreHorizontal, Menu, Check } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Menu, Check, X } from "lucide-react";
+import { Chart, registerables } from 'chart.js';
 import Vector1 from "../../../public/Vector.png";
 import Vector2 from "../../../public/Vector (1).png";
 import Vector3 from "../../../public/Frame.png";
+import Avatar1 from '../../../public/avatar.png';
+import Avatar2 from '../../../public/avatar (1).png';
+import Avatar3 from '../../../public/avatar (2).png';
+import Avatar4 from '../../../public/avatar4.png';
+import Layer1 from '../../../public/Layer_1.png';
 
-import Avatar1 from '../../../public/avatar.png'
-import Avatar2 from '../../../public/avatar (1).png'
-import Avatar3 from '../../../public/avatar (2).png'
-import Avatar4 from '../../../public/avatar4.png'
-import Layer1 from '../../../public/Layer_1.png'
+// Register Chart.js components
+Chart.register(...registerables);
 
 export default function Overview() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const chartRef = useRef(null);
+  const chartInstance = useRef(null);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -42,12 +47,103 @@ export default function Overview() {
     },
   ];
 
+  useEffect(() => {
+    if (chartRef.current) {
+      // Destroy previous chart instance if it exists
+      if (chartInstance.current) {
+        chartInstance.current.destroy();
+      }
+
+      const ctx = chartRef.current.getContext('2d');
+      
+      chartInstance.current = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+          datasets: [
+            {
+              label: 'Present',
+              data: [85, 78, 90, 82, 88, 92, 85, 89, 93, 87, 91, 95],
+              borderColor: '#10B981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              borderWidth: 3,
+              tension: 0.4,
+              fill: true
+            },
+            {
+              label: 'Absent',
+              data: [15, 22, 10, 18, 12, 8, 15, 11, 7, 13, 9, 5],
+              borderColor: '#1F2937',
+              backgroundColor: 'rgba(31, 41, 55, 0.1)',
+              borderWidth: 3,
+              tension: 0.4,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                usePointStyle: true,
+                boxWidth: 6,
+                padding: 20
+              }
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              callbacks: {
+                label: function(context) {
+                  return `${context.dataset.label}: ${context.raw}%`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              grid: {
+                drawBorder: false
+              },
+              ticks: {
+                callback: function(value) {
+                  return value + '%';
+                }
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              }
+            }
+          },
+          interaction: {
+            mode: 'nearest',
+            axis: 'x',
+            intersect: false
+          }
+        }
+      });
+    }
+
+    return () => {
+      if (chartInstance.current) {
+        chartInstance.current.destroy();
+      }
+    };
+  }, []);
+
   return (
     <div className="flex flex-col md:flex-row w-full min-h-screen bg-white relative">
       {/* Main Content */}
       <div className="flex-1 p-3 md:p-6">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-black text-2xl poppins-thin_600">Overview</h1>
+          <h1 className="text-black text-2xl poppins-thin_600">Instructor Overview</h1>
           <button
             className="md:hidden p-2 rounded-md hover:bg-gray-100"
             onClick={toggleSidebar}
@@ -62,9 +158,6 @@ export default function Overview() {
               <div className="bg-[#E9EED6] p-3 rounded-lg">
                 <img src={Vector1} alt="" />
               </div>
-              {/* <button className="text-black hover:bg-gray-100 rounded-full p-1">
-                <MoreHorizontal size={25} />
-              </button> */}
             </div>
             <h2 className="text-4xl font-bold">05</h2>
             <p className="text-gray-400 text-sm poppins-thin_500">Events</p>
@@ -75,9 +168,6 @@ export default function Overview() {
               <div className="bg-[#EED6D6] p-3 rounded-lg">
                 <img src={Vector2} alt="" />
               </div>
-              {/* <button className="text-black hover:bg-gray-100 rounded-full p-1">
-                <MoreHorizontal size={25} />
-              </button> */}
             </div>
             <h2 className="text-4xl font-bold">05</h2>
             <p className="text-gray-400 text-sm poppins-thin_500">Total students</p>
@@ -88,9 +178,6 @@ export default function Overview() {
               <div className="bg-[#D8D6EE] p-3 rounded-lg">
                 <img src={Vector3} alt="" />
               </div>
-              {/* <button className="text-black hover:bg-gray-100 rounded-full p-1">
-                <MoreHorizontal size={25} />
-              </button> */}
             </div>
             <h2 className="text-4xl font-bold">05</h2>
             <p className="text-gray-400 text-sm poppins-thin_500">Total courses</p>
@@ -108,18 +195,20 @@ export default function Overview() {
             </div>
             <div className="flex items-center mt-2 sm:mt-0">
               <div className="flex items-center mr-4">
-                <div className="w-6 h-4 bg-green-600 rounded-full mr-2"></div>
+                <div className="w-3 h-3 bg-green-600 rounded-full mr-2"></div>
                 <span className="text-sm poppins-thin_500">Present</span>
               </div>
               <div className="flex items-center">
-                <div className="w-6 h-4 bg-gray-800 rounded-full mr-2"></div>
+                <div className="w-3 h-3 bg-gray-800 rounded-full mr-2"></div>
                 <span className="text-sm poppins-thin_500">Absent</span>
               </div>
             </div>
           </div>
 
-          <div className="h-64 w-full">
-            <AttendanceChart />
+          <div className="relative h-80 w-full overflow-x-auto">
+            <div className="min-w-[600px] h-full">
+              <canvas ref={chartRef}  ></canvas>
+            </div>
           </div>
         </div>
       </div>
@@ -152,21 +241,7 @@ export default function Overview() {
             className="md:hidden p-2 rounded-md hover:bg-gray-100"
             onClick={toggleSidebar}
           >
-            <span className="sr-only">Close sidebar</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <X className="h-5 w-5" />
           </button>
         </div>
 
@@ -296,67 +371,7 @@ export default function Overview() {
             ))}
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function AttendanceChart() {
-  return (
-    <div className="relative h-full w-full">
-      <div className="absolute poppins-thin_500 left-0 top-0 h-full flex flex-col justify-between text-xs text-gray-500">
-        <div>500</div>
-        <div>400</div>
-        <div>300</div>
-        <div>200</div>
-        <div>100</div>
-        <div>0</div>
-      </div>
-
-      {/* Chart area */}
-      <div className="absolute left-8 right-0 top-0 bottom-4 bg-[#F9F9F9]">
-        {/* Chart SVG */}
-        <svg
-          className="w-full h-full"
-          viewBox="0 0 800 300"
-          preserveAspectRatio="none"
-        >
-          {/* Light green area for Present */}
-          <path
-            d="M0,250 C50,200 100,150 150,180 C200,210 250,120 300,100 C350,80 400,150 450,120 C500,90 550,150 600,80 C650,10 700,50 800,10 L800,300 L0,300 Z"
-            fill="rgba(16, 185, 129, 0.1)"
-          />
-
-          {/* Present line (green) */}
-          <path
-            d="M0,250 C50,200 100,150 150,180 C200,210 250,120 300,100 C350,80 400,150 450,120 C500,90 550,150 600,80 C650,10 700,50 800,10"
-            fill="none"
-            stroke="#10B981"
-            strokeWidth="3"
-          />
-
-          {/* Absent line (dark) */}
-          <path
-            d="M0,280 C50,250 100,200 150,220 C200,240 250,180 300,200 C350,220 400,250 450,200 C500,150 550,250 600,220 C650,190 700,100 800,150"
-            fill="none"
-            stroke="#1F2937"
-            strokeWidth="3"
-          />
-        </svg>
-
-        {/* X-axis labels */}
-        <div className="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-gray-500">
-          <div>Apr</div>
-          <div>May</div>
-          <div>Jun</div>
-          <div>Jul</div>
-          <div>Aug</div>
-          <div>Sep</div>
-          <div>Oct</div>
-          <div>Nov</div>
-          <div>Dec</div>
-        </div>
-      </div>
+      </div>  
     </div>
   );
 }

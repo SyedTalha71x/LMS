@@ -48,7 +48,7 @@ export default function Overview() {
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                     datasets: [
                         {
-                            label: 'Type 1',
+                            label: 'Subscription',
                             data: [200, 250, 300, 350, 400, 450, 500, 550, 500, 450, 400, 350],
                             borderColor: '#10B981',
                             backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -57,7 +57,7 @@ export default function Overview() {
                             fill: true
                         },
                         {
-                            label: 'Type 2',
+                            label: 'Course Progress',
                             data: [100, 150, 200, 250, 300, 350, 400, 450, 400, 350, 300, 250],
                             borderColor: '#1F2937',
                             backgroundColor: 'rgba(31, 41, 55, 0.1)',
@@ -120,7 +120,7 @@ export default function Overview() {
         <div className="flex flex-col md:flex-row w-full min-h-screen bg-white relative">
             <div className="flex-1 p-3 md:p-6">
                 <div className="flex md:items-center items-start md:gap-0 gap-3 flex-col md:flex-row justify-between mb-6">
-                    <h1 className="text-black text-2xl poppins-thin_600">Admin Overview</h1>
+                    <h1 className="text-black text-2xl poppins-thin_600">SuperAdmin Overview</h1>
                     <div className="flex items-center gap-2">
                         <button
                             className="bg-[#1E1E1F] poppins-thin text-white px-4 py-2 rounded-xl cursor-pointer text-sm"
@@ -180,11 +180,11 @@ export default function Overview() {
                         <div className="flex items-center mt-2 sm:mt-0">
                             <div className="flex items-center mr-4">
                                 <div className="w-3 h-3 bg-green-600 rounded-full mr-2"></div>
-                                <span className="text-sm poppins-thin_500">Type1</span>
+                                <span className="text-sm poppins-thin_500">Subscription</span>
                             </div>
                             <div className="flex items-center">
                                 <div className="w-3 h-3 bg-gray-800 rounded-full mr-2"></div>
-                                <span className="text-sm poppins-thin_500">Type2</span>
+                                <span className="text-sm poppins-thin_500">Course Progress</span>
                             </div>
                         </div>
                     </div>

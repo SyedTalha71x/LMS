@@ -47,13 +47,25 @@ import AdminEvents from './dashboardPages/admin-dashboard/events'
 import AdminPayments from './dashboardPages/admin-dashboard/payment'
 import AdminInstructors from './dashboardPages/admin-dashboard/instructors'
 
+// Super Admin Dashboard
+import SuperDashboardlayout from "./layouts/super-admin-dashboard";
+import SuperAdminOverview from './dashboardPages/super-admin-dashboard/overview'
+import SuperAdminMyProfile from './dashboardPages/super-admin-dashboard/my-profile'
+import SuperAdminStudents from './dashboardPages/super-admin-dashboard/students'
+import SuperAdminCourses from './dashboardPages/super-admin-dashboard/courses'
+import SuperAdminDiscussion from './dashboardPages/super-admin-dashboard/discussions'
+import SuperAdminAssignments from './dashboardPages/super-admin-dashboard/assignements'
+import SuperAdminNotifications from './dashboardPages/super-admin-dashboard/notifications'
+import SuperAdminPayments from './dashboardPages/super-admin-dashboard/payment'
+import SuperAdminInstructors from './dashboardPages/super-admin-dashboard/instructors'
+import SuperAdminVideoDocs from './dashboardPages/super-admin-dashboard/video-and-docs'
 
 function App() {
   const location = useLocation();
 
   const isLoginRoute =
     location.pathname.startsWith("/login") ||
-    location.pathname.startsWith("/learner-dashboard") || location.pathname.startsWith("/instructor-dashboard") || location.pathname.startsWith("/admin-dashboard");
+    location.pathname.startsWith("/learner-dashboard") || location.pathname.startsWith("/instructor-dashboard") || location.pathname.startsWith("/admin-dashboard") || location.pathname.startsWith("/super-admin-dashboard");
 
   return (
     <>
@@ -78,16 +90,16 @@ function App() {
           path="instructor-dashboard"
           element={<InstructorDashboardlayout />}
         >
-          <Route path="overview" element={<InstructorOverview/>}/>
+          <Route path="overview" element={<InstructorOverview />} />
           <Route path="profile" element={<Profile />} />
           <Route path="students" element={<Students />} />
           <Route path="groups" element={<InstructorGroup />} />
           <Route path="discussion" element={<Discussion />} />
-          <Route path="assignments" element={<InstructorAssignments/>}/>
-          <Route path="events" element={<InstructorEvents/>}/>
-          <Route path="conference" element={<Conference/>}/>
-          <Route path="courses" element={<InstructorCourses/>}/>
-          <Route path="notifications" element={<InstructorNotifcations/>}/>
+          <Route path="assignments" element={<InstructorAssignments />} />
+          <Route path="events" element={<InstructorEvents />} />
+          <Route path="conference" element={<Conference />} />
+          <Route path="courses" element={<InstructorCourses />} />
+          <Route path="notifications" element={<InstructorNotifcations />} />
 
         </Route>
 
@@ -96,21 +108,34 @@ function App() {
           path="admin-dashboard"
           element={<AdminDashboardlayout />}
         >
-          <Route path="overview" element={<AdminOverview/>}/>
+          <Route path="overview" element={<AdminOverview />} />
           <Route path="my-profile" element={<AdminMyProfile />} />
           <Route path="students" element={<AdminStudents />} />
           <Route path="courses" element={<AdminCourses />} />
           <Route path="discussion" element={<AdminDiscussion />} />
-          <Route path="assignments" element={<AdminAssignments/>}/>
-          <Route path="events" element={<AdminEvents/>}/>
-          <Route path="conference" element={<AdminConference/>}/>
-          <Route path="notifications" element={<AdminNotifications/>}/>
-          <Route path="payments" element={<AdminPayments/>}/>
-          <Route path="instructors" element={<AdminInstructors/>}/>
+          <Route path="assignments" element={<AdminAssignments />} />
+          <Route path="events" element={<AdminEvents />} />
+          <Route path="conference" element={<AdminConference />} />
+          <Route path="notifications" element={<AdminNotifications />} />
+          <Route path="payments" element={<AdminPayments />} />
+          <Route path="instructors" element={<AdminInstructors />} />
+        </Route>
 
+        <Route path="super-admin-dashboard" element={<SuperDashboardlayout />}>
+          <Route path="overview" element={<SuperAdminOverview />} />
+          <Route path="my-profile" element={<SuperAdminMyProfile />} />
+          <Route path="students" element={<SuperAdminStudents />} />
+          <Route path="courses" element={<SuperAdminCourses />} />
+          <Route path="discussion" element={<SuperAdminDiscussion />} />
+          <Route path="assignments" element={<SuperAdminAssignments />} />
+          <Route path="notifications" element={<SuperAdminNotifications />} />
+          <Route path="payments" element={<SuperAdminPayments />} />
+          <Route path="instructors" element={<SuperAdminInstructors />} />
+          <Route path="video&docs" element={<SuperAdminVideoDocs />} />
 
 
         </Route>
+
       </Routes>
       {!isLoginRoute && <Footer />}
     </>

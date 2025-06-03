@@ -8,7 +8,8 @@ import {
   ChevronUp,
   Book,
   Notebook,
-  Calendar
+  Calendar,
+  BookDashed
 } from "lucide-react";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { GiProgression } from "react-icons/gi";
@@ -21,6 +22,8 @@ import { FaUserGroup } from "react-icons/fa6";
 
 
 const Sidebar = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
@@ -30,8 +33,10 @@ const Sidebar = () => {
     setIsRightSidebarOpen(!isRightSidebarOpen);
   };
 
-  const location = useLocation();
-  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    navigate("/login");
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -263,6 +268,17 @@ const Sidebar = () => {
                   </button>
                 </li>
               ))}
+
+
+<li>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 cursor-pointer rounded-xl text-sm px-4 py-2.5 open_sans_font text-black w-full text-left hover:text-white hover:bg-red-600 transition-all duration-300"
+                >
+                  <BookDashed size={20} />
+                  <span className="text-md">Logout</span>
+                </button>
+              </li>
             </ul>
           </nav>
         </div>

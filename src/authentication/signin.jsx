@@ -26,7 +26,7 @@ const Signin = () => {
         window.location.href = "/admin-dashboard/overview";
         break;
       case "superadmin":
-        window.location.href = "/superadmin-dashboard/overview";
+        window.location.href = "/super-admin-dashboard/overview";
         break;
       default:
         window.location.href = "/";

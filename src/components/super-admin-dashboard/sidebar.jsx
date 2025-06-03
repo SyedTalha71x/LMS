@@ -11,7 +11,8 @@ import {
   Calendar,
   User2,
   MessageCircle,
-  BookDashed
+  BookDashed,
+  Video
 } from "lucide-react";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { MdEvent } from "react-icons/md";
@@ -20,21 +21,24 @@ import { FaUserGroup } from "react-icons/fa6";
 
 
 const Sidebar = () => {
-  const navigate = useNavigate();
+
   const location = useLocation();
+  const navigate = useNavigate();
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
   const [isProgressSubmenuOpen, setIsProgressSubmenuOpen] = useState(false);
 
-  const handleLogout = () => {
-    navigate("/login");
-  };
-
   const toggleRightSidebar = () => {
     setIsRightSidebarOpen(!isRightSidebarOpen);
   };
 
+
+
+  const handleLogout = () => {
+    navigate("/login");
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -129,11 +133,11 @@ const Sidebar = () => {
             <ul className="space-y-2 p-4">
               <li>
                 <button
-                  onClick={() => handleNavigation("/admin-dashboard/overview")}
+                  onClick={() => handleNavigation("/super-admin-dashboard/overview")}
                   className={`flex items-center gap-3 cursor-pointer rounded-xl text-sm px-4 py-2.5 open_sans_font text-black relative w-full text-left
                   group transition-all duration-300 
                   ${
-                    location.pathname === "/admin-dashboard/overview"
+                    location.pathname === "/super-admin-dashboard/overview"
                       ? "text-white bg-[#0B5D3A]"
                       : "hover:text-white hover:bg-[#0B5D3A]"
                   }`}
@@ -142,7 +146,7 @@ const Sidebar = () => {
                     size={20}
                     className={`
                     ${
-                      location.pathname === "/admin-dashboard/overview"
+                      location.pathname === "/super-admin-dashboard/overview"
                         ? "text-white"
                         : "hover:text-black"
                     }`}
@@ -154,22 +158,21 @@ const Sidebar = () => {
                 {
                   icon: FaUserGroup,
                   label: "My Profile",
-                  to: "/admin-dashboard/my-profile",
+                  to: "/super-admin-dashboard/my-profile",
                 },
-                { icon: User2, label: "Instructors", to: "/admin-dashboard/instructors" },
-
-                { icon: User2, label: "Students", to: "/admin-dashboard/students" },
-                { icon: Book, label: "Courses   ", to: "/admin-dashboard/courses" },
-
-                { icon: MessageCircle, label: "Discussion", to: "/admin-dashboard/discussion" },
-                { icon: PiNotification, label: "Notification", to: "/admin-dashboard/notifications" },
+                { icon: User2, label: "Instructors", to: "/super-admin-dashboard/instructors" },
+                { icon: Video, label: "Video & Docs", to: "/super-admin-dashboard/video&docs" },
 
 
-                { icon: Notebook, label: "Assignments", to: "/admin-dashboard/assignments" },
+                { icon: Book, label: "Courses   ", to: "/super-admin-dashboard/courses" },
 
-                { icon: MdEvent, label: "Events", to: "/admin-dashboard/events" },
-                { icon: MdEvent, label: "Conference", to: "/admin-dashboard/conference" },
-                { icon: MdEvent, label: "Payments", to: "/admin-dashboard/payments" },
+                { icon: MessageCircle, label: "Discussion", to: "/super-admin-dashboard/discussion" },
+                { icon: PiNotification, label: "Notification", to: "/super-admin-dashboard/notifications" },
+
+
+                { icon: Notebook, label: "Assignments", to: "/super-admin-dashboard/assignments" },
+
+                { icon: MdEvent, label: "Payments", to: "/super-admin-dashboard/payments" },
 
               ].map((item) => (
                 <li key={item.label}>
