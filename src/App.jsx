@@ -46,6 +46,7 @@ import AdminNotifications from './dashboardPages/admin-dashboard/notifications'
 import AdminEvents from './dashboardPages/admin-dashboard/events'
 import AdminPayments from './dashboardPages/admin-dashboard/payment'
 import AdminInstructors from './dashboardPages/admin-dashboard/instructors'
+import AdminGroups from './dashboardPages/admin-dashboard/groups'
 
 // Super Admin Dashboard
 import SuperDashboardlayout from "./layouts/super-admin-dashboard";
@@ -59,6 +60,7 @@ import SuperAdminNotifications from './dashboardPages/super-admin-dashboard/noti
 import SuperAdminPayments from './dashboardPages/super-admin-dashboard/payment'
 import SuperAdminInstructors from './dashboardPages/super-admin-dashboard/instructors'
 import SuperAdminVideoDocs from './dashboardPages/super-admin-dashboard/video-and-docs'
+
 
 function App() {
   const location = useLocation();
@@ -119,6 +121,7 @@ function App() {
           <Route path="notifications" element={<AdminNotifications />} />
           <Route path="payments" element={<AdminPayments />} />
           <Route path="instructors" element={<AdminInstructors />} />
+          <Route path="groups" element={<AdminGroups />} />
         </Route>
 
         <Route path="super-admin-dashboard" element={<SuperDashboardlayout />}>

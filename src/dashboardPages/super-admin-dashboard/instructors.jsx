@@ -1,6 +1,8 @@
+"use client"
+
 import { useState } from "react"
 import CardBGImage from "../../../public/portada.png"
-import { ChevronRight, X, Upload } from "lucide-react"
+import { ChevronRight, X, Menu } from "lucide-react"
 
 export default function InstructorsPage() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -27,7 +29,6 @@ export default function InstructorsPage() {
         { name: "Progress 3", value: 80 },
       ],
       position: "Ast. teacher",
-      membership: 'paid'
     },
     {
       id: "2",
@@ -45,7 +46,6 @@ export default function InstructorsPage() {
         { name: "Progress 3", value: 90 },
       ],
       position: "Ast. teacher",
-      membership: 'paid'
     },
     {
       id: "3",
@@ -63,7 +63,6 @@ export default function InstructorsPage() {
         { name: "Progress 3", value: 30 },
       ],
       position: "Ast. teacher",
-      membership: 'paid'
     },
     {
       id: "4",
@@ -81,7 +80,6 @@ export default function InstructorsPage() {
         { name: "Progress 3", value: 60 },
       ],
       position: "Ast. teacher",
-      membership: 'paid'
     },
   ]
 
@@ -140,28 +138,37 @@ export default function InstructorsPage() {
             <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <h1 className="text-3xl font-bold text-gray-800">Instructors</h1>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                {/* Search Bar */}
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full rounded-full bg-gray-100 py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 sm:w-64"
-                  />
-                  <svg
-                    className="absolute left-3 top-2.5 h-4 w-4 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                {/* Search Bar with Menu Icon */}
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full rounded-full bg-gray-100 py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 sm:w-64"
                     />
-                  </svg>
+                    <svg
+                      className="absolute left-3 top-2.5 h-4 w-4 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
+                    </svg>
+                  </div>
+                  {/* Menu Icon - Only visible on small screens */}
+                  <button
+                    onClick={toggleSidebar}
+                    className="lg:hidden p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                  >
+                    <Menu className="h-5 w-5 text-gray-600" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -362,11 +369,12 @@ export default function InstructorsPage() {
                   />
                 </div>
                 <div className="flex justify-center items-center">
-
-
-                <button type="submit" className=" bg-[#0B5D3A] text-white py-2 px-6 rounded-xl text-sm md:w-auto w-full font-semibold mt-6">
-                  Create Instructor
-                </button>
+                  <button
+                    type="submit"
+                    className=" bg-[#0B5D3A] text-white py-2 px-6 rounded-xl text-sm md:w-auto w-full font-semibold mt-6"
+                  >
+                    Create Instructor
+                  </button>
                 </div>
               </form>
             </div>
@@ -433,23 +441,18 @@ export default function InstructorsPage() {
                   </div>
                 </div>
 
-                <div className="flex flex-col justify-start items-start">
-                  <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Membership</h3>
-                  <p className="text-sm text-white bg-[#5DBA72] py-1.5 poppins-thin cursor-pointer px-7 rounded-xl w-auto ">{selectedInstructor.membership}</p>
-
-                  <div className="mt-3 flex items-center gap-1">
-                    <span className="text-sm text-red-600 font-bold">Next Payment:</span><div className="text-sm text-gray-600">19-02-2025</div>
-                  </div>
-                </div>
-
                 {/* Role */}
                 <div className="flex flex-col justify-start items-start">
                   <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Role</h3>
-                  <p className="text-sm text-gray-700 bg-gray-100 py-2 poppins-thin cursor-pointer px-6 rounded-xl w-auto ">{selectedInstructor.position}</p>
+                  <p className="text-sm text-gray-700 bg-gray-100 py-2 px-6 rounded-xl w-auto ">
+                    {selectedInstructor.position}
+                  </p>
                 </div>
 
                 {/* Delete Button */}
-                <button className="w-full md:w-auto bg-[#C77373] text-white py-2 px-6 poppins-thin  cursor-pointer text-sm rounded-xl font-semibold ">Delete</button>
+                <button className="w-full md:w-auto bg-[#C77373] text-white py-2 px-6 cursor-pointer text-sm rounded-lg font-semibold mt-6">
+                  Delete
+                </button>
               </div>
             </div>
           </div>

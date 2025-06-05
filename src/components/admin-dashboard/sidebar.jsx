@@ -1,40 +1,22 @@
 /* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import {
-  Menu,
-  X,
-  ChevronDown,
-  ChevronUp,
-  Book,
-  Notebook,
-  Calendar,
-  User2,
-  MessageCircle,
-  BookDashed
-} from "lucide-react";
-import { LuLayoutDashboard } from "react-icons/lu";
-import { MdEvent } from "react-icons/md";
-import { PiNotification } from "react-icons/pi";
-import { FaUserGroup } from "react-icons/fa6";
+import { Menu, X } from "lucide-react";
 
+// React Icons
+import { LuLayoutDashboard } from "react-icons/lu";
+import { FaUser, FaUsers, FaChalkboardTeacher, FaBook, FaComments, FaTasks, FaCalendarAlt, FaCreditCard } from "react-icons/fa";
+import { IoIosNotificationsOutline } from "react-icons/io";
+import { FiLogOut } from "react-icons/fi";
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
-  const [isProgressSubmenuOpen, setIsProgressSubmenuOpen] = useState(false);
 
   const handleLogout = () => {
     navigate("/login");
   };
-
-  const toggleRightSidebar = () => {
-    setIsRightSidebarOpen(!isRightSidebarOpen);
-  };
-
 
   useEffect(() => {
     const handleResize = () => {
@@ -47,23 +29,6 @@ const Sidebar = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  useEffect(() => {
-    setIsSidebarOpen(false);
-  }, []);
-
-  // Check if current path is in the progress submenu
-  useEffect(() => {
-    const progressPaths = [
-      "/instructor-dashboard/progress",
-      "/instructor-dashboard/progress/courses",
-      "/instructor-dashboard/progress/certificate",
-      "/instructor-dashboard/progress/badge"
-    ];
-    if (progressPaths.includes(location.pathname)) {
-      setIsProgressSubmenuOpen(true);
-    }
-  }, [location.pathname]);
-
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -71,14 +36,6 @@ const Sidebar = () => {
   const handleNavigation = (to) => {
     navigate(to);
     setIsSidebarOpen(false);
-  };
-
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  const toggleProgressSubmenu = () => {
-    setIsProgressSubmenuOpen(!isProgressSubmenuOpen);
   };
 
   return (
@@ -98,9 +55,9 @@ const Sidebar = () => {
           >
             <Menu size={24} />
           </button>
-          <span className="text-white font-semibold"></span>
         </div>
       </div>
+
       <aside
         className={`${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -127,6 +84,7 @@ const Sidebar = () => {
 
           <nav className="flex-1 overflow-y-auto custom-scrollbar">
             <ul className="space-y-2 p-4">
+              {/* Overview */}
               <li>
                 <button
                   onClick={() => handleNavigation("/admin-dashboard/overview")}
@@ -138,39 +96,24 @@ const Sidebar = () => {
                       : "hover:text-white hover:bg-[#0B5D3A]"
                   }`}
                 >
-                  <LuLayoutDashboard
-                    size={20}
-                    className={`
-                    ${
-                      location.pathname === "/admin-dashboard/overview"
-                        ? "text-white"
-                        : "hover:text-black"
-                    }`}
-                  />
+                  <LuLayoutDashboard size={20} />
                   <span className="text-md">Overview</span>
                 </button>
               </li>
+
+              {/* Other Links */}
               {[
-                {
-                  icon: FaUserGroup,
-                  label: "My Profile",
-                  to: "/admin-dashboard/my-profile",
-                },
-                { icon: User2, label: "Instructors", to: "/admin-dashboard/instructors" },
-
-                { icon: User2, label: "Students", to: "/admin-dashboard/students" },
-                { icon: Book, label: "Courses   ", to: "/admin-dashboard/courses" },
-
-                { icon: MessageCircle, label: "Discussion", to: "/admin-dashboard/discussion" },
-                { icon: PiNotification, label: "Notification", to: "/admin-dashboard/notifications" },
-
-
-                { icon: Notebook, label: "Assignments", to: "/admin-dashboard/assignments" },
-
-                { icon: MdEvent, label: "Events", to: "/admin-dashboard/events" },
-                { icon: MdEvent, label: "Conference", to: "/admin-dashboard/conference" },
-                { icon: MdEvent, label: "Payments", to: "/admin-dashboard/payments" },
-
+                { icon: FaUser, label: "My Profile", to: "/admin-dashboard/my-profile" },
+                { icon: FaChalkboardTeacher, label: "Instructors", to: "/admin-dashboard/instructors" },
+                { icon: FaUsers, label: "Groups", to: "/admin-dashboard/groups" },
+                { icon: FaUser, label: "Students", to: "/admin-dashboard/students" },
+                { icon: FaBook, label: "Courses", to: "/admin-dashboard/courses" },
+                { icon: FaComments, label: "Discussion", to: "/admin-dashboard/discussion" },
+                { icon: IoIosNotificationsOutline, label: "Notification", to: "/admin-dashboard/notifications" },
+                { icon: FaTasks, label: "Assignments", to: "/admin-dashboard/assignments" },
+                { icon: FaCalendarAlt, label: "Events", to: "/admin-dashboard/events" },
+                { icon: FaCalendarAlt, label: "Conference", to: "/admin-dashboard/conference" },
+                { icon: FaCreditCard, label: "Payments", to: "/admin-dashboard/payments" },
               ].map((item) => (
                 <li key={item.label}>
                   <button
@@ -183,26 +126,19 @@ const Sidebar = () => {
                         : "hover:text-white hover:bg-[#0B5D3A]"
                     }`}
                   >
-                    <item.icon
-                      size={20}
-                      className={`
-                      ${
-                        location.pathname === item.to
-                          ? "text-white"
-                          : "hover:text-black"
-                      }`}
-                    />
+                    <item.icon size={20} />
                     <span className="text-md">{item.label}</span>
                   </button>
                 </li>
               ))}
 
-<li>
+              {/* Logout */}
+              <li>
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-3 cursor-pointer rounded-xl text-sm px-4 py-2.5 open_sans_font text-black w-full text-left hover:text-white hover:bg-red-600 transition-all duration-300"
                 >
-                  <BookDashed size={20} />
+                  <FiLogOut size={20} />
                   <span className="text-md">Logout</span>
                 </button>
               </li>
