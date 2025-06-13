@@ -2,24 +2,25 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
-  Menu,
-  X,
-  ChevronDown,
-  ChevronUp,
-  Book,
-  Notebook,
-  Calendar,
-  BookDashed
-} from "lucide-react";
-import { LuLayoutDashboard } from "react-icons/lu";
-import { GiProgression } from "react-icons/gi";
-import { GrAchievement } from "react-icons/gr";
-import { FaRegMessage } from "react-icons/fa6";
-import { MdPayment } from "react-icons/md";
-import { PiNotification } from "react-icons/pi";
-import { Bell } from "lucide-react";
-import { FaUserGroup } from "react-icons/fa6";
-
+  FaBars,
+  FaTimes,
+  FaBook,
+  FaRegCalendarAlt,
+  FaRegUser,
+  FaChalkboardTeacher,
+  FaCommentDots,
+  FaSignOutAlt,
+  FaChartLine,
+  FaGraduationCap,
+  FaCertificate,
+  FaUsers,
+  FaBell,
+  FaFolderOpen,
+  FaRegFileAlt
+} from "react-icons/fa";
+import { MdDashboard, MdAssignment, MdEvent } from "react-icons/md";
+import { IoChevronDown, IoChevronUp } from "react-icons/io5";
+import { PiBellRingingBold } from "react-icons/pi";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -33,7 +34,6 @@ const Sidebar = () => {
     setIsRightSidebarOpen(!isRightSidebarOpen);
   };
 
-
   const handleLogout = () => {
     navigate("/login");
   };
@@ -44,7 +44,6 @@ const Sidebar = () => {
         setIsSidebarOpen(false);
       }
     };
-
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -53,13 +52,12 @@ const Sidebar = () => {
     setIsSidebarOpen(false);
   }, []);
 
-  // Check if current path is in the progress submenu
   useEffect(() => {
     const progressPaths = [
       "/learner-dashboard/progress",
       "/learner-dashboard/progress/courses",
       "/learner-dashboard/progress/certificate",
-      "/learner-dashboard/progress/badge"
+      "/learner-dashboard/progress/badge",
     ];
     if (progressPaths.includes(location.pathname)) {
       setIsProgressSubmenuOpen(true);
@@ -98,11 +96,11 @@ const Sidebar = () => {
             className="p-2 rounded-lg text-black hover:bg-zinc-700 hover:text-white cursor-pointer"
             aria-label="Toggle Sidebar"
           >
-            <Menu size={24} />
+            <FaBars size={24} />
           </button>
-          <span className="text-white font-semibold"></span>
         </div>
       </div>
+
       <aside
         className={`${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -114,17 +112,13 @@ const Sidebar = () => {
             className="p-2 text-white hover:bg-zinc-700 rounded-lg"
             aria-label="Close Sidebar"
           >
-            <X size={20} />
+            <FaTimes size={20} />
           </button>
         </div>
 
         <div className="flex flex-col h-full overflow-y-auto mt-5">
           <div className="p-4 hidden md:block">
-            <div className="flex flex-col justify-center items-start gap-3">
-              <div className="flex flex-col gap-0.5">
-                <h2 className="text-black text-2xl ml-1 poppins-thin_bold">LMS</h2>
-              </div>
-            </div>
+            <h2 className="text-black text-2xl ml-1 poppins-thin_bold">LMS</h2>
           </div>
 
           <nav className="flex-1 overflow-y-auto custom-scrollbar">
@@ -132,96 +126,76 @@ const Sidebar = () => {
               <li>
                 <button
                   onClick={() => handleNavigation("/learner-dashboard/overview")}
-                  className={`flex items-center gap-3 cursor-pointer rounded-xl text-sm px-4 py-2.5 open_sans_font text-black relative w-full text-left
-                  group transition-all duration-300 
-                  ${
+                  className={`flex items-center gap-3 cursor-pointer rounded-xl text-sm px-4 py-2.5 open_sans_font relative w-full text-left transition-all duration-300 ${
                     location.pathname === "/learner-dashboard/overview"
                       ? "text-white bg-[#0B5D3A]"
-                      : "hover:text-white hover:bg-[#0B5D3A]"
+                      : "text-black hover:text-white hover:bg-[#0B5D3A]"
                   }`}
                 >
-                  <LuLayoutDashboard
-                    size={20}
-                    className={`
-                    ${
-                      location.pathname === "/learner-dashboard/overview"
-                        ? "text-white"
-                        : "hover:text-black"
-                    }`}
-                  />
+                  <MdDashboard size={20} />
                   <span className="text-md">Overview</span>
                 </button>
               </li>
-              
+
               <li>
                 <div className="flex flex-col">
                   <button
                     onClick={toggleProgressSubmenu}
-                    className={`flex items-center justify-between cursor-pointer rounded-xl text-sm px-4 py-2.5 open_sans_font text-black relative w-full text-left
-                    group transition-all duration-500 
-                    ${
+                    className={`flex items-center justify-between cursor-pointer rounded-xl text-sm px-4 py-2.5 open_sans_font relative w-full text-left transition-all duration-500 ${
                       location.pathname.includes("/learner-dashboard/progress")
                         ? "text-white bg-[#0B5D3A]"
-                        : "hover:text-white hover:bg-[#0B5D3A]"
+                        : "text-black hover:text-white hover:bg-[#0B5D3A]"
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <GiProgression
-                        size={20}
-                        className={`
-                        ${
-                          location.pathname.includes("/learner-dashboard/progress")
-                            ? "text-white"
-                            : "hover:text-black"
-                        }`}
-                      />
+                      <FaChartLine size={20} />
                       <span className="text-md">Progress</span>
                     </div>
                     {isProgressSubmenuOpen ? (
-                      <ChevronUp size={16} />
+                      <IoChevronUp size={16} />
                     ) : (
-                      <ChevronDown size={16} />
+                      <IoChevronDown size={16} />
                     )}
                   </button>
-                  
+
                   {isProgressSubmenuOpen && (
                     <ul className="pl-9 mt-1 space-y-1">
                       <li>
                         <button
                           onClick={() => handleNavigation("/learner-dashboard/courses")}
-                          className={`flex items-center gap-2 cursor-pointer rounded-lg text-sm py-2 px-3 w-full text-left transition-all duration-300
-                          ${
+                          className={`flex items-center gap-2 cursor-pointer rounded-lg text-sm py-2 px-3 w-full text-left transition-all duration-300 ${
                             location.pathname === "/learner-dashboard/courses"
                               ? "text-white bg-[#0B5D3A]"
                               : "text-black hover:text-white hover:bg-[#0B5D3A]"
                           }`}
                         >
+                          <FaBook size={16} />
                           <span className="text-sm">Courses</span>
                         </button>
                       </li>
                       <li>
                         <button
                           onClick={() => handleNavigation("/learner-dashboard/certificates")}
-                          className={`flex items-center gap-2 cursor-pointer rounded-lg text-sm py-2 px-3 w-full text-left transition-all duration-300
-                          ${
+                          className={`flex items-center gap-2 cursor-pointer rounded-lg text-sm py-2 px-3 w-full text-left transition-all duration-300 ${
                             location.pathname === "/learner-dashboard/certificates"
                               ? "text-white bg-[#0B5D3A]"
                               : "text-black hover:text-white hover:bg-[#0B5D3A]"
                           }`}
                         >
+                          <FaCertificate size={16} />
                           <span className="text-sm">Certificate</span>
                         </button>
                       </li>
                       <li>
                         <button
                           onClick={() => handleNavigation("/learner-dashboard/badges")}
-                          className={`flex items-center gap-2 cursor-pointer rounded-lg text-sm py-2 px-3 w-full text-left transition-all duration-300
-                          ${
+                          className={`flex items-center gap-2 cursor-pointer rounded-lg text-sm py-2 px-3 w-full text-left transition-all duration-300 ${
                             location.pathname === "/learner-dashboard/badges"
                               ? "text-white bg-[#0B5D3A]"
                               : "text-black hover:text-white hover:bg-[#0B5D3A]"
                           }`}
                         >
+                          <FaGraduationCap size={16} />
                           <span className="text-sm">Badge</span>
                         </button>
                       </li>
@@ -229,53 +203,60 @@ const Sidebar = () => {
                   )}
                 </div>
               </li>
-              
+
               {[
                 {
-                  icon: FaUserGroup,
+                  icon: FaUsers,
                   label: "Group",
                   to: "/learner-dashboard/groups",
                 },
-                { icon: FaRegMessage, label: "Messages", to: "/learner-dashboard/messages" },
-                { icon: Book, label: "Courses", to: "/learner-dashboard/all-courses" },
-
-                { icon: Calendar, label: "Calender", to: "/learner-dashboard/calender" },
-                { icon: Notebook, label: "Assignments", to: "/learner-dashboard/assignments" },
-
-                { icon: PiNotification, label: "Notification", to: "/learner-dashboard/notifications" },
+                {
+                  icon: FaCommentDots,
+                  label: "Messages",
+                  to: "/learner-dashboard/messages",
+                },
+                {
+                  icon: FaFolderOpen,
+                  label: "Courses",
+                  to: "/learner-dashboard/all-courses",
+                },
+                {
+                  icon: FaRegCalendarAlt,
+                  label: "Calender",
+                  to: "/learner-dashboard/calender",
+                },
+                {
+                  icon: MdAssignment,
+                  label: "Assignments",
+                  to: "/learner-dashboard/assignments",
+                },
+                {
+                  icon: PiBellRingingBold,
+                  label: "Notification",
+                  to: "/learner-dashboard/notifications",
+                },
               ].map((item) => (
                 <li key={item.label}>
                   <button
                     onClick={() => handleNavigation(item.to)}
-                    className={`flex items-center gap-3 cursor-pointer rounded-xl text-sm px-4 py-2.5 open_sans_font text-black relative w-full text-left
-                    group transition-all duration-300 
-                    ${
+                    className={`flex items-center gap-3 cursor-pointer rounded-xl text-sm px-4 py-2.5 open_sans_font relative w-full text-left transition-all duration-300 ${
                       location.pathname === item.to
                         ? "text-white bg-[#0B5D3A]"
-                        : "hover:text-white hover:bg-[#0B5D3A]"
+                        : "text-black hover:text-white hover:bg-[#0B5D3A]"
                     }`}
                   >
-                    <item.icon
-                      size={20}
-                      className={`
-                      ${
-                        location.pathname === item.to
-                          ? "text-white"
-                          : "hover:text-black"
-                      }`}
-                    />
+                    <item.icon size={20} />
                     <span className="text-md">{item.label}</span>
                   </button>
                 </li>
               ))}
 
-
-<li>
+              <li>
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-3 cursor-pointer rounded-xl text-sm px-4 py-2.5 open_sans_font text-black w-full text-left hover:text-white hover:bg-red-600 transition-all duration-300"
                 >
-                  <BookDashed size={20} />
+                  <FaSignOutAlt size={20} />
                   <span className="text-md">Logout</span>
                 </button>
               </li>

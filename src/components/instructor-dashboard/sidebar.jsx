@@ -1,26 +1,30 @@
 /* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 import {
-  Menu,
-  X,
-  ChevronDown,
-  ChevronUp,
-  Book,
-  Notebook,
-  Calendar,
-  User2,
-  MessageCircle,
-  BookDashed
-} from "lucide-react";
-import { LuLayoutDashboard } from "react-icons/lu";
-import { MdEvent } from "react-icons/md";
-import { PiNotification } from "react-icons/pi";
-import { FaUserGroup } from "react-icons/fa6";
-
+  FiHome,
+  FiUsers,
+  FiLogOut
+} from "react-icons/fi";
+import {
+  HiOutlineUserGroup
+} from "react-icons/hi";
+import {
+  MdGroupWork,
+  MdForum,
+  MdLibraryBooks,
+  MdEventNote,
+  MdVideoCall
+} from "react-icons/md";
+import {
+  IoNotificationsOutline
+} from "react-icons/io5";
+import {
+  FaTasks
+} from "react-icons/fa";
 
 const Sidebar = () => {
-
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -31,7 +35,6 @@ const Sidebar = () => {
   const toggleRightSidebar = () => {
     setIsRightSidebarOpen(!isRightSidebarOpen);
   };
-
 
   const handleLogout = () => {
     navigate("/login");
@@ -52,7 +55,6 @@ const Sidebar = () => {
     setIsSidebarOpen(false);
   }, []);
 
-  // Check if current path is in the progress submenu
   useEffect(() => {
     const progressPaths = [
       "/instructor-dashboard/progress",
@@ -139,7 +141,7 @@ const Sidebar = () => {
                       : "hover:text-white hover:bg-[#0B5D3A]"
                   }`}
                 >
-                  <LuLayoutDashboard
+                  <FiHome
                     size={20}
                     className={`
                     ${
@@ -153,22 +155,18 @@ const Sidebar = () => {
               </li>
               {[
                 {
-                  icon: FaUserGroup,
+                  icon: HiOutlineUserGroup,
                   label: "Profile",
                   to: "/instructor-dashboard/profile",
                 },
-                { icon: User2, label: "Students", to: "/instructor-dashboard/students" },
-                { icon: Book, label: "Groups", to: "/instructor-dashboard/groups" },
-
-                { icon: MessageCircle, label: "Discussion", to: "/instructor-dashboard/discussion" },
-                { icon: PiNotification, label: "Notification", to: "/instructor-dashboard/notifications" },
-
-                { icon: BookDashed, label: "Courses", to: "/instructor-dashboard/courses" },
-
-                { icon: Notebook, label: "Assignments", to: "/instructor-dashboard/assignments" },
-
-                { icon: MdEvent, label: "Events", to: "/instructor-dashboard/events" },
-                { icon: MdEvent, label: "Conference", to: "/instructor-dashboard/conference" },
+                { icon: FiUsers, label: "Students", to: "/instructor-dashboard/students" },
+                { icon: MdGroupWork, label: "Groups", to: "/instructor-dashboard/groups" },
+                { icon: MdForum, label: "Discussion", to: "/instructor-dashboard/discussion" },
+                { icon: IoNotificationsOutline, label: "Notification", to: "/instructor-dashboard/notifications" },
+                { icon: MdLibraryBooks, label: "Courses", to: "/instructor-dashboard/courses" },
+                { icon: FaTasks, label: "Assignments", to: "/instructor-dashboard/assignments" },
+                { icon: MdEventNote, label: "Events", to: "/instructor-dashboard/events" },
+                { icon: MdVideoCall, label: "Conference", to: "/instructor-dashboard/conference" },
               ].map((item) => (
                 <li key={item.label}>
                   <button
@@ -194,14 +192,12 @@ const Sidebar = () => {
                   </button>
                 </li>
               ))}
-
-
-<li>
+              <li>
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-3 cursor-pointer rounded-xl text-sm px-4 py-2.5 open_sans_font text-black w-full text-left hover:text-white hover:bg-red-600 transition-all duration-300"
                 >
-                  <BookDashed size={20} />
+                  <FiLogOut size={20} />
                   <span className="text-md">Logout</span>
                 </button>
               </li>
