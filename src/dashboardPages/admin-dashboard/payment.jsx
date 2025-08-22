@@ -1,502 +1,988 @@
-/* eslint-disable no-unused-vars */
-"use client"
+import { useState } from "react"
+import {
+  Card,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Select,
+  Table,
+  Tag,
+  Space,
+  Row,
+  Col,
+  Statistic,
+  Divider,
+  Typography,
+  Tooltip,
+  Progress,
+  Alert,
+  Switch,
+  message,
+  DatePicker,
+} from "antd"
+import {
+  CreditCardOutlined,
+  DownloadOutlined,
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  StarOutlined,
+  StarFilled,
+  SettingOutlined,
+  CalendarOutlined,
+  DollarOutlined,
+  FileTextOutlined,
+  SafetyOutlined,
+  BankOutlined,
+  PayCircleOutlined,
+  TeamOutlined,
 
-import { X, Edit } from "lucide-react"
-import Image23 from "../../../public/image (23).png"
-import { useState, useRef, useEffect } from "react"
-import MasterCard from "../../../public/Master Card 1 (Hot Ion).svg"
-import VectorImage from "../../../public/Vector-payment.svg"
-import CardImage from "../../../public/money-coins.png"
+  ExclamationCircleOutlined,
+  MailOutlined,
+  BellOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons"
 
-import MasterCard2 from "../../../public/Master Card 2 (Dark Crystal).png"
-import VisaCard from "../../../public/Visa Card 1 (Sweet Colors).png"
+const { Title, Text, Paragraph } = Typography
+const { Option } = Select
+const { RangePicker } = DatePicker
 
-import { BiEdit } from "react-icons/bi"
-import { RiDeleteBin6Line } from "react-icons/ri"
+export default function SubscriptionDashboard() {
+  const [manageModalVisible, setManageModalVisible] = useState(false)
+  const [addCardModalVisible, setAddCardModalVisible] = useState(false)
+  const [editCardModalVisible, setEditCardModalVisible] = useState(false)
+  const [planModalVisible, setPlanModalVisible] = useState(false)
+  const [billingDateModalVisible, setBillingDateModalVisible] = useState(false)
+  const [activeTab, setActiveTab] = useState("overview")
+  const [selectedCard, setSelectedCard] = useState(null)
+  const [form] = Form.useForm()
+  const [editForm] = Form.useForm()
+  const [planForm] = Form.useForm()
+  const [billingForm] = Form.useForm()
 
-export default function Payments() {
-  const [showSidebar, setShowSidebar] = useState(false)
-  const [showAddCardModal, setShowAddCardModal] = useState(false)
-  const [activeDropdown, setActiveDropdown] = useState(null)
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [profileImage, setProfileImage] = useState(Image23)
-  const [showDetailsModal, setShowDetailsModal] = useState(false)
-  const [selectedConference, setSelectedConference] = useState(null)
-
-  const dropdownRef = useRef(null)
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setActiveDropdown(null)
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [])
-
-  const toggleSidebar = () => {
-    setShowSidebar(!showSidebar)
+  // Sample data
+  const subscriptionData = {
+    plan: "Professional",
+    status: "Active",
+    nextPayment: "2025-02-15",
+    amount: 29.99,
+    billingCycle: "Monthly",
+    daysLeft: 18,
   }
 
-  const handleImageChange = (event) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      const imageUrl = URL.createObjectURL(file)
-      setProfileImage(imageUrl)
-    }
+  const spendingData = {
+    thisMonth: 29.99,
+    lastMonth: 29.99,
+    thisYear: 359.88,
+    avgMonthly: 29.99,
   }
 
-  const toggleCreateModal = () => {
-    setShowCreateModal(!showCreateModal)
+  const adminPaymentData = {
+    totalUsers: 1247,
+    activeSubscriptions: 1089,
+    monthlyRevenue: 32567.43,
+    churnRate: 2.3,
+    averageRevenuePerUser: 29.91,
+    failedPayments: 23,
+    refundsThisMonth: 4,
+    newSubscriptionsToday: 12,
   }
 
-  const toggleAddCardModal = () => {
-    setShowAddCardModal(!showAddCardModal)
-  }
-
-  const toggleDropdown = (id) => {
-    setActiveDropdown(activeDropdown === id ? null : id)
-  }
-
-  const openDetailsModal = (conference) => {
-    setSelectedConference(conference)
-    setShowDetailsModal(true)
-    setActiveDropdown(null)
-  }
-
-  const closeDetailsModal = () => {
-    setShowDetailsModal(false)
-  }
-
-  const paymentHistory = [
+  const [paymentMethods, setPaymentMethods] = useState([
     {
       id: 1,
-      title: "Payment of July 2025",
-      date: "Nov 22, 2025",
-      cardNumber: "**** **** **** 4878",
-      amount: "$238",
+      type: "visa",
+      last4: "4242",
+      expiry: "12/26",
+      name: "John Doe",
+      isDefault: true,
+      brand: "Visa",
     },
     {
       id: 2,
-      title: "Payment of Jun 2025",
-      date: "Nov 22, 2025",
-      cardNumber: "**** **** **** 4878",
-      amount: "$238",
+      type: "mastercard",
+      last4: "8888",
+      expiry: "09/25",
+      name: "John Doe",
+      isDefault: false,
+      brand: "Mastercard",
+    },
+  ])
+
+  const billingHistory = [
+    {
+      id: 1,
+      date: "2025-01-15",
+      description: "Professional Plan - January 2025",
+      amount: 29.99,
+      status: "Paid",
+      invoice: "INV-2025-001",
+      paymentMethod: "**** 4242",
+    },
+    {
+      id: 2,
+      date: "2024-12-15",
+      description: "Professional Plan - December 2024",
+      amount: 29.99,
+      status: "Paid",
+      invoice: "INV-2024-012",
+      paymentMethod: "**** 4242",
     },
     {
       id: 3,
-      title: "Payment of May 2025",
-      date: "Nov 22, 2025",
-      cardNumber: "**** **** **** 4878",
-      amount: "$238",
+      date: "2024-11-15",
+      description: "Professional Plan - November 2024",
+      amount: 29.99,
+      status: "Paid",
+      invoice: "INV-2024-011",
+      paymentMethod: "**** 8888",
     },
     {
       id: 4,
-      title: "Payment of April 2025",
-      date: "Nov 22, 2025",
-      cardNumber: "**** **** **** 4878",
-      amount: "$238",
+      date: "2024-10-15",
+      description: "Professional Plan - October 2024",
+      amount: 29.99,
+      status: "Paid",
+      invoice: "INV-2024-010",
+      paymentMethod: "**** 4242",
     },
   ]
 
-  const savedCards = [
+  const handleAddCard = (values) => {
+    const newCard = {
+      id: Date.now(),
+      type: values.cardNumber.startsWith("4") ? "visa" : "mastercard",
+      last4: values.cardNumber.slice(-4),
+      expiry: values.expiry,
+      name: values.cardName,
+      isDefault: values.setDefault || paymentMethods.length === 0,
+      brand: values.cardNumber.startsWith("4") ? "Visa" : "Mastercard",
+    }
+
+    let updatedMethods = [...paymentMethods]
+    if (newCard.isDefault) {
+      updatedMethods = updatedMethods.map((card) => ({ ...card, isDefault: false }))
+    }
+    updatedMethods.push(newCard)
+
+    setPaymentMethods(updatedMethods)
+    message.success("Payment method added successfully!")
+    setAddCardModalVisible(false)
+    form.resetFields()
+  }
+
+  const handleSetDefault = (cardId) => {
+    setPaymentMethods((prev) => prev.map((card) => ({ ...card, isDefault: card.id === cardId })))
+    message.success("Default payment method updated!")
+  }
+
+  const handleDeleteCard = (card) => {
+    Modal.confirm({
+      title: "Delete Payment Method",
+      icon: <ExclamationCircleOutlined />,
+      content: (
+        <div style={{ marginTop: 16 }}>
+          <p>Are you sure you want to delete this payment method?</p>
+          <div
+            style={{
+              background: "#f5f5f5",
+              padding: 12,
+              borderRadius: 6,
+              marginTop: 12,
+            }}
+          >
+            <Text strong>{card.brand}</Text>
+            <br />
+            <Text type="secondary">**** **** **** {card.last4}</Text>
+            <br />
+            <Text type="secondary">Expires {card.expiry}</Text>
+            {card.isDefault && (
+              <div style={{ marginTop: 4 }}>
+                <Tag color="gold" size="small">
+                  Default
+                </Tag>
+              </div>
+            )}
+          </div>
+          {card.isDefault && (
+            <Alert
+              message="This is your default payment method"
+              description="You'll need to set another card as default before deleting this one."
+              type="warning"
+              size="small"
+              style={{ marginTop: 12 }}
+            />
+          )}
+        </div>
+      ),
+      okText: "Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      width: 400,
+      onOk() {
+        if (card.isDefault && paymentMethods.length > 1) {
+          message.error("Please set another card as default before deleting this one.")
+          return
+        }
+        setPaymentMethods((prev) => prev.filter((c) => c.id !== card.id))
+        message.success("Payment method deleted successfully!")
+      },
+    })
+  }
+
+  const handleEditCard = (card) => {
+    setSelectedCard(card)
+    editForm.setFieldsValue({
+      cardName: card.name,
+      expiry: card.expiry,
+    })
+    setEditCardModalVisible(true)
+  }
+
+  const handleUpdateCard = (values) => {
+    setPaymentMethods((prev) =>
+      prev.map((card) =>
+        card.id === selectedCard.id ? { ...card, name: values.cardName, expiry: values.expiry } : card,
+      ),
+    )
+    message.success("Payment method updated successfully!")
+    setEditCardModalVisible(false)
+    editForm.resetFields()
+    setSelectedCard(null)
+  }
+
+  const handleUpdatePlan = (values) => {
+    console.log("Updating plan:", values)
+    message.success(`Plan updated to ${values.plan} (${values.billingCycle})!`)
+    setPlanModalVisible(false)
+    planForm.resetFields()
+  }
+
+  const handleChangeBillingDate = (values) => {
+    console.log("Changing billing date:", values)
+    message.success(`Billing date changed to ${values.billingDate.format("MMMM Do")}!`)
+    setBillingDateModalVisible(false)
+    billingForm.resetFields()
+  }
+
+  const handleDownloadAllInvoices = () => {
+    message.loading("Preparing invoice archive...", 2)
+    setTimeout(() => {
+      message.success("All invoices downloaded successfully!")
+    }, 2000)
+  }
+
+  const handleEmailNotifications = (checked) => {
+    message.success(`Email notifications ${checked ? "enabled" : "disabled"}!`)
+  }
+
+  const handleAutoRenewal = (checked) => {
+    message.success(`Auto-renewal ${checked ? "enabled" : "disabled"}!`)
+  }
+
+  const handlePaymentReminders = (checked) => {
+    message.success(`Payment reminders ${checked ? "enabled" : "disabled"}!`)
+  }
+
+  const downloadInvoice = (invoice) => {
+    message.success(`Downloading ${invoice}...`)
+  }
+
+  const billingColumns = [
     {
-      id: 1,
-      name: "DJ Snake",
-      number: "5242 - 4242 - 5242 - 4878",
-      type: "mastercard",
-      color: "bg-gradient-to-br from-teal-500 to-green-600",
+      title: "Date",
+      dataIndex: "date",
+      key: "date",
+      render: (date) => new Date(date).toLocaleDateString(),
+      responsive: ["sm"],
     },
     {
-      id: 2,
-      name: "Luis Fonsi",
-      number: "4502 - 2215 - 183 - 4289",
-      type: "visa",
-      color: "bg-gradient-to-br from-purple-500 to-pink-600",
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+      ellipsis: true,
     },
+    {
+      title: "Amount",
+      dataIndex: "amount",
+      key: "amount",
+      render: (amount) => `$${amount.toFixed(2)}`,
+      align: "right",
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (status) => <Tag color={status === "Paid" ? "green" : "orange"}>{status}</Tag>,
+      responsive: ["md"],
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <Button type="link" icon={<DownloadOutlined />} onClick={() => downloadInvoice(record.invoice)} size="small">
+          Download
+        </Button>
+      ),
+      align: "center",
+    },
+  ]
+
+  const getCardIcon = (type) => {
+    const icons = {
+      visa: "💳",
+      mastercard: "💳",
+      amex: "💳",
+    }
+    return icons[type] || "💳"
+  }
+
+  const renderOverview = () => (
+    <div>
+      {/* Admin Payment Insights */}
+      <Card
+        title={
+          <Space>
+            {/* <TrendingUpOutlined style={{ color: "#1890ff" }} /> */}
+            Admin Payment Insights
+          </Space>
+        }
+        style={{ marginBottom: 24 }}
+      >
+        <Row gutter={[16, 16]}>
+          <Col xs={12} sm={8} md={6}>
+            <Statistic
+              title="Total Users"
+              value={adminPaymentData.totalUsers}
+              prefix={<TeamOutlined />}
+              valueStyle={{ color: "#1890ff" }}
+            />
+          </Col>
+          <Col xs={12} sm={8} md={6}>
+            <Statistic
+              title="Active Subscriptions"
+              value={adminPaymentData.activeSubscriptions}
+              valueStyle={{ color: "#52c41a" }}
+            />
+          </Col>
+          <Col xs={12} sm={8} md={6}>
+            <Statistic
+              title="Monthly Revenue"
+              value={adminPaymentData.monthlyRevenue}
+              prefix="$"
+              precision={2}
+              valueStyle={{ color: "#52c41a" }}
+            />
+          </Col>
+          <Col xs={12} sm={8} md={6}>
+            <Statistic
+              title="Churn Rate"
+              value={adminPaymentData.churnRate}
+              suffix="%"
+              valueStyle={{ color: "#faad14" }}
+            />
+          </Col>
+          <Col xs={12} sm={8} md={6}>
+            <Statistic title="ARPU" value={adminPaymentData.averageRevenuePerUser} prefix="$" precision={2} />
+          </Col>
+          <Col xs={12} sm={8} md={6}>
+            <Statistic
+              title="Failed Payments"
+              value={adminPaymentData.failedPayments}
+              valueStyle={{ color: "#ff4d4f" }}
+            />
+          </Col>
+          <Col xs={12} sm={8} md={6}>
+            <Statistic
+              title="Refunds This Month"
+              value={adminPaymentData.refundsThisMonth}
+              valueStyle={{ color: "#ff7a45" }}
+            />
+          </Col>
+          <Col xs={12} sm={8} md={6}>
+            <Statistic
+              title="New Today"
+              value={adminPaymentData.newSubscriptionsToday}
+              valueStyle={{ color: "#1890ff" }}
+            />
+          </Col>
+        </Row>
+      </Card>
+
+      {/* Current Subscription */}
+      <Card
+        title={
+          <Space>
+            <SafetyOutlined style={{ color: "#52c41a" }} />
+            Current Subscription
+          </Space>
+        }
+        style={{ marginBottom: 24 }}
+      >
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12} md={6}>
+            <Statistic
+              title="Plan"
+              value={subscriptionData.plan}
+              prefix={<StarFilled style={{ color: "#faad14" }} />}
+            />
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Statistic title="Status" value={subscriptionData.status} valueStyle={{ color: "#52c41a" }} />
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Statistic
+              title="Next Payment"
+              value={new Date(subscriptionData.nextPayment).toLocaleDateString()}
+              prefix={<CalendarOutlined />}
+            />
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Statistic title="Amount" value={subscriptionData.amount} prefix="$" suffix="/month" />
+          </Col>
+        </Row>
+
+        <Divider />
+
+        <Row align="middle" gutter={16}>
+          <Col flex="auto">
+            <Text>Days until next payment: </Text>
+            <Progress
+              percent={(subscriptionData.daysLeft / 30) * 100}
+              format={() => `${subscriptionData.daysLeft} days`}
+              strokeColor="#1890ff"
+            />
+          </Col>
+        </Row>
+      </Card>
+
+      {/* Spending Summary */}
+      <Card
+        title={
+          <Space>
+            <DollarOutlined style={{ color: "#1890ff" }} />
+            Spending Summary
+          </Space>
+        }
+        style={{ marginBottom: 24 }}
+      >
+        <Row gutter={[16, 16]}>
+          <Col xs={12} sm={6}>
+            <Statistic title="This Month" value={spendingData.thisMonth} prefix="$" valueStyle={{ color: "#1890ff" }} />
+          </Col>
+          <Col xs={12} sm={6}>
+            <Statistic title="Last Month" value={spendingData.lastMonth} prefix="$" />
+          </Col>
+          <Col xs={12} sm={6}>
+            <Statistic title="This Year" value={spendingData.thisYear} prefix="$" valueStyle={{ color: "#52c41a" }} />
+          </Col>
+          <Col xs={12} sm={6}>
+            <Statistic title="Avg Monthly" value={spendingData.avgMonthly} prefix="$" />
+          </Col>
+        </Row>
+      </Card>
+
+      {/* Security Notice */}
+      <Alert
+        message="Secure Payment Processing"
+        description="All payment information is encrypted and processed securely. We never store your complete card details."
+        type="info"
+        icon={<SafetyOutlined />}
+        showIcon
+        style={{ marginBottom: 24 }}
+      />
+    </div>
+  )
+
+  const renderPaymentMethods = () => (
+    <div>
+      <div
+        style={{
+          marginBottom: 16,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "8px",
+        }}
+      >
+        <Title level={4} style={{ margin: 0 }}>
+          Saved Payment Methods
+        </Title>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setAddCardModalVisible(true)}>
+          Add Card
+        </Button>
+      </div>
+
+      <Row gutter={[16, 16]}>
+        {paymentMethods.map((card) => (
+          <Col xs={24} sm={12} lg={8} key={card.id} style={{ display: "flex" }}>
+            <Card
+              size="small"
+              style={{ flex: 1 }}
+              actions={[
+                <Tooltip key="setDefaultTooltip" title={card.isDefault ? "Default card" : "Set as default"}>
+                  <Button
+                    key="setDefaultButton"
+                    type="text"
+                    icon={card.isDefault ? <StarFilled style={{ color: "#faad14" }} /> : <StarOutlined />}
+                    onClick={() => !card.isDefault && handleSetDefault(card.id)}
+                  />
+                </Tooltip>,
+                <Tooltip key="editTooltip" title="Edit">
+                  <Button key="editButton" type="text" icon={<EditOutlined />} onClick={() => handleEditCard(card)} />
+                </Tooltip>,
+                <Tooltip key="deleteTooltip" title="Delete">
+                  <Button
+                    key="deleteButton"
+                    type="text"
+                    icon={<DeleteOutlined />}
+                    danger
+                    onClick={() => handleDeleteCard(card)}
+                  />
+                </Tooltip>,
+              ]}
+            >
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: "24px", marginBottom: 8 }}>{getCardIcon(card.type)}</div>
+                <Text strong>{card.brand}</Text>
+                <br />
+                <Text type="secondary">**** **** **** {card.last4}</Text>
+                <br />
+                <Text type="secondary">Expires {card.expiry}</Text>
+                {card.isDefault && (
+                  <div style={{ marginTop: 8 }}>
+                    <Tag color="gold">Default</Tag>
+                  </div>
+                )}
+              </div>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+    </div>
+  )
+
+  const renderBillingHistory = () => (
+    <div>
+      <div style={{ marginBottom: 16 }}>
+        <Title level={4} style={{ margin: 0 }}>
+          Billing History
+        </Title>
+        <Text type="secondary">Download invoices and view payment history</Text>
+      </div>
+
+      <Table
+        columns={billingColumns}
+        dataSource={billingHistory}
+        rowKey="id"
+        pagination={{ pageSize: 10 }}
+        scroll={{ x: 600 }}
+        size="middle"
+      />
+    </div>
+  )
+
+  const tabItems = [
+    { key: "overview", label: "Dashboard Overview", icon: <DollarOutlined /> },
+    { key: "payment-methods", label: "Payment Methods", icon: <CreditCardOutlined /> },
+    { key: "billing-history", label: "Billing History", icon: <FileTextOutlined /> },
   ]
 
   return (
-    <div className="flex rounded-3xl text-black min-h-screen overflow-hidden ">
-      <div className="flex-1 md:p-6 p-2 overflow-y-auto">
-        <div className="max-w-3xl mr-auto w-full">
-          <div className="flex justify-between md:items-center md:flex-row  gap-3 items-start mb-6">
-            <h1 className="text-2xl font-semibold">Payment</h1>
-            {/* Mobile sidebar toggle button */}
-            <button onClick={toggleSidebar} className="md:hidden bg-[#0B5D3A] text-white px-4 py-2 rounded-lg text-sm">
-              Manage Cards
-            </button>
-          </div>
-
-          {/* Wallet Card */}
-          <div className="mb-8 w-full  lg:p-4 p-2">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="relative">
-                <img src={MasterCard || "/placeholder.svg"} alt="" />
-              </div>
-
-              {/* Right side summary cards */}
-              <div className="flex flex-col gap-4">
-                {/* Last month card */}
-                <div className="bg-gray-100 rounded-lg p-4 w-40">
-                  <div className="flex items-center justify-center mb-2">
-                    <div className="w-10 h-10 bg-white rounded flex items-center justify-center">
-                      <div>
-                        <img src={CardImage || "/placeholder.svg"} alt="" />
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-600 text-center  poppins-thin mb-1">Last month</p>
-                  <p className="text-lg poppins-thin_500 text-center">$53,000</p>
-                </div>
-
-                {/* Last year card */}
-                <div className="bg-gray-100 rounded-lg p-4 w-40    ">
-                  <div className="flex items-center justify-center mb-2">
-                    <div className="w-10 h-10 bg-white rounded flex items-center justify-center">
-                      <div>
-                        <img src={CardImage || "/placeholder.svg"} alt="" />
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-600 text-center poppins-thin mb-1">Last year</p>
-                  <p className="text-lg poppins-thin_500 text-center">$53,000</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* History Section */}
-          <div>
-            <h2 className="text-xl font-semibold mb-4">History</h2>
-            <div className="space-y-3">
-              {paymentHistory.map((payment) => (
-                <div key={payment.id} className="bg-[#F9F9F9] rounded-xl p-4 flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-white p-5 rounded-md">
-                      <img src={VectorImage || "/placeholder.svg"} alt="" />
-                    </div>
-                    <div>
-                      <h3 className="poppins-thin_500 text-md">{payment.title}</h3>
-                      <p className="text-xs mt-1 poppins-thin text-gray-500">
-                        {payment.date} | {payment.cardNumber}
-                      </p>
-                    </div>
-                  </div>
-                  <span className="poppins-thin_500">{payment.amount}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Overlay for sidebar on mobile */}
-      {showSidebar && <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={toggleSidebar}></div>}
-
-      {/* Right sidebar */}
+    <div style={{ padding: "16px", minHeight: "100vh" }}>
+      {/* Header */}
       <div
-        className={`fixed md:static top-0 right-0 h-full z-50 w-80 sm:w-96 bg-white p-6 transform transition-transform duration-500 ease-in-out border-l border-gray-100 ${
-          showSidebar ? "translate-x-0" : "translate-x-full md:translate-x-0"
-        }`}
+        style={{
+          marginBottom: 24,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "16px",
+        }}
       >
-        {/* Close button for mobile */}
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="font-semibold text-lg">Add Entity</h1>
-          <button onClick={toggleSidebar} className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors">
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        <div className="mb-6">
-          <button
-            onClick={toggleAddCardModal}
-            className="w-full bg-[#0B5D3A] poppins-thin-500 text-white text-sm py-2.5 px-4 rounded-lg cursor-pointer transition-colors"
-          >
-            Add payment method
-          </button>
-        </div>
-
-        {/* All Cards Section */}
         <div>
-          <h2 className="font-semibold mb-4">All cards</h2>
-          <div className="space-y-4">
-            <div className="flex flex-col gap-4">
-              {/* First card */}
-              <div>
-                <div className="flex items-center gap-2">
-                  {/* The horizontal line that takes full width except for the icons */}
-                  <div className="flex-grow h-[1px] bg-slate-300"></div>
-
-                  {/* Icons container */}
-                  <div className="flex gap-2">
-                    <div className="border border-slate-300 rounded-md cursor-pointer p-2">
-                      <BiEdit size={18} />
-                    </div>
-                    <div className="border border-slate-300 rounded-md cursor-pointer p-2">
-                      <RiDeleteBin6Line size={18} className="text-red-600" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Card image */}
-                <div className="mt-2">
-                  <img src={MasterCard2 || "/placeholder.svg"} alt="MasterCard" className="w-full max-w-xs" />
-                </div>
-              </div>
-
-              {/* Second card */}
-              <div>
-                <div className="flex items-center gap-2">
-                  <div className="flex-grow h-[1px] bg-slate-300"></div>
-                  <div className="flex gap-2">
-                    <div className="border border-slate-300 rounded-md cursor-pointer p-2">
-                      <BiEdit size={18} />
-                    </div>
-                    <div className="border border-slate-300 rounded-md cursor-pointer p-2">
-                      <RiDeleteBin6Line size={18} className="text-red-600" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Card image */}
-                <div className="mt-2">
-                  <img src={VisaCard || "/placeholder.svg"} alt="VisaCard" className="w-full max-w-xs" />
-                </div>
-              </div>
-            </div>
-          </div>
+          <h1 className="md:text-2xl text-xl poppins-thin_600">Manage Payments</h1>
         </div>
+        <Button type="primary" icon={<SettingOutlined />} onClick={() => setManageModalVisible(true)} size="large">
+          Manage Account
+        </Button>
       </div>
+
+      {/* Tab Navigation */}
+      <Card style={{ marginBottom: 24 }}>
+        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+          {tabItems.map((item) => (
+            <Button
+              key={item.key}
+              type={activeTab === item.key ? "primary" : "default"}
+              icon={item.icon}
+              onClick={() => setActiveTab(item.key)}
+              style={{ marginBottom: "8px" }}
+            >
+              <span style={{ display: window.innerWidth > 768 ? "inline" : "none" }}>{item.label}</span>
+            </Button>
+          ))}
+        </div>
+      </Card>
+
+      {/* Content */}
+      <div>
+        {activeTab === "overview" && renderOverview()}
+        {activeTab === "payment-methods" && renderPaymentMethods()}
+        {activeTab === "billing-history" && renderBillingHistory()}
+      </div>
+
+      {/* Manage Account Modal */}
+      <Modal
+        title={
+          <Space>
+            <SettingOutlined />
+            Manage Account
+          </Space>
+        }
+        open={manageModalVisible}
+        onCancel={() => setManageModalVisible(false)}
+        footer={null}
+        width={600}
+      >
+        <div style={{ padding: "16px 0" }}>
+          <Row gutter={[16, 24]}>
+            <Col span={24}>
+              <Card size="small" title="Quick Actions">
+                <Space direction="vertical" style={{ width: "100%" }}>
+                  <Button
+                    block
+                    icon={<CreditCardOutlined />}
+                    onClick={() => {
+                      setManageModalVisible(false)
+                      setAddCardModalVisible(true)
+                    }}
+                  >
+                    Add Payment Method
+                  </Button>
+                  <Button
+                    block
+                    icon={<EditOutlined />}
+                    onClick={() => {
+                      setManageModalVisible(false)
+                      setPlanModalVisible(true)
+                    }}
+                  >
+                    Update Subscription Plan
+                  </Button>
+                  <Button
+                    block
+                    icon={<CalendarOutlined />}
+                    onClick={() => {
+                      setManageModalVisible(false)
+                      setBillingDateModalVisible(true)
+                    }}
+                  >
+                    Change Billing Date
+                  </Button>
+                  <Button
+                    block
+                    icon={<DownloadOutlined />}
+                    onClick={() => {
+                      setManageModalVisible(false)
+                      handleDownloadAllInvoices()
+                    }}
+                  >
+                    Download All Invoices
+                  </Button>
+                </Space>
+              </Card>
+            </Col>
+
+            <Col span={24}>
+              <Card size="small" title="Account Settings">
+                <Space direction="vertical" style={{ width: "100%" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <Space>
+                      <MailOutlined />
+                      <Text>Email Notifications</Text>
+                    </Space>
+                    <Switch defaultChecked onChange={handleEmailNotifications} />
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <Space>
+                      <ReloadOutlined />
+                      <Text>Auto-renewal</Text>
+                    </Space>
+                    <Switch defaultChecked onChange={handleAutoRenewal} />
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <Space>
+                      <BellOutlined />
+                      <Text>Payment Reminders</Text>
+                    </Space>
+                    <Switch defaultChecked onChange={handlePaymentReminders} />
+                  </div>
+                </Space>
+              </Card>
+            </Col>
+          </Row>
+        </div>
+      </Modal>
 
       {/* Add Card Modal */}
-      {showAddCardModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="fixed inset-0 bg-black/60" onClick={toggleAddCardModal}></div>
-          <div className="bg-white rounded-lg w-full max-w-md relative p-6 mx-4 z-10">
-            <button onClick={toggleAddCardModal} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
-              <X size={20} />
-            </button>
+      <Modal
+        title={
+          <Space>
+            <CreditCardOutlined />
+            Add Payment Method
+          </Space>
+        }
+        open={addCardModalVisible}
+        onCancel={() => {
+          setAddCardModalVisible(false)
+          form.resetFields()
+        }}
+        footer={null}
+        width={500}
+      >
+        <Form form={form} layout="vertical" onFinish={handleAddCard} style={{ marginTop: 16 }}>
+          <Form.Item
+            name="cardNumber"
+            label="Card Number"
+            rules={[
+              { required: true, message: "Please enter card number" },
+              { pattern: /^\d{16}$/, message: "Please enter a valid 16-digit card number" },
+            ]}
+          >
+            <Input placeholder="1234567890123456" maxLength={16} prefix={<CreditCardOutlined />} />
+          </Form.Item>
 
-            <form className="space-y-6 mt-8">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Card No</label>
-                <input
-                  type="text"
-                  className="w-full p-4 rounded-lg bg-gray-100 outline-none text-sm placeholder-gray-500"
-                  placeholder="Card No"
-                />
-              </div>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="expiry"
+                label="Expiry Date"
+                rules={[
+                  { required: true, message: "Please enter expiry date" },
+                  { pattern: /^(0[1-9]|1[0-2])\/\d{2}$/, message: "Please enter valid MM/YY format" },
+                ]}
+              >
+                <Input placeholder="MM/YY" maxLength={5} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="cvv"
+                label="CVV"
+                rules={[
+                  { required: true, message: "Please enter CVV" },
+                  { pattern: /^\d{3,4}$/, message: "Please enter valid CVV" },
+                ]}
+              >
+                <Input placeholder="123" maxLength={4} />
+              </Form.Item>
+            </Col>
+          </Row>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">CVV</label>
-                <input
-                  type="text"
-                  className="w-full p-4 rounded-lg bg-gray-100 outline-none text-sm placeholder-gray-500"
-                  placeholder="CVV"
-                />
-              </div>
+          <Form.Item
+            name="cardName"
+            label="Cardholder Name"
+            rules={[{ required: true, message: "Please enter cardholder name" }]}
+          >
+            <Input placeholder="John Doe" />
+          </Form.Item>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Expiry date</label>
-                <input
-                  type="text"
-                  className="w-full p-4 rounded-lg bg-gray-100 outline-none text-sm placeholder-gray-500"
-                  placeholder="Expiry date"
-                />
-              </div>
+          <Form.Item name="setDefault" valuePropName="checked">
+            <Switch /> <Text style={{ marginLeft: 8 }}>Set as default payment method</Text>
+          </Form.Item>
 
-              <div className="pt-4 flex justify-center items-center">
-                <button
-                  type="button"
-                  className="md:w-auto w-full bg-[#0B5D3A] text-white text-sm py-2 px-6 rounded-xl cursor-pointer hover:bg-green-800 transition-colors font-medium"
-                  onClick={toggleAddCardModal}
-                >
-                  Add Card
-                </button>
-              </div>    
+          <Divider>Or pay with</Divider>
 
-              <div className="flex items-center justify-center">
-                <div className="flex-grow h-[1px] bg-gray-300"></div>
-                <span className="px-4 text-sm text-gray-500">Or</span>
-                <div className="flex-grow h-[1px] bg-gray-300"></div>
-              </div>
+          <Space direction="vertical" style={{ width: "100%" }}>
+            <Button block icon={<PayCircleOutlined />} style={{ backgroundColor: "#0070ba", color: "white" }}>
+              PayPal
+            </Button>
+            <Button block icon={<BankOutlined />} style={{ backgroundColor: "#635bff", color: "white" }}>
+              Stripe
+            </Button>
+          </Space>
 
-<div className="flex justify-center items-center">
-
-              <button
-                type="button"
-                className="md:w-auto w-full bg-gray-500 text-white text-sm py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors font-medium"
-                >
-                Paypal
-              </button>
-                  </div>
-
-              <div className="flex items-center justify-center">
-                <div className="flex-grow h-[1px] bg-gray-300"></div>
-                <span className="px-4 text-sm text-gray-500">Or</span>
-                <div className="flex-grow h-[1px] bg-gray-300"></div>
-              </div>
-
-<div className="flex justify-center items-center">
-
-              <button
-                type="button"
-                className="md:w-auto w-full bg-gray-500 text-white text-sm py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors font-medium"
-                >
-                Stripe
-              </button>
-                  </div>
-            </form>
+          <div style={{ marginTop: 24, textAlign: "center" }}>
+            <Space>
+              <Button
+                onClick={() => {
+                  setAddCardModalVisible(false)
+                  form.resetFields()
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="primary" htmlType="submit">
+                Add Payment Method
+              </Button>
+            </Space>
           </div>
-        </div>
-      )}
+        </Form>
+      </Modal>
 
-      {/* Create Conference Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="fixed inset-0 bg-black/60" onClick={toggleCreateModal}></div>
-          <div className="bg-white rounded-lg w-full max-w-md relative p-7 mx-4 z-10">
-            <button onClick={toggleCreateModal} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
-              <X size={20} />
-            </button>
+      {/* Edit Card Modal */}
+      <Modal
+        title={
+          <Space>
+            <EditOutlined />
+            Edit Payment Method
+          </Space>
+        }
+        open={editCardModalVisible}
+        onCancel={() => {
+          setEditCardModalVisible(false)
+          editForm.resetFields()
+          setSelectedCard(null)
+        }}
+        footer={null}
+        width={400}
+      >
+        <Form form={editForm} layout="vertical" onFinish={handleUpdateCard} style={{ marginTop: 16 }}>
+          <Form.Item
+            name="cardName"
+            label="Cardholder Name"
+            rules={[{ required: true, message: "Please enter cardholder name" }]}
+          >
+            <Input placeholder="John Doe" />
+          </Form.Item>
 
-            <div className="flex flex-col items-center mb-6">
-              <div className="relative w-24 h-24 mb-3 bg-gray-100 rounded-2xl flex items-center justify-center overflow-hidden">
-                <img src={profileImage || "/placeholder.svg"} alt="Profile" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <label
-                    htmlFor="profile-upload"
-                    className="cursor-pointer w-full h-full flex items-center justify-center text-white"
-                  >
-                    <Edit size={20} />
-                  </label>
-                  <input
-                    id="profile-upload"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageChange}
-                  />
-                </div>
-              </div>
-              <div className="mb-2">
-                <label
-                  htmlFor="profile-upload-btn"
-                  className="bg-[#1E1E1F] cursor-pointer text-white text-sm py-2 px-7 rounded-xl block"
-                >
-                  Upload picture
-                </label>
-                <input
-                  id="profile-upload-btn"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageChange}
-                />
-              </div>
-              {profileImage !== Image23 && <p className="text-green-600 text-xs mt-1">New image selected</p>}
-            </div>
+          <Form.Item
+            name="expiry"
+            label="Expiry Date"
+            rules={[
+              { required: true, message: "Please enter expiry date" },
+              { pattern: /^(0[1-9]|1[0-2])\/\d{2}$/, message: "Please enter valid MM/YY format" },
+            ]}
+          >
+            <Input placeholder="MM/YY" maxLength={5} />
+          </Form.Item>
 
-            <form className="space-y-4 custom-scrollbar overflow-y-auto max-h-[50vh]">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input
-                  type="text"
-                  className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm"
-                  placeholder="Name"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Set Time</label>
-                <input
-                  type="text"
-                  className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm"
-                  placeholder="Set time"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Add People</label>
-                <input
-                  type="text"
-                  className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm"
-                  placeholder="Add People"
-                />
-              </div>
-              <div className="flex justify-center items-center mt-2">
-                <span className="text-sm text-gray-700">Or</span>
-              </div>
-
-              <div>
-                <input
-                  type="text"
-                  className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm"
-                  placeholder="Link"
-                />
-              </div>
-
-              <div className="pt-2 flex justify-center">
-                <button
-                  type="button"
-                  className="md:w-auto w-full bg-[#0B5D3A] text-white text-sm py-2 px-6 rounded-xl hover:bg-green-700 transition-colors"
-                  onClick={toggleCreateModal}
-                >
-                  Create Conference
-                </button>
-              </div>
-            </form>
+          <div style={{ textAlign: "center", marginTop: 24 }}>
+            <Space>
+              <Button
+                onClick={() => {
+                  setEditCardModalVisible(false)
+                  editForm.resetFields()
+                  setSelectedCard(null)
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="primary" htmlType="submit">
+                Update Card
+              </Button>
+            </Space>
           </div>
-        </div>
-      )}
+        </Form>
+      </Modal>
 
-      {/* Conference Details Modal */}
-      {showDetailsModal && selectedConference && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="fixed inset-0 bg-black/60" onClick={closeDetailsModal}></div>
-          <div className="bg-white rounded-lg w-full max-w-md relative p-6 mx-4 z-10">
-            <button onClick={closeDetailsModal} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
-              <X size={20} />
-            </button>
+      {/* Update Plan Modal */}
+      <Modal
+        title={
+          <Space>
+            <EditOutlined />
+            Update Subscription Plan
+          </Space>
+        }
+        open={planModalVisible}
+        onCancel={() => {
+          setPlanModalVisible(false)
+          planForm.resetFields()
+        }}
+        footer={null}
+        width={500}
+      >
+        <Form form={planForm} layout="vertical" onFinish={handleUpdatePlan} style={{ marginTop: 16 }}>
+          <Form.Item name="plan" label="Select Plan" rules={[{ required: true, message: "Please select a plan" }]}>
+            <Select placeholder="Choose your plan">
+              <Option value="Basic">Basic - $9.99/month</Option>
+              <Option value="Professional">Professional - $29.99/month</Option>
+              <Option value="Enterprise">Enterprise - $99.99/month</Option>
+            </Select>
+          </Form.Item>
 
-            <div className="flex items-center space-x-4 mb-6">
-              <div className="w-14 h-14 rounded-full bg-amber-800 flex items-center justify-center overflow-hidden">
-                <img src={Image23 || "/placeholder.svg"} alt="Conference icon" className="w-full h-full object-cover" />
-              </div>
-              <h2 className=" poppins-thin_500 text-lg">{selectedConference.title}</h2>
-            </div>
+          <Form.Item
+            name="billingCycle"
+            label="Billing Cycle"
+            rules={[{ required: true, message: "Please select billing cycle" }]}
+          >
+            <Select placeholder="Choose billing cycle">
+              <Option value="Monthly">Monthly</Option>
+              <Option value="Yearly">Yearly (Save 20%)</Option>
+            </Select>
+          </Form.Item>
 
-            <div className="space-y-2">
-              <div>
-                <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2 italic">Time</h3>
-                <p className=" font-bold mt-4">{selectedConference.time}</p>
-              </div>
-
-              <div className="flex gap-4 items-center mt-6">
-                <h3 className="text-gray-700 md:text-sm text-xs font-bold ">Students Enrolled:</h3>
-                <p className="font-medium text-sm text-gray-500">{selectedConference.studentsEnrolled}</p>
-              </div>
-
-              <div className="flex gap-4 items-center">
-                <h3 className="text-gray-700 md:text-sm text-xs font-bold ">Link:</h3>
-                <p className="font-medium text-sm text-gray-500 ">{selectedConference.link}</p>
-              </div>
-
-              <div className="pt-4 flex justify-between">
-                <button className="w-auto bg-[#C77373] text-sm text-white py-2 px-7  rounded-xl cursor-pointer  transition-colors">
-                  Delete
-                </button>
-              </div>
-            </div>
+          <div style={{ textAlign: "center", marginTop: 24 }}>
+            <Space>
+              <Button
+                onClick={() => {
+                  setPlanModalVisible(false)
+                  planForm.resetFields()
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="primary" htmlType="submit">
+                Update Plan
+              </Button>
+            </Space>
           </div>
-        </div>
-      )}
+        </Form>
+      </Modal>
+
+      {/* Change Billing Date Modal */}
+      <Modal
+        title={
+          <Space>
+            <CalendarOutlined />
+            Change Billing Date
+          </Space>
+        }
+        open={billingDateModalVisible}
+        onCancel={() => {
+          setBillingDateModalVisible(false)
+          billingForm.resetFields()
+        }}
+        footer={null}
+        width={400}
+      >
+        <Form form={billingForm} layout="vertical" onFinish={handleChangeBillingDate} style={{ marginTop: 16 }}>
+          <Form.Item
+            name="billingDate"
+            label="New Billing Date"
+            rules={[{ required: true, message: "Please select a billing date" }]}
+          >
+            <DatePicker style={{ width: "100%" }} />
+          </Form.Item>
+
+          <Alert
+            message="Billing Date Change"
+            description="Your next payment will be prorated based on the new billing date."
+            type="info"
+            style={{ marginBottom: 16 }}
+          />
+
+          <div style={{ textAlign: "center" }}>
+            <Space>
+              <Button
+                onClick={() => {
+                  setBillingDateModalVisible(false)
+                  billingForm.resetFields()
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="primary" htmlType="submit">
+                Change Date
+              </Button>
+            </Space>
+          </div>
+        </Form>
+      </Modal>
     </div>
   )
 }
