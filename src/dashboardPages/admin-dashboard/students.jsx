@@ -1,4 +1,4 @@
-"use client"
+// refercene code of students/users
 
 /* eslint-disable no-unused-vars */
 import { useState, useRef, useEffect } from "react"

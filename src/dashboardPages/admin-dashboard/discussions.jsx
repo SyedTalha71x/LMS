@@ -1,3 +1,5 @@
+// refercen code
+
 /* eslint-disable no-unused-vars */
 import { useState, useEffect, useRef } from "react"
 import {
@@ -400,7 +402,7 @@ export default function DiscussionsEnhanced() {
   }
 
   return (
-    <div className="relative flex flex-col h-screen bg-white text-gray-800 rounded-3xl overflow-hidden">
+    <div className="relative flex flex-col md:h-[93vh] h-auto bg-white text-gray-800 rounded-3xl overflow-hidden">
       <div className="w-full p-3 sm:p-4">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
           <h1 className="text-xl sm:text-2xl font-bold poppins-thin_600">Discussions</h1>

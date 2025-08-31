@@ -1,596 +1,967 @@
-import { useState } from "react"
-import { X, Menu, Search, Edit } from "lucide-react"
-import Avatar from "../../../public/avatar.png"
-import ProfilePicture from "../../../public/image (2).png"
+/* eslint-disable no-unused-vars */
+import { useState, useEffect } from "react"
+import {
+  Table,
+  Button,
+  Input,
+  Select,
+  Modal,
+  Form,
+  Avatar,
+  Tag,
+  Dropdown,
+  Space,
+  Card,
+  Row,
+  Col,
+  DatePicker,
+  message,
+  Divider,
+  Progress,
+  Badge,
+} from "antd"
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  MoreOutlined,
+  UserOutlined,
+  MailOutlined,
+  PhoneOutlined,
+  FilterOutlined,
+  ExportOutlined,
+  ReloadOutlined,
+  EyeOutlined,
+  LockOutlined,
+  UnlockOutlined,
+} from "@ant-design/icons"
+import dayjs from "dayjs"
+
+const { Search } = Input
+const { Option } = Select
+const { RangePicker } = DatePicker
+const { TextArea } = Input
 
 const Students = () => {
-  const [selectedStudent, setSelectedStudent] = useState(null)
-  const [showSidebar, setShowSidebar] = useState(false)
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [profileImage, setProfileImage] = useState(ProfilePicture)
-  const [customFields, setCustomFields] = useState([])
-  const [showCustomPrompt, setShowCustomPrompt] = useState(false)
-  const [customFieldName, setCustomFieldName] = useState("")
-  const [customFieldValue, setCustomFieldValue] = useState("")
+  // State management
+  const [users, setUsers] = useState([])
+  const [filteredUsers, setFilteredUsers] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [selectedRowKeys, setSelectedRowKeys] = useState([])
+  const [searchTerm, setSearchTerm] = useState("")
+  const [showFilters, setShowFilters] = useState(false)
 
+  // Modal states
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false)
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false)
+  const [isProfileModalVisible, setIsProfileModalVisible] = useState(false)
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false)
+  const [isBulkActionModalVisible, setIsBulkActionModalVisible] = useState(false)
 
-  const roleOptions = ["Student", "Janitor", "Pharmacist", "Technician", "IT"]
-  const [selectedRole, setSelectedRole] = useState("Student")
+  // Current user data
+  const [currentUser, setCurrentUser] = useState(null)
+  const [editingUser, setEditingUser] = useState(null)
 
+  // Filter states
+  const [filters, setFilters] = useState({
+    role: "",
+    status: "",
+    group: "",
+    dateRange: null,
+  })
 
+  // Form instances
+  const [addForm] = Form.useForm()
+  const [editForm] = Form.useForm()
 
-  const handleImageChange = (event) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      const imageUrl = URL.createObjectURL(file)
-      setProfileImage(imageUrl)
-    }
-  }
+  // Options
+  const roleOptions = ["Student", "Instructor", "Admin", "Janitor", "Pharmacist", "Technician", "IT"]
+  const statusOptions = ["Active", "Inactive", "Pending", "Suspended"]
+  const groupOptions = ["Group A", "Group B", "Group C", "Advanced", "Beginner"]
 
-  const openAddModal = () => {
-    setIsAddModalOpen(true)
-  }
+  // Sample data
+  useEffect(() => {
+    const sampleUsers = [
+      {
+        id: 1,
+        name: "John Doe",
+        email: "john.doe@example.com",
+        phone: "+1234567890",
+        role: "Student",
+        status: "Active",
+        group: "Group A",
+        lastLogin: "2024-01-15T10:30:00Z",
+        createdDate: "2024-01-01T00:00:00Z",
+        avatar: null,
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        achievements: ["Quick Learner", "Team Player", "Consistent"],
+        courses: ["React Basics", "JavaScript Advanced", "Node.js"],
+        progress: { overall: 75, courses: 3, completed: 2 },
+      },
+      {
+        id: 2,
+        name: "Jane Smith",
+        email: "jane.smith@example.com",
+        phone: "+1234567891",
+        role: "Instructor",
+        status: "Active",
+        group: "Group B",
+        lastLogin: "2024-01-14T15:45:00Z",
+        createdDate: "2023-12-15T00:00:00Z",
+        avatar: null,
+        description: "Experienced instructor with 5+ years in web development.",
+        achievements: ["Expert", "Mentor", "Leader"],
+        courses: ["Advanced React", "System Design", "Database Management"],
+        progress: { overall: 95, courses: 8, completed: 7 },
+      },
+      {
+        id: 3,
+        name: "Mike Johnson",
+        email: "mike.johnson@example.com",
+        phone: "+1234567892",
+        role: "Student",
+        status: "Inactive",
+        group: "Group A",
+        lastLogin: "Never",
+        createdDate: "2024-01-10T00:00:00Z",
+        avatar: null,
+        description: "New student enrolled in web development program.",
+        achievements: ["Newcomer"],
+        courses: ["HTML/CSS Basics"],
+        progress: { overall: 25, courses: 1, completed: 0 },
+      },
+      {
+        id: 4,
+        name: "Sarah Wilson",
+        email: "sarah.wilson@example.com",
+        phone: "+1234567893",
+        role: "Admin",
+        status: "Active",
+        group: "Advanced",
+        lastLogin: "2024-01-16T09:15:00Z",
+        createdDate: "2023-11-01T00:00:00Z",
+        avatar: null,
+        description: "System administrator managing platform operations.",
+        achievements: ["Administrator", "Problem Solver", "Efficient"],
+        courses: ["System Administration", "Security Fundamentals"],
+        progress: { overall: 100, courses: 5, completed: 5 },
+      },
+      {
+        id: 5,
+        name: "David Brown",
+        email: "david.brown@example.com",
+        phone: "+1234567894",
+        role: "Student",
+        status: "Pending",
+        group: "Beginner",
+        lastLogin: "Never",
+        createdDate: "2024-01-16T00:00:00Z",
+        avatar: null,
+        description: "Pending approval for course enrollment.",
+        achievements: [],
+        courses: [],
+        progress: { overall: 0, courses: 0, completed: 0 },
+      },
+    ]
+    setUsers(sampleUsers)
+    setFilteredUsers(sampleUsers)
+  }, [])
 
-  const closeAddModal = () => {
-    setIsAddModalOpen(false)
-    setCustomFields([])
-  }
+  // Filter and search logic
+  useEffect(() => {
+    const filtered = users.filter((user) => {
+      const matchesSearch =
+        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesRole = !filters.role || user.role === filters.role
+      const matchesStatus = !filters.status || user.status === filters.status
+      const matchesGroup = !filters.group || user.group === filters.group
 
-  // Toggle functions
-  const toggleSidebar = () => {
-    setShowSidebar(!showSidebar)
-  }
+      let matchesDate = true
+      if (filters.dateRange && filters.dateRange.length === 2) {
+        const userDate = dayjs(user.createdDate)
+        matchesDate = userDate.isAfter(filters.dateRange[0]) && userDate.isBefore(filters.dateRange[1])
+      }
 
-  const addCustomField = () => {
-    if (customFieldName.trim()) {
-      setCustomFields([...customFields, { name: customFieldName, value: customFieldValue }])
-      setCustomFieldName("")
-      setCustomFieldValue("")
-      setShowCustomPrompt(false)
-    }
-  }
+      return matchesSearch && matchesRole && matchesStatus && matchesGroup && matchesDate
+    })
+    setFilteredUsers(filtered)
+  }, [users, searchTerm, filters])
 
-  const students = [
+  // Table columns
+  const columns = [
     {
-      id: 1,
-      name: "Jhony",
-      age: 22,
-      gender: "Male",
-      designation: "Student",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-      achievements: [
-        { name: "Forgetful", icon: null },
-        { name: "Generous", icon: null },
-        { name: "Forgetful", icon: null },
-      ],
-      certificates: [
-        { name: "Forgetful", icon: null },
-        { name: "Calm", icon: null },
-        { name: "Generous", icon: null },
-        { name: "Forgetful", icon: null },
-      ],
-      progress: {
-        groupActivity: 40,
-        singleRange1: 20,
-        singleRange2: 90,
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      render: (text, record) => (
+        <div className="flex items-center">
+          <Avatar size={32} src={record.avatar} className="mr-2" style={{ backgroundColor: "#f56a00" }}>
+            {record.name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")}
+          </Avatar>
+          <div>
+            <div className="font-medium">{text}</div>
+            <div className="text-xs text-gray-500">ID: {record.id}</div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+      sorter: (a, b) => a.email.localeCompare(b.email),
+    },
+    {
+      title: "Role",
+      dataIndex: "role",
+      key: "role",
+      filters: roleOptions.map((role) => ({ text: role, value: role })),
+      onFilter: (value, record) => record.role === value,
+      render: (role) => {
+        const colors = {
+          Student: "blue",
+          Instructor: "green",
+          Admin: "red",
+          Janitor: "orange",
+          Pharmacist: "purple",
+          Technician: "cyan",
+          IT: "magenta",
+        }
+        return <Tag color={colors[role] || "default"}>{role}</Tag>
       },
     },
     {
-      id: 2,
-      name: "Jhony",
-      age: 22,
-      gender: "Male",
-      designation: "Student",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-      achievements: [
-        { name: "Forgetful", icon: null },
-        { name: "Generous", icon: null },
-        { name: "Forgetful", icon: null },
-      ],
-      certificates: [
-        { name: "Forgetful", icon: null },
-        { name: "Calm", icon: null },
-        { name: "Generous", icon: null },
-        { name: "Forgetful", icon: null },
-      ],
-      progress: {
-        groupActivity: 40,
-        singleRange1: 20,
-        singleRange2: 90,
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      filters: statusOptions.map((status) => ({ text: status, value: status })),
+      onFilter: (value, record) => record.status === value,
+      render: (status) => {
+        const colors = {
+          Active: "success",
+          Inactive: "default",
+          Pending: "warning",
+          Suspended: "error",
+        }
+        return <Badge status={colors[status]} text={status} />
       },
     },
     {
-      id: 3,
-      name: "Jhony",
-      age: 22,
-      gender: "Male",
-      designation: "Student",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-      achievements: [
-        { name: "Forgetful", icon: null },
-        { name: "Generous", icon: null },
-        { name: "Forgetful", icon: null },
-      ],
-      certificates: [
-        { name: "Forgetful", icon: null },
-        { name: "Calm", icon: null },
-        { name: "Generous", icon: null },
-        { name: "Forgetful", icon: null },
-      ],
-      progress: {
-        groupActivity: 40,
-        singleRange1: 20,
-        singleRange2: 90,
+      title: "Last Login",
+      dataIndex: "lastLogin",
+      key: "lastLogin",
+      sorter: (a, b) => {
+        const dateA = a.lastLogin === "Never" ? new Date(0) : new Date(a.lastLogin)
+        const dateB = b.lastLogin === "Never" ? new Date(0) : new Date(b.lastLogin)
+        return dateA - dateB
       },
+      render: (lastLogin) =>
+        lastLogin === "Never" ? <span className="text-gray-400">Never</span> : dayjs(lastLogin).format("MMM DD, YYYY"),
     },
     {
-      id: 4,
-      name: "Jhony",
-      age: 22,
-      gender: "Male",
-      designation: "Student",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-      achievements: [
-        { name: "Forgetful", icon: null },
-        { name: "Generous", icon: null },
-        { name: "Forgetful", icon: null },
-      ],
-      certificates: [
-        { name: "Forgetful", icon: null },
-        { name: "Calm", icon: null },
-        { name: "Generous", icon: null },
-        { name: "Forgetful", icon: null },
-      ],
-      progress: {
-        groupActivity: 40,
-        singleRange1: 20,
-        singleRange2: 90,
-      },
-    },
-    {
-      id: 5,
-      name: "Jhony",
-      age: 22,
-      gender: "Male",
-      designation: "Student",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-      achievements: [
-        { name: "Forgetful", icon: null },
-        { name: "Generous", icon: null },
-        { name: "Forgetful", icon: null },
-      ],
-      certificates: [
-        { name: "Forgetful", icon: null },
-        { name: "Calm", icon: null },
-        { name: "Generous", icon: null },
-        { name: "Forgetful", icon: null },
-      ],
-      progress: {
-        groupActivity: 40,
-        singleRange1: 20,
-        singleRange2: 90,
-      },
-    },
-    {
-      id: 6,
-      name: "Jhony",
-      age: 22,
-      gender: "Male",
-      designation: "Student",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-      achievements: [
-        { name: "Forgetful", icon: null },
-        { name: "Generous", icon: null },
-        { name: "Forgetful", icon: null },
-      ],
-      certificates: [
-        { name: "Forgetful", icon: null },
-        { name: "Calm", icon: null },
-        { name: "Generous", icon: null },
-        { name: "Forgetful", icon: null },
-      ],
-      progress: {
-        groupActivity: 40,
-        singleRange1: 20,
-        singleRange2: 90,
-      },
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <Dropdown
+          menu={{
+            items: [
+              {
+                key: "view",
+                icon: <EyeOutlined />,
+                label: "View Profile",
+                onClick: () => handleViewProfile(record),
+              },
+              {
+                key: "edit",
+                icon: <EditOutlined />,
+                label: "Edit User",
+                onClick: () => handleEditUser(record),
+              },
+              {
+                type: "divider",
+              },
+              {
+                key: "reset",
+                icon: <LockOutlined />,
+                label: "Reset Password",
+                onClick: () => handleResetPassword(record),
+              },
+              {
+                key: "toggle",
+                icon: record.status === "Active" ? <UnlockOutlined /> : <LockOutlined />,
+                label: record.status === "Active" ? "Deactivate" : "Activate",
+                onClick: () => handleToggleStatus(record),
+              },
+              {
+                type: "divider",
+              },
+              {
+                key: "delete",
+                icon: <DeleteOutlined />,
+                label: "Delete User",
+                danger: true,
+                onClick: () => handleDeleteUser(record),
+              },
+            ],
+          }}
+          trigger={["click"]}
+        >
+          <Button type="text" icon={<MoreOutlined />} />
+        </Dropdown>
+      ),
     },
   ]
 
-  const openModal = (student) => {
-    setSelectedStudent(student)
-    document.body.style.overflow = "hidden"
+  // Row selection
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (keys) => setSelectedRowKeys(keys),
+    onSelectAll: (selected, selectedRows, changeRows) => {
+      if (selected) {
+        setSelectedRowKeys(filteredUsers.map((user) => user.id))
+      } else {
+        setSelectedRowKeys([])
+      }
+    },
   }
 
-  const closeModal = () => {
-    setSelectedStudent(null)
-    document.body.style.overflow = "auto"
+  // Handlers
+  const handleSearch = (value) => {
+    setSearchTerm(value)
+  }
+
+  const handleFilterChange = (key, value) => {
+    setFilters((prev) => ({ ...prev, [key]: value }))
+  }
+
+  const handleAddUser = () => {
+    setIsAddModalVisible(true)
+  }
+
+  const handleViewProfile = (user) => {
+    setCurrentUser(user)
+    setIsProfileModalVisible(true)
+  }
+
+  const handleEditUser = (user) => {
+    setEditingUser(user)
+    editForm.setFieldsValue(user)
+    setIsEditModalVisible(true)
+  }
+
+  const handleDeleteUser = (user) => {
+    setCurrentUser(user)
+    setIsDeleteModalVisible(true)
+  }
+
+  const handleResetPassword = (user) => {
+    Modal.confirm({
+      title: "Reset Password",
+      content: `Are you sure you want to reset password for ${user.name}?`,
+      onOk: () => {
+        message.success(`Password reset email sent to ${user.email}`)
+      },
+    })
+  }
+
+  const handleToggleStatus = (user) => {
+    const newStatus = user.status === "Active" ? "Inactive" : "Active"
+    Modal.confirm({
+      title: `${newStatus === "Active" ? "Activate" : "Deactivate"} User`,
+      content: `Are you sure you want to ${newStatus === "Active" ? "activate" : "deactivate"} ${user.name}?`,
+      onOk: () => {
+        setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, status: newStatus } : u)))
+        message.success(`User ${newStatus === "Active" ? "activated" : "deactivated"} successfully`)
+      },
+    })
+  }
+
+  const handleBulkAction = (action) => {
+    if (selectedRowKeys.length === 0) {
+      message.warning("Please select users first")
+      return
+    }
+
+    Modal.confirm({
+      title: `Bulk ${action}`,
+      content: `Are you sure you want to ${action.toLowerCase()} ${selectedRowKeys.length} selected users?`,
+      onOk: () => {
+        if (action === "Delete") {
+          setUsers((prev) => prev.filter((user) => !selectedRowKeys.includes(user.id)))
+        } else if (action === "Activate") {
+          setUsers((prev) =>
+            prev.map((user) => (selectedRowKeys.includes(user.id) ? { ...user, status: "Active" } : user)),
+          )
+        } else if (action === "Deactivate") {
+          setUsers((prev) =>
+            prev.map((user) => (selectedRowKeys.includes(user.id) ? { ...user, status: "Inactive" } : user)),
+          )
+        }
+        setSelectedRowKeys([])
+        message.success(`Bulk ${action.toLowerCase()} completed successfully`)
+      },
+    })
+  }
+
+  const handleAddSubmit = (values) => {
+    const newUser = {
+      id: users.length + 1,
+      ...values,
+      lastLogin: "Never",
+      createdDate: new Date().toISOString(),
+      avatar: null,
+      achievements: [],
+      courses: [],
+      progress: { overall: 0, courses: 0, completed: 0 },
+    }
+    setUsers((prev) => [...prev, newUser])
+    setIsAddModalVisible(false)
+    addForm.resetFields()
+    message.success("User added successfully")
+  }
+
+  const handleEditSubmit = (values) => {
+    setUsers((prev) => prev.map((user) => (user.id === editingUser.id ? { ...user, ...values } : user)))
+    setIsEditModalVisible(false)
+    setEditingUser(null)
+    editForm.resetFields()
+    message.success("User updated successfully")
+  }
+
+  const handleDeleteConfirm = () => {
+    setUsers((prev) => prev.filter((user) => user.id !== currentUser.id))
+    setIsDeleteModalVisible(false)
+    setCurrentUser(null)
+    message.success("User deleted successfully")
+  }
+
+  const clearFilters = () => {
+    setFilters({
+      role: "",
+      status: "",
+      group: "",
+      dateRange: null,
+    })
+    setSearchTerm("")
   }
 
   return (
-    <div className="flex rounded-3xl text-black min-h-screen overflow-hidden">
-      <div className="flex-1">
-        <div className="max-w-4xl w-full mr-auto p-4 md:p-6">
-          <div className="flex justify-between md:items-center items-start flex-col gap-4 w-full md:flex-row mb-6">
-            <h1 className="text-2xl poppins-thin_600">Students</h1>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="pl-10 pr-4 py-2 bg-[#F9F9F9] outline-none rounded-2xl text-sm w-48 md:w-64"
-                />
-              </div>
-              <button className="p-2 md:hidden bg-[#F9F9F9] rounded-full" onClick={toggleSidebar}>
-                <Menu className="h-5 w-5 text-gray-600" />
-              </button>
-            </div>
-          </div>
-          <div className="space-y-3">
-            {students.map((student) => (
-              <div
-                key={student.id}
-                className="bg-[#F2F2F2] rounded-xl md:p-6 p-3 flex flex-col md:flex-row items-center cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => openModal(student)}
-              >
-                <div className="relative w-12 h-12 flex-shrink-0">
-                  <img src={Avatar || "/placeholder.svg"} alt="Student avatar" className="object-contain" />
-                </div>
-                <div className="md:ml-4 ml-0 flex-grow text-center md:text-left">
-                  <h3 className="text-md poppins-thin_600">{student.name}</h3>
-                  <p className="text-sm text-gray-500">{student.designation}</p>
-                </div>
-                <div className="flex sm:flex-row justify-center items-center gap-3 sm:ml-4 w-full sm:w-auto mt-3 sm:mt-0">
-                  <button className="flex items-center justify-center w-auto text-white poppins-thin_bold py-2 bg-[#1E1E1F] rounded-xl text-xs px-6 cursor-pointer transition-colors">
-                    View Details
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {selectedStudent && (
-            <div className="fixed inset-0 bg-black/50 bg-opacity-50 z-50 flex items-center justify-center p-4">
-              <div className="bg-white rounded-lg w-full max-w-lg p-6 overflow-y-auto max-h-[75vh] custom-scrollbar relative">
-                <button
-                  onClick={closeModal}
-                  className="absolute top-3 right-3 cursor-pointer bg-black p-1 text-sm rounded-md text-white z-10"
-                >
-                  <X size={15} />
-                </button>
-
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 relative">
-                      <img
-                        src={Avatar || "/placeholder.svg"}
-                        alt="Student avatar"
-                        className="object-cover  w-full h-full"
-                      />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-semibold">{selectedStudent.name}</h2>
-                      <p className="text-sm text-gray-500">
-                        {selectedStudent.age} / {selectedStudent.gender}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mb-6">
-                  <p className="text-sm text-[#505050] poppins-thin_500">{selectedStudent.description}</p>
-                </div>
-
-                <div className="mb-6">
-                  <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Achievements</h3>
-                  <div className="flex gap-2">
-                    {selectedStudent.achievements.map((achievement, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-2 bg-gray-100 poppins-thin_500  text-gray-700 text-xs rounded-xl inline-flex items-center"
-                      >
-                        {achievement.name}
-                        {achievement.icon && <span className="ml-1">{achievement.icon}</span>}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mb-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Certificates</h3>
-                      {/* <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                        Real-time updates
-                      </span> */}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedStudent.certificates.map((certificate, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-2 bg-gray-100 poppins-thin_500  text-gray-700 text-xs rounded-xl"
-                      >
-                        {certificate.name}
-                        {certificate.icon && <span className="ml-1">{certificate.icon}</span>}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Progress</h3>
-                    {/* <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                      Real-time updates
-                    </span> */}
-                  </div>
-                  <div className="space-y-3">
-                    <div className="">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-black">Group activity</span>
-                        <span className="text-sm text-gray-700">{selectedStudent.progress.groupActivity}%</span>
-                      </div>
-                      <div className="bg-gray-200 h-2 rounded-full">
-                        <div
-                          className="bg-[#0B5D3A] h-2 rounded-full"
-                          style={{
-                            width: `${selectedStudent.progress.groupActivity}%`,
-                          }}
-                        ></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-black">Single Range</span>
-                        <span className="text-sm text-gray-600">{selectedStudent.progress.singleRange1}%</span>
-                      </div>
-                      <div className="bg-gray-200 h-2 rounded-full">
-                        <div
-                          className="bg-[#0B5D3A] h-2 rounded-full"
-                          style={{
-                            width: `${selectedStudent.progress.singleRange1}%`,
-                          }}
-                        ></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-black">Single Range</span>
-                        <span className="text-sm text-gray-600">{selectedStudent.progress.singleRange2}%</span>
-                      </div>
-                      <div className="bg-gray-200 h-2 rounded-full">
-                        <div
-                          className="bg-[#0B5D3A] h-2 rounded-full"
-                          style={{
-                            width: `${selectedStudent.progress.singleRange2}%`,
-                          }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6">
-                  <button className="w-auto bg-[#C77373] text-sm text-white py-2 px-7  rounded-xl cursor-pointer hover:bg-red-600 transition-colors">
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {showSidebar && (
-        <div className="fixed inset-0 bg-black/50 bg-opacity-50 z-40 md:hidden" onClick={toggleSidebar}></div>
-      )}
-
-      <div
-        className={`fixed md:static top-0 right-0 h-full z-40 w-80 bg-white p-4 md:p-6 transform transition-transform duration-500 ease-in-out ${
-          showSidebar ? "translate-x-0" : "translate-x-full md:translate-x-0"
-        }`}
-      >
-        <div className="flex justify-end items-center mb-4 md:hidden">
-          {/* <h2 className="font-medium">Notifications</h2> */}
-          <button onClick={toggleSidebar} className="p-1">
-            <X className="h-5 w-5" />
-          </button>
+    <div className="md:p-6 p-3">
+      {/* Header */}
+      <div className="mb-6">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-semibold">Manage Users</h1>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleAddUser}>
+            Add User
+          </Button>
         </div>
 
-        <div>
-          <h1 className="font-bold mb-4">Add Entity</h1>
-        </div>
+        <Row gutter={[16, 16]} align="middle" className="mb-4">
+      {/* Search Bar - Larger on desktop */}
+      <Col xs={24} sm={24} md={12} lg={14} xl={18}>
+        <Search
+          placeholder="Search by name or email..."
+          allowClear
+          onSearch={handleSearch}
+          onChange={(e) => handleSearch(e.target.value)}
+          style={{ width: "100%" }}
+        />
+      </Col>
 
-        <div className="">
-          {/* <h1 className="poppins-thin_600 text-black mb-6" onClick={toggleModal}>Join Group</h1> */}
-          <button
-            onClick={openAddModal}
-            className="w-full md:w-auto py-2 bg-[#0B5D3A] text-sm px-7 text-white rounded-xl mb-6 font-semibold"
-          >
-            Add Student
-          </button>
-        </div>
-      </div>
+      {/* Buttons - Smaller but same row on large screens */}
+      <Col xs={24} sm={12} md={4} lg={3} xl={2}>
+        <Button
+          block
+          icon={<ReloadOutlined />}
+          onClick={() => window.location.reload()}
+        >
+          Refresh
+        </Button>
+      </Col>
 
-      {isAddModalOpen && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-md relative p-6 mx-4">
-            <button onClick={closeAddModal} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
-              <X size={20} />
-            </button>
+      <Col xs={24} sm={12} md={4} lg={3} xl={2}>
+        <Button block icon={<ExportOutlined />}>
+          Export
+        </Button>
+      </Col>
 
-            <div className="flex flex-col items-center mb-6">
-              <div className="relative w-24 h-24 mb-3 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden">
-                <img src={profileImage || "/placeholder.svg"} alt="Profile" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <label
-                    htmlFor="profile-upload"
-                    className="cursor-pointer w-full h-full flex items-center justify-center text-white"
-                  >
-                    <Edit size={20} />
-                  </label>
-                  <input
-                    id="profile-upload"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageChange}
-                  />
-                </div>
-              </div>
-              <div className="mb-2">
-                <label
-                  htmlFor="profile-upload-btn"
-                  className="bg-[#1E1E1F] cursor-pointer text-white text-sm py-2 px-7 rounded-xl block"
-                >
-                  Upload picture
-                </label>
-                <input
-                  id="profile-upload-btn"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageChange}
-                />
-              </div>
-              {profileImage !== ProfilePicture && <p className="text-green-600 text-xs mt-1">New image selected</p>}
-            </div>
-
-            <form className="space-y-4 custom-scrollbar overflow-y-auto max-h-[50vh]">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                <input
-                  type="text"
-                  className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm "
-                  defaultValue="Maletry"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                <input
-                  type="text"
-                  className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm "
-                  defaultValue="Prajapati"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input
-                  type="email"
-                  className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm "
-                  defaultValue="maletry@example.com"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone No</label>
-                <input
-                  type="tel"
-                  className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm "
-                  defaultValue=""
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                <select
-                  className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm"
-                  value={selectedRole}
-                  onChange={(e) => setSelectedRole(e.target.value)}
+      <Col xs={24} sm={12} md={4} lg={3} xl={2}>
+        <Button
+          block
+          icon={<FilterOutlined />}
+          onClick={() => setShowFilters(!showFilters)}
+          type={showFilters ? "primary" : "default"}
+        >
+          Filters
+        </Button>
+      </Col>
+    </Row>
+        {/* Advanced Filters */}
+        {showFilters && (
+          <Card className="mb-4">
+            <Row gutter={[16, 16]}>
+              <Col xs={24} sm={12} md={6}>
+                <Select
+                  placeholder="Filter by Role"
+                  allowClear
+                  style={{ width: "100%" }}
+                  value={filters.role}
+                  onChange={(value) => handleFilterChange("role", value)}
                 >
                   {roleOptions.map((role) => (
-                    <option key={role} value={role}>
+                    <Option key={role} value={role}>
                       {role}
-                    </option>
+                    </Option>
                   ))}
-                </select>
-              </div>
-
-              {customFields.map((field, index) => (
-                <div key={index}>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{field.name}</label>
-                  <input
-                    type="text"
-                    className="w-full p-2 border border-gray-300/40 rounded-md bg-[#F1F1F1] outline-none text-sm"
-                    value={field.value}
-                    onChange={(e) => {
-                      const updatedFields = [...customFields]
-                      updatedFields[index].value = e.target.value
-                      setCustomFields(updatedFields)
-                    }}
-                  />
-                </div>
-              ))}
-
-              {showCustomPrompt ? (
-                <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
-                  <h4 className="text-sm font-medium mb-2">Add Custom Field</h4>
-                  <div className="space-y-2">
-                    <input
-                      type="text"
-                      placeholder="Field Name"
-                      className="w-full p-2 border border-gray-300 rounded-md outline-none text-sm"
-                      value={customFieldName}
-                      onChange={(e) => setCustomFieldName(e.target.value)}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Default Value (optional)"
-                      className="w-full p-2 border border-gray-300 rounded-md outline-none text-sm"
-                      value={customFieldValue}
-                      onChange={(e) => setCustomFieldValue(e.target.value)}
-                    />
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        className="bg-[#0B5D3A] text-white text-xs py-1.5 px-3 rounded-md"
-                        onClick={addCustomField}
-                      >
-                        Add Field
-                      </button>
-                      <button
-                        type="button"
-                        className="bg-gray-200 text-gray-700 text-xs py-1.5 px-3 rounded-md"
-                        onClick={() => setShowCustomPrompt(false)}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <button
-                    type="button"
-                    className="text-[#0B5D3A] text-sm font-medium flex items-center"
-                    onClick={() => setShowCustomPrompt(true)}
-                  >
-                    + Add Custom Field
-                  </button>
-                </div>
-              )}
-
-              <div className="pt-2 flex justify-center">
-                <button
-                  type="button"
-                  className="md:w-auto w-full bg-[#0B5D3A] text-white text-sm py-2 px-6 rounded-xl hover:bg-green-700 transition-colors"
-                  onClick={closeAddModal}
+                </Select>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Select
+                  placeholder="Filter by Status"
+                  allowClear
+                  style={{ width: "100%" }}
+                  value={filters.status}
+                  onChange={(value) => handleFilterChange("status", value)}
                 >
-                  Create Student
-                </button>
+                  {statusOptions.map((status) => (
+                    <Option key={status} value={status}>
+                      {status}
+                    </Option>
+                  ))}
+                </Select>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Select
+                  placeholder="Filter by Group"
+                  allowClear
+                  style={{ width: "100%" }}
+                  value={filters.group}
+                  onChange={(value) => handleFilterChange("group", value)}
+                >
+                  {groupOptions.map((group) => (
+                    <Option key={group} value={group}>
+                      {group}
+                    </Option>
+                  ))}
+                </Select>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <RangePicker
+                  placeholder={["Start Date", "End Date"]}
+                  style={{ width: "100%" }}
+                  value={filters.dateRange}
+                  onChange={(dates) => handleFilterChange("dateRange", dates)}
+                />
+              </Col>
+            </Row>
+            <div className="mt-3">
+              <Button onClick={clearFilters} size="small">
+                Clear All Filters
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {/* Bulk Actions */}
+        {selectedRowKeys.length > 0 && (
+          <Card className="mb-4">
+            <div className="flex items-center justify-between">
+              <span>{selectedRowKeys.length} users selected</span>
+              <Space>
+                <Button onClick={() => handleBulkAction("Activate")}>Bulk Activate</Button>
+                <Button onClick={() => handleBulkAction("Deactivate")}>Bulk Deactivate</Button>
+                <Button danger onClick={() => handleBulkAction("Delete")}>
+                  Bulk Delete
+                </Button>
+              </Space>
+            </div>
+          </Card>
+        )}
+      </div>
+
+      {/* Users Table */}
+      <Card>
+        <Table
+          columns={columns}
+          dataSource={filteredUsers}
+          rowKey="id"
+          rowSelection={rowSelection}
+          loading={loading}
+          pagination={{
+            total: filteredUsers.length,
+            pageSize: 10,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+          }}
+          scroll={{ x: 800 }}
+        />
+      </Card>
+
+      {/* Add User Modal */}
+      <Modal
+        title="Add New User"
+        open={isAddModalVisible}
+        onCancel={() => {
+          setIsAddModalVisible(false)
+          addForm.resetFields()
+        }}
+        footer={null}
+        width={600}
+      >
+        <Form form={addForm} layout="vertical" onFinish={handleAddSubmit}>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="name" label="Full Name" rules={[{ required: true, message: "Please enter full name" }]}>
+                <Input prefix={<UserOutlined />} placeholder="Enter full name" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="email"
+                label="Email"
+                rules={[
+                  { required: true, message: "Please enter email" },
+                  { type: "email", message: "Please enter valid email" },
+                ]}
+              >
+                <Input prefix={<MailOutlined />} placeholder="Enter email" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="phone"
+                label="Phone Number"
+                rules={[{ required: true, message: "Please enter phone number" }]}
+              >
+                <Input prefix={<PhoneOutlined />} placeholder="Enter phone number" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="role" label="Role" rules={[{ required: true, message: "Please select role" }]}>
+                <Select placeholder="Select role">
+                  {roleOptions.map((role) => (
+                    <Option key={role} value={role}>
+                      {role}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="status"
+                label="Status"
+                rules={[{ required: true, message: "Please select status" }]}
+                initialValue="Active"
+              >
+                <Select placeholder="Select status">
+                  {statusOptions.map((status) => (
+                    <Option key={status} value={status}>
+                      {status}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="group" label="Group" rules={[{ required: true, message: "Please select group" }]}>
+                <Select placeholder="Select group">
+                  {groupOptions.map((group) => (
+                    <Option key={group} value={group}>
+                      {group}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Form.Item name="description" label="Description">
+            <TextArea rows={3} placeholder="Enter user description" />
+          </Form.Item>
+
+          <Form.Item>
+            <Space>
+              <Button type="primary" htmlType="submit">
+                Create User
+              </Button>
+              <Button
+                onClick={() => {
+                  setIsAddModalVisible(false)
+                  addForm.resetFields()
+                }}
+              >
+                Cancel
+              </Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Edit User Modal */}
+      <Modal
+        title="Edit User"
+        open={isEditModalVisible}
+        onCancel={() => {
+          setIsEditModalVisible(false)
+          setEditingUser(null)
+          editForm.resetFields()
+        }}
+        footer={null}
+        width={600}
+      >
+        <Form form={editForm} layout="vertical" onFinish={handleEditSubmit}>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="name" label="Full Name" rules={[{ required: true, message: "Please enter full name" }]}>
+                <Input prefix={<UserOutlined />} placeholder="Enter full name" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="email"
+                label="Email"
+                rules={[
+                  { required: true, message: "Please enter email" },
+                  { type: "email", message: "Please enter valid email" },
+                ]}
+              >
+                <Input prefix={<MailOutlined />} placeholder="Enter email" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="phone"
+                label="Phone Number"
+                rules={[{ required: true, message: "Please enter phone number" }]}
+              >
+                <Input prefix={<PhoneOutlined />} placeholder="Enter phone number" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="role" label="Role" rules={[{ required: true, message: "Please select role" }]}>
+                <Select placeholder="Select role">
+                  {roleOptions.map((role) => (
+                    <Option key={role} value={role}>
+                      {role}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="status" label="Status" rules={[{ required: true, message: "Please select status" }]}>
+                <Select placeholder="Select status">
+                  {statusOptions.map((status) => (
+                    <Option key={status} value={status}>
+                      {status}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="group" label="Group" rules={[{ required: true, message: "Please select group" }]}>
+                <Select placeholder="Select group">
+                  {groupOptions.map((group) => (
+                    <Option key={group} value={group}>
+                      {group}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Form.Item name="description" label="Description">
+            <TextArea rows={3} placeholder="Enter user description" />
+          </Form.Item>
+
+          <Form.Item>
+            <Space>
+              <Button type="primary" htmlType="submit">
+                Update User
+              </Button>
+              <Button
+                onClick={() => {
+                  setIsEditModalVisible(false)
+                  setEditingUser(null)
+                  editForm.resetFields()
+                }}
+              >
+                Cancel
+              </Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* User Profile Modal */}
+      <Modal
+        title="User Profile"
+        open={isProfileModalVisible}
+        onCancel={() => {
+          setIsProfileModalVisible(false)
+          setCurrentUser(null)
+        }}
+        footer={[
+          <Button
+            key="edit"
+            type="primary"
+            onClick={() => {
+              setIsProfileModalVisible(false)
+              handleEditUser(currentUser)
+            }}
+          >
+            Edit User
+          </Button>,
+          <Button
+            key="close"
+            onClick={() => {
+              setIsProfileModalVisible(false)
+              setCurrentUser(null)
+            }}
+          >
+            Close
+          </Button>,
+        ]}
+        width={700}
+      >
+        {currentUser && (
+          <div>
+            <div className="flex items-center mb-6">
+              <Avatar size={80} src={currentUser.avatar} style={{ backgroundColor: "#f56a00" }}>
+                {currentUser.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
+              </Avatar>
+              <div className="ml-4">
+                <h2 className="text-xl font-semibold">{currentUser.name}</h2>
+                <p className="text-gray-600">{currentUser.email}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <Tag color="blue">{currentUser.role}</Tag>
+                  <Badge status={currentUser.status === "Active" ? "success" : "default"} text={currentUser.status} />
+                </div>
               </div>
-            </form>
+            </div>
+
+            <Divider />
+
+            <Row gutter={[16, 16]}>
+              <Col span={12}>
+                <div>
+                  <h4 className="font-medium mb-2">Contact Information</h4>
+                  <p>
+                    <strong>Phone:</strong> {currentUser.phone}
+                  </p>
+                  <p>
+                    <strong>Group:</strong> {currentUser.group}
+                  </p>
+                  <p>
+                    <strong>Last Login:</strong>{" "}
+                    {currentUser.lastLogin === "Never"
+                      ? "Never"
+                      : dayjs(currentUser.lastLogin).format("MMM DD, YYYY HH:mm")}
+                  </p>
+                  <p>
+                    <strong>Created:</strong> {dayjs(currentUser.createdDate).format("MMM DD, YYYY")}
+                  </p>
+                </div>
+              </Col>
+              <Col span={12}>
+                <div>
+                  <h4 className="font-medium mb-2">Progress Overview</h4>
+                  <div className="mb-2">
+                    <span>Overall Progress</span>
+                    <Progress percent={currentUser.progress.overall} size="small" />
+                  </div>
+                  <p>
+                    <strong>Courses Enrolled:</strong> {currentUser.progress.courses}
+                  </p>
+                  <p>
+                    <strong>Courses Completed:</strong> {currentUser.progress.completed}
+                  </p>
+                </div>
+              </Col>
+            </Row>
+
+            <Divider />
+
+            <div className="mb-4">
+              <h4 className="font-medium mb-2">Description</h4>
+              <p className="text-gray-600">{currentUser.description}</p>
+            </div>
+
+            <div className="mb-4">
+              <h4 className="font-medium mb-2">Achievements</h4>
+              <div className="flex flex-wrap gap-1">
+                {currentUser.achievements.map((achievement, index) => (
+                  <Tag key={index} color="green">
+                    {achievement}
+                  </Tag>
+                ))}
+                {currentUser.achievements.length === 0 && <span className="text-gray-400">No achievements yet</span>}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-medium mb-2">Enrolled Courses</h4>
+              <div className="flex flex-wrap gap-1">
+                {currentUser.courses.map((course, index) => (
+                  <Tag key={index} color="blue">
+                    {course}
+                  </Tag>
+                ))}
+                {currentUser.courses.length === 0 && <span className="text-gray-400">No courses enrolled</span>}
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        title="Delete User"
+        open={isDeleteModalVisible}
+        onOk={handleDeleteConfirm}
+        onCancel={() => {
+          setIsDeleteModalVisible(false)
+          setCurrentUser(null)
+        }}
+        okText="Delete"
+        okType="danger"
+        cancelText="Cancel"
+      >
+        {currentUser && (
+          <div>
+            <p>
+              Are you sure you want to delete <strong>{currentUser.name}</strong>?
+            </p>
+            <p className="text-red-600 text-sm mt-2">
+              This action cannot be undone. All user data will be permanently removed.
+            </p>
+          </div>
+        )}
+      </Modal>
     </div>
   )
 }

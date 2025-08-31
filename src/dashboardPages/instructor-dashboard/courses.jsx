@@ -1,805 +1,1301 @@
 /* eslint-disable no-unused-vars */
-import { useState, useRef, useEffect } from "react"
-import { Search, MoreVertical, Bell, X, Edit, ChevronRight } from "lucide-react"
-import CalenderImage from "../../../public/Frame 31.svg"
-import { FiUsers } from "react-icons/fi"
-import Image23 from "../../../public/Frame 31.svg"
-import Frame31 from "../../../public/Frame 31.svg"
-import CourseImage from "../../../public/course_image.svg"
+"use client"
 
-export default function Courses() {
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [showDetailsModal, setShowDetailsModal] = useState(false)
-  const [selectedCourse, setSelectedCourse] = useState(null)
-  const [profileImage, setProfileImage] = useState(Image23)
-  const [showSidebar, setShowSidebar] = useState(false)
-  const [isEditMode, setIsEditMode] = useState(false)
+import { useState, useEffect } from "react"
+import {
+  Table,
+  Button,
+  Tag,
+  Dropdown,
+  Input,
+  Select,
+  Card,
+  Modal,
+  message,
+  DatePicker,
+  Steps,
+  Form,
+  Upload,
+  Tabs,
+  List,
+  Collapse,
+  InputNumber,
+  Radio,
+  Space,
+  Checkbox,
+  Progress,
+  Avatar,
+  Tooltip,
+  Popconfirm,
+  Row,
+  Col,
+  Divider,
+  Typography,
+} from "antd"
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  EyeOutlined,
+  UploadOutlined,
+  FilterOutlined,
+  UserOutlined,
+  BookOutlined,
+  FileTextOutlined,
+  SettingOutlined,
+  TeamOutlined,
+  CheckCircleOutlined,
+  ExclamationCircleOutlined,
+  MoreOutlined,
+  TableOutlined,
+  AppstoreOutlined,
+  ExportOutlined,
+  CopyOutlined,
+} from "@ant-design/icons"
+
+import { IoArchiveOutline } from "react-icons/io5";
+
+
+const { Search } = Input
+const { Option } = Select
+const { RangePicker } = DatePicker
+const { Step } = Steps
+const { TabPane } = Tabs
+const { Panel } = Collapse
+const { TextArea } = Input
+const { Title, Text } = Typography
+
+const CoursesManagement = () => {
+  // State management
+  const [courses, setCourses] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [searchText, setSearchText] = useState("")
+  const [selectedRowKeys, setSelectedRowKeys] = useState([])
+  const [viewMode, setViewMode] = useState("table")
+  const [showFilters, setShowFilters] = useState(false)
+
+  // Modal states
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false)
+  const [isContentEditorOpen, setIsContentEditorOpen] = useState(false)
+  const [isEnrollmentModalOpen, setIsEnrollmentModalOpen] = useState(false)
+  const [isBulkActionsModalOpen, setIsBulkActionsModalOpen] = useState(false)
+
+  // Form and data states
+  const [form] = Form.useForm()
+  const [currentStep, setCurrentStep] = useState(0)
   const [courseToEdit, setCourseToEdit] = useState(null)
-  const [courses, setCourses] = useState([
+  const [courseToView, setCourseToView] = useState(null)
+  const [courseToEnroll, setCourseToEnroll] = useState(null)
+  const [courseModules, setCourseModules] = useState([])
+
+  // Filter states
+  const [filters, setFilters] = useState({
+    category: "",
+    status: "",
+    instructor: "",
+    dateRange: null,
+  })
+
+  // Sample data
+  const sampleCourses = [
     {
       id: 1,
-      title: "Fundamental 1",
-      color: "bg-lavender",
-      instructor: "Dr. Smith",
-      courseCode: "FND101",
-      duration: "3 months",
+      name: "Introduction to React",
+      code: "REACT101",
+      category: "Web Development",
+      instructor: "John Smith",
+      status: "Published",
+      enrollmentCount: 45,
+      maxEnrollment: 50,
+      enrollmentType: "Open",
+      lastUpdated: "2024-01-15",
+      createdDate: "2024-01-01",
+      description: "Learn the fundamentals of React development",
+      duration: "8 weeks",
       level: "Beginner",
-      seats: "25/30",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-      progress: 40,
-      category: ["Beginner", "Intermediate", "Advanced"],
+      price: 299,
+      thumbnail: "/api/placeholder/300/200",
+      modules: 8,
+      lessons: 32,
+      quizzes: 8,
+      assignments: 4,
+      progress: 75,
     },
     {
       id: 2,
-      title: "Advanced Programming",
-      color: "bg-peach",
-      instructor: "Dr. Johnson",
-      courseCode: "AP202",
-      duration: "4 months",
+      name: "Advanced JavaScript",
+      code: "JS201",
+      category: "Programming",
+      instructor: "Sarah Johnson",
+      status: "Draft",
+      enrollmentCount: 0,
+      maxEnrollment: 30,
+      enrollmentType: "Restricted",
+      lastUpdated: "2024-01-20",
+      createdDate: "2024-01-10",
+      description: "Master advanced JavaScript concepts and patterns",
+      duration: "12 weeks",
       level: "Advanced",
-      seats: "18/20",
-      description: "Advanced programming concepts and techniques for experienced developers.",
-      progress: 65,
-      category: ["Advanced"],
+      price: 499,
+      thumbnail: "/api/placeholder/300/200",
+      modules: 12,
+      lessons: 48,
+      quizzes: 12,
+      assignments: 8,
+      progress: 30,
     },
     {
       id: 3,
-      title: "Data Science Basics",
-      color: "bg-mint",
-      instructor: "Prof. Williams",
-      courseCode: "DS101",
-      duration: "3 months",
+      name: "UI/UX Design Principles",
+      code: "DESIGN101",
+      category: "Design",
+      instructor: "Mike Wilson",
+      status: "Published",
+      enrollmentCount: 28,
+      maxEnrollment: 35,
+      enrollmentType: "Open",
+      lastUpdated: "2024-01-18",
+      createdDate: "2024-01-05",
+      description: "Learn fundamental design principles for digital products",
+      duration: "6 weeks",
       level: "Intermediate",
-      seats: "30/35",
-      description: "Introduction to data science principles and methodologies.",
-      progress: 25,
-      category: ["Beginner", "Intermediate"],
+      price: 399,
+      thumbnail: "/api/placeholder/300/200",
+      modules: 6,
+      lessons: 24,
+      quizzes: 6,
+      assignments: 3,
+      progress: 90,
     },
     {
       id: 4,
-      title: "Web Development",
-      color: "bg-salmon",
-      instructor: "Dr. Brown",
-      courseCode: "WD303",
-      duration: "5 months",
-      level: "Intermediate",
-      seats: "22/25",
-      description: "Comprehensive web development course covering frontend and backend technologies.",
-      progress: 80,
-      category: ["Intermediate", "Advanced"],
+      name: "Data Science Fundamentals",
+      code: "DS101",
+      category: "Data Science",
+      instructor: "Emily Davis",
+      status: "Under Review",
+      enrollmentCount: 12,
+      maxEnrollment: 25,
+      enrollmentType: "Restricted",
+      lastUpdated: "2024-01-22",
+      createdDate: "2024-01-12",
+      description: "Introduction to data science concepts and tools",
+      duration: "10 weeks",
+      level: "Beginner",
+      price: 599,
+      thumbnail: "/api/placeholder/300/200",
+      modules: 10,
+      lessons: 40,
+      quizzes: 10,
+      assignments: 6,
+      progress: 60,
     },
     {
       id: 5,
-      title: "Machine Learning",
-      color: "bg-lavender",
-      instructor: "Dr. Miller",
-      courseCode: "ML404",
-      duration: "6 months",
+      name: "Mobile App Development",
+      code: "MOBILE201",
+      category: "Mobile Development",
+      instructor: "David Brown",
+      status: "Archived",
+      enrollmentCount: 67,
+      maxEnrollment: 70,
+      enrollmentType: "Closed",
+      lastUpdated: "2024-01-10",
+      createdDate: "2023-12-01",
+      description: "Build native mobile applications for iOS and Android",
+      duration: "16 weeks",
       level: "Advanced",
-      seats: "15/20",
-      description: "Advanced machine learning algorithms and practical applications.",
-      progress: 50,
-      category: ["Advanced"],
+      price: 799,
+      thumbnail: "/api/placeholder/300/200",
+      modules: 16,
+      lessons: 64,
+      quizzes: 16,
+      assignments: 12,
+      progress: 100,
     },
-    {
-      id: 6,
-      title: "UI/UX Design",
-      color: "bg-peach",
-      instructor: "Prof. Davis",
-      courseCode: "UID202",
-      duration: "3 months",
-      level: "Beginner",
-      seats: "28/30",
-      description: "Principles of user interface and user experience design.",
-      progress: 35,
-      category: ["Beginner", "Intermediate"],
-    },
-    {
-      id: 7,
-      title: "Mobile App Development",
-      color: "bg-mint",
-      instructor: "Dr. Wilson",
-      courseCode: "MAD303",
-      duration: "4 months",
-      level: "Intermediate",
-      seats: "20/25",
-      description: "Comprehensive mobile application development for iOS and Android.",
-      progress: 60,
-      category: ["Intermediate", "Advanced"],
-    },
-    {
-      id: 8,
-      title: "Cybersecurity Fundamentals",
-      color: "bg-salmon",
-      instructor: "Prof. Taylor",
-      courseCode: "CF101",
-      duration: "3 months",
-      level: "Beginner",
-      seats: "32/35",
-      description: "Introduction to cybersecurity principles and best practices.",
-      progress: 45,
-      category: ["Beginner"],
-    },
-  ])
+  ]
 
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      name: "Dr. Smith",
-      time: "Now",
-      message:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 2,
-      name: "Dr. Smith",
-      time: "Now",
-      message:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-  ])
+  // Options for filters
+  const categoryOptions = [
+    "Web Development",
+    "Programming",
+    "Design",
+    "Data Science",
+    "Mobile Development",
+    "DevOps",
+    "AI/ML",
+  ]
+  const statusOptions = ["Published", "Draft", "Under Review", "Archived"]
+  const instructorOptions = ["John Smith", "Sarah Johnson", "Mike Wilson", "Emily Davis", "David Brown"]
+  const levelOptions = ["Beginner", "Intermediate", "Advanced"]
 
-  const handleImageChange = (event) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      const imageUrl = URL.createObjectURL(file)
-      setProfileImage(imageUrl)
-    }
-  }
-
-  const toggleCreateModal = () => {
-    setShowCreateModal(!showCreateModal)
-  }
-
-  const openDetailsModal = (course) => {
-    setSelectedCourse(course)
-    setShowDetailsModal(true)
-  }
-
-  const closeDetailsModal = () => {
-    setShowDetailsModal(false)
-  }
-
-  const toggleSidebar = () => {
-    setShowSidebar(!showSidebar)
-  }
-
-  const handleEditCourse = (course) => {
-    setCourseToEdit(course)
-    setIsEditMode(true)
-    setShowCreateModal(true)
-  }
-
-  const handleDeleteCourse = (courseId) => {
-    if (window.confirm("Are you sure you want to delete this course?")) {
-      setCourses(courses.filter((course) => course.id !== courseId))
-    }
-  }
-
-  const handleCreateOrUpdateCourse = (formData) => {
-    if (isEditMode && courseToEdit) {
-      // Update existing course
-      setCourses(courses.map((course) => (course.id === courseToEdit.id ? { ...course, ...formData } : course)))
-      setCourseToEdit(null)
-      setIsEditMode(false)
-    } else {
-      // Create new course
-      const newCourse = {
-        id: courses.length + 1,
-        ...formData,
-        progress: 0,
-        color: getRandomColor(),
-      }
-      setCourses([...courses, newCourse])
-    }
-    setShowCreateModal(false)
-  }
-
-  const getRandomColor = () => {
-    const colors = ["bg-lavender", "bg-peach", "bg-mint", "bg-salmon"]
-    return colors[Math.floor(Math.random() * colors.length)]
-  }
-
-  return (
-    <div className="flex rounded-3xl text-black min-h-screen overflow-hidden">
-      <div className="container mx-auto md:p-4 p-2">
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Courses Section */}
-          <div className="w-full lg:w-2/3">
-            <div className="flex md:items-center items-start md:flex-row flex-col gap-4 justify-between mb-4">
-              <h2 className="text-2xl poppins-thin_600">Courses</h2>
-              <div className="flex items-center gap-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <input
-                    type="text"
-                    placeholder="Search"
-                    className="pl-10 pr-4 py-2 bg-gray-100 outline-none rounded-2xl text-sm w-full md:w-60"
-                  />
-                </div>
-                {/* Bell Icon for Mobile - Toggle sidebar on small screens */}
-                <button
-                  onClick={toggleSidebar}
-                  className="lg:hidden p-2 bg-gray-100 rounded-full hover:bg-gray-200"
-                  aria-label="Toggle notifications"
-                >
-                  <Bell className="h-5 w-5 text-gray-600" />
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:p-4 p-0 md:grid-cols-2 gap-4">
-              {courses.map((course) => (
-                <CourseCard
-                  key={course.id}
-                  course={course}
-                  onViewDetails={() => openDetailsModal(course)}
-                  onEdit={() => handleEditCourse(course)}
-                  onDelete={() => handleDeleteCourse(course.id)}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Unified Sidebar for both mobile and desktop */}
-          <div
-            className={`fixed lg:static top-0 right-0 h-full z-40 w-4/5 lg:w-1/3 bg-white p-4 md:p-6 transform transition-transform duration-500 ease-in-out ${
-              showSidebar ? "translate-x-0" : "translate-x-full lg:translate-x-0"
-            }`}
-          >
-            <div className="flex justify-end items-center mb-4 lg:hidden">
-              <button onClick={toggleSidebar} className="p-1">
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div>
-              <h1 className="text-xl mb-4 poppins-thin_600">Add Entity</h1>
-            </div>
-
-            <div className="">
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="w-full md:w-auto py-2 bg-[#0B5D3A] text-sm px-7 text-white rounded-xl mb-6 font-semibold"
-              >
-                Add Course
-              </button>
-            </div>
-            <div className="">
-              <h2 className="text-xl poppins-thin_600 mb-4">Notification</h2>
-              <div className="space-y-4">
-                {notifications.map((notification) => (
-                  <div key={notification.id} className="pb-4 bg-[#EDEDEDE0] p-3 rounded-md">
-                    <div className="flex items-start mb-1">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-1">
-                          <span className="h-2 w-2 bg-[#0B5D3A] rounded-full"></span>
-                          <div className="text-sm">Title</div>
-                          <span className="font-medium">{notification.title}</span>
-                          <span className="text-xs text-gray-500">{notification.time}</span>
-                        </div>
-                      </div>
-                      <button className="text-gray-400 hover:text-gray-600">
-                        <ChevronRight className="h-5 w-5" />
-                      </button>
-                    </div>
-                    <div>
-                      <span className="poppins-thin text-gray-900 text-md">Hi Name!</span>
-                    </div>
-                    <p className="text-sm text-gray-600">{notification.message}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* Overlay for mobile sidebar */}
-      {showSidebar && (
-        <div className="fixed inset-0 bg-black/50 bg-opacity-50 z-30 lg:hidden" onClick={toggleSidebar}></div>
-      )}
-
-      {showCreateModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div
-            className="fixed inset-0 bg-black/60"
-            onClick={() => {
-              setShowCreateModal(false)
-              setIsEditMode(false)
-              setCourseToEdit(null)
-            }}
-          ></div>
-          <div className="bg-white rounded-lg w-full max-w-md relative p-7 mx-4 z-10">
-            <button
-              onClick={() => {
-                setShowCreateModal(false)
-                setIsEditMode(false)
-                setCourseToEdit(null)
-              }}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-            >
-              <X size={20} />
-            </button>
-
-            <div className="flex flex-col items-center mb-6">
-              <h2 className="text-xl font-semibold mb-4">{isEditMode ? "Edit Course" : "Create New Course"}</h2>
-              <div className="relative w-24 h-24 mb-3 bg-gray-100 rounded-2xl flex items-center justify-center overflow-hidden">
-                <img src={profileImage || "/placeholder.svg"} alt="Profile" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <label
-                    htmlFor="profile-upload"
-                    className="cursor-pointer w-full h-full flex items-center justify-center text-white"
-                  >
-                    <Edit size={20} />
-                  </label>
-                  <input
-                    id="profile-upload"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageChange}
-                  />
-                </div>
-              </div>
-              <div className="mb-2">
-                <label
-                  htmlFor="profile-upload-btn"
-                  className="bg-[#1E1E1F] cursor-pointer text-white text-sm py-2 px-7 rounded-xl block"
-                >
-                  Upload picture
-                </label>
-                <input
-                  id="profile-upload-btn"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageChange}
-                />
-              </div>
-              {profileImage !== Image23 && <p className="text-green-600 text-xs mt-1">New image selected</p>}
-            </div>
-
-            <form
-              className="space-y-4 custom-scrollbar overflow-y-auto max-h-[50vh]"
-              onSubmit={(e) => {
-                e.preventDefault()
-                const formData = {
-                  title: e.target.title.value,
-                  courseName: e.target.courseName.value,
-                  description: e.target.description.value,
-                  category: [e.target.category.value],
-                  courseCode: e.target.courseCode.value,
-                  level: e.target.level.value,
-                  instructor: "Dr. Smith", // Default value
-                  duration: "3 months", // Default value
-                  seats: "25/30", // Default value
-                }
-                handleCreateOrUpdateCourse(formData)
-              }}
-            >
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Enter your name and title</label>
-                <input
-                  type="text"
-                  name="title"
-                  className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm"
-                  placeholder="Enter title"
-                  defaultValue={courseToEdit?.title || ""}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Course name</label>
-                <input
-                  type="text"
-                  name="courseName"
-                  className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm"
-                  placeholder="Course name"
-                  defaultValue={courseToEdit?.title || ""}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea
-                  name="description"
-                  className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm"
-                  placeholder="Description"
-                  defaultValue={courseToEdit?.description || ""}
-                  rows={3}
-                ></textarea>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                <select
-                  name="category"
-                  className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm appearance-none"
-                  defaultValue={courseToEdit?.category?.[0] || ""}
-                >
-                  <option value="" disabled>
-                    Select category
-                  </option>
-                  <option value="Beginner">Beginner</option>
-                  <option value="Intermediate">Intermediate</option>
-                  <option value="Advanced">Advanced</option>
-                  <option value="mathematics">Mathematics</option>
-                  <option value="ai">Artificial Intelligence</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Course code</label>
-                <input
-                  type="text"
-                  name="courseCode"
-                  className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm"
-                  placeholder="Course code"
-                  defaultValue={courseToEdit?.courseCode || ""}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Level</label>
-                <select
-                  name="level"
-                  className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm appearance-none"
-                  defaultValue={courseToEdit?.level || ""}
-                >
-                  <option value="" disabled>
-                    Select level
-                  </option>
-                  <option value="Beginner">Beginner</option>
-                  <option value="Intermediate">Intermediate</option>
-                  <option value="Advanced">Advanced</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Add people</label>
-                <input
-                  type="text"
-                  name="people"
-                  className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm"
-                  placeholder="Add people"
-                />
-              </div>
-
-              <div className="flex justify-center items-center mt-2">
-                <span className="text-sm text-gray-700">Or</span>
-              </div>
-
-              <div>
-                <input
-                  type="text"
-                  name="link"
-                  className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm"
-                  placeholder="Link"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Certificate</label>
-                <select className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm appearance-none">
-                  <option value="" disabled selected>
-                    Certificate options
-                  </option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                </select>
-              </div>
-
-              <div className="pt-2 flex flex-col space-y-3">
-                <div>
-                  <label htmlFor="certificate" className="text-sm">
-                    Certificate
-                  </label>
-                  <button
-                    type="button"
-                    className="w-full bg-[#1E1E1F] mt-2 text-white text-sm py-2 px-6 rounded-xl hover:bg-gray-800 transition-colors"
-                  >
-                    Upload picture
-                  </button>
-                </div>
-
-                <div>
-                  <label htmlFor="upload-video" className="text-sm">
-                    Upload Video
-                  </label>
-                  <button
-                    type="button"
-                    className="w-full bg-[#1E1E1F] mt-2 text-white text-sm py-2 px-6 rounded-xl hover:bg-gray-800 transition-colors"
-                  >
-                    Upload Video
-                  </button>
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full bg-[#0B5D3A] text-white text-sm py-2 px-6 rounded-xl hover:bg-green-700 transition-colors"
-                >
-                  {isEditMode ? "Update Course" : "Create Course"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Course Details Modal */}
-      {showDetailsModal && selectedCourse && (
-        <CourseDetailsModal
-          course={selectedCourse}
-          onClose={closeDetailsModal}
-          handleEditCourse={handleEditCourse}
-          handleDeleteCourse={handleDeleteCourse}
-        />
-      )}
-    </div>
-  )
-}
-
-function CourseCard({ course, onViewDetails, onEdit, onDelete }) {
-  const [showDropdown, setShowDropdown] = useState(false)
-  const dropdownRef = useRef(null)
-
-  const toggleDropdown = (e) => {
-    e.stopPropagation()
-    setShowDropdown(!showDropdown)
-  }
-
-  // Close dropdown when clicking outside
+  // Initialize data
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowDropdown(false)
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
+    setCourses(sampleCourses)
   }, [])
 
-  return (
-    <div className={`rounded-lg p-4 h-full flex flex-col justify-between ${getColorClass(course.color)}`}>
-      <div className="">
-        <div className="flex justify-between items-start">
-          <div className="bg-white rounded-full p-2 w-14 h-14 flex items-center justify-center">
-            <img src={CalenderImage || "/placeholder.svg"} alt="" />
-          </div>
-          <div className="relative" ref={dropdownRef}>
-            <button className="text-gray-700 hover:bg-white/50 rounded-full p-1" onClick={toggleDropdown}>
-              <MoreVertical size={20} />
-            </button>
+  // Multi-step form configuration
+  const steps = [
+    {
+      title: "Basic Info",
+      icon: <BookOutlined />,
+      description: "Course details",
+    },
+    {
+      title: "Content",
+      icon: <FileTextOutlined />,
+      description: "Modules & lessons",
+    },
+    {
+      title: "Settings",
+      icon: <SettingOutlined />,
+      description: "Configuration",
+    },
+    {
+      title: "Enrollment",
+      icon: <TeamOutlined />,
+      description: "User management",
+    },
+  ]
 
-            {showDropdown && (
-              <div className="absolute right-0 mt-1 w-40 bg-white rounded-lg shadow-lg z-10 py-1 ">
+  // Filter courses based on search and filters
+  const filteredCourses = courses.filter((course) => {
+    const matchesSearch =
+      course.name.toLowerCase().includes(searchText.toLowerCase()) ||
+      course.code.toLowerCase().includes(searchText.toLowerCase()) ||
+      course.instructor.toLowerCase().includes(searchText.toLowerCase())
+
+    const matchesCategory = !filters.category || course.category === filters.category
+    const matchesStatus = !filters.status || course.status === filters.status
+    const matchesInstructor = !filters.instructor || course.instructor === filters.instructor
+
+    return matchesSearch && matchesCategory && matchesStatus && matchesInstructor
+  })
+
+  // Handle course actions
+  const handleView = (course) => {
+    setCourseToView(course)
+    setIsViewModalOpen(true)
+  }
+
+  const handleEdit = (course) => {
+    setCourseToEdit(course)
+    form.setFieldsValue(course)
+    setIsEditModalOpen(true)
+  }
+
+  const handleDelete = (course) => {
+    setCourses(courses.filter((c) => c.id !== course.id))
+    message.success("Course deleted successfully")
+  }
+
+  const handleArchive = (course) => {
+    setCourses(courses.map((c) => (c.id === course.id ? { ...c, status: "Archived" } : c)))
+    message.success("Course archived successfully")
+  }
+
+  const handlePublishToggle = (course) => {
+    const newStatus = course.status === "Published" ? "Draft" : "Published"
+    setCourses(courses.map((c) => (c.id === course.id ? { ...c, status: newStatus } : c)))
+    message.success(`Course ${newStatus.toLowerCase()} successfully`)
+  }
+
+  const handleDuplicate = (course) => {
+    const newCourse = {
+      ...course,
+      id: Date.now(),
+      name: `${course.name} (Copy)`,
+      code: `${course.code}_COPY`,
+      status: "Draft",
+      enrollmentCount: 0,
+      createdDate: new Date().toISOString().split("T")[0],
+      lastUpdated: new Date().toISOString().split("T")[0],
+    }
+    setCourses([...courses, newCourse])
+    message.success("Course duplicated successfully")
+  }
+
+  // Bulk actions
+  const handleBulkAction = (action) => {
+    const selectedCourses = courses.filter((c) => selectedRowKeys.includes(c.id))
+
+    switch (action) {
+      case "publish":
+        setCourses(courses.map((c) => (selectedRowKeys.includes(c.id) ? { ...c, status: "Published" } : c)))
+        message.success(`${selectedCourses.length} courses published`)
+        break
+      case "archive":
+        setCourses(courses.map((c) => (selectedRowKeys.includes(c.id) ? { ...c, status: "Archived" } : c)))
+        message.success(`${selectedCourses.length} courses archived`)
+        break
+      case "delete":
+        setCourses(courses.filter((c) => !selectedRowKeys.includes(c.id)))
+        message.success(`${selectedCourses.length} courses deleted`)
+        break
+      default:
+        break
+    }
+    setSelectedRowKeys([])
+    setIsBulkActionsModalOpen(false)
+  }
+
+  // Export data
+  const exportToCSV = () => {
+    const csvContent = [
+      ["Name", "Code", "Category", "Instructor", "Status", "Enrollments", "Last Updated"],
+      ...filteredCourses.map((course) => [
+        course.name,
+        course.code,
+        course.category,
+        course.instructor,
+        course.status,
+        course.enrollmentCount,
+        course.lastUpdated,
+      ]),
+    ]
+      .map((row) => row.join(","))
+      .join("\n")
+
+    const blob = new Blob([csvContent], { type: "text/csv" })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "courses.csv"
+    a.click()
+    window.URL.revokeObjectURL(url)
+    message.success("Data exported successfully")
+  }
+
+  // Course action menu
+  const getActionMenu = (course) => ({
+    items: [
+      {
+        key: "view",
+        icon: <EyeOutlined />,
+        label: "View Details",
+        onClick: () => handleView(course),
+      },
+      {
+        key: "edit",
+        icon: <EditOutlined />,
+        label: "Edit Course",
+        onClick: () => handleEdit(course),
+      },
+      {
+        key: "content",
+        icon: <BookOutlined />,
+        label: "Edit Content",
+        onClick: () => {
+          setCourseToEdit(course)
+          setIsContentEditorOpen(true)
+        },
+      },
+      {
+        key: "enrollment",
+        icon: <TeamOutlined />,
+        label: "Manage Enrollment",
+        onClick: () => {
+          setCourseToEnroll(course)
+          setIsEnrollmentModalOpen(true)
+        },
+      },
+      {
+        type: "divider",
+      },
+      {
+        key: "publish",
+        icon: course.status === "Published" ? <ExclamationCircleOutlined /> : <CheckCircleOutlined />,
+        label: course.status === "Published" ? "Unpublish" : "Publish",
+        onClick: () => handlePublishToggle(course),
+      },
+      {
+        key: "duplicate",
+        icon: <CopyOutlined />,
+        label: "Duplicate",
+        onClick: () => handleDuplicate(course),
+      },
+      {
+        type: "divider",
+      },
+      {
+        key: "archive",
+        icon: <IoArchiveOutline />,
+        label: "Archive",
+        onClick: () => handleArchive(course),
+        disabled: course.status === "Archived",
+      },
+      {
+        key: "delete",
+        icon: <DeleteOutlined />,
+        label: "Delete",
+        danger: true,
+        onClick: () => {
+          Modal.confirm({
+            title: "Delete Course",
+            content: `Are you sure you want to delete "${course.name}"? This action cannot be undone.`,
+            okText: "Delete",
+            okType: "danger",
+            onOk: () => handleDelete(course),
+          })
+        },
+      },
+    ],
+  })
+
+  // Table columns
+  const columns = [
+    {
+      title: "Course",
+      dataIndex: "name",
+      key: "name",
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      render: (text, record) => (
+        <div className="flex items-center">
+          <Avatar size={48} src={record.thumbnail} icon={<BookOutlined />} className="mr-3" />
+          <div>
+            <div className="font-medium text-gray-900">{text}</div>
+            <div className="text-sm text-gray-500">{record.code}</div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
+      filters: categoryOptions.map((category) => ({ text: category, value: category })),
+      onFilter: (value, record) => record.category === value,
+      render: (category) => <Tag color="blue">{category}</Tag>,
+    },
+    {
+      title: "Instructor",
+      dataIndex: "instructor",
+      key: "instructor",
+      filters: instructorOptions.map((instructor) => ({ text: instructor, value: instructor })),
+      onFilter: (value, record) => record.instructor === value,
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      filters: statusOptions.map((status) => ({ text: status, value: status })),
+      onFilter: (value, record) => record.status === value,
+      render: (status) => {
+        let color = "green"
+        if (status === "Draft") color = "orange"
+        if (status === "Archived") color = "red"
+        if (status === "Under Review") color = "blue"
+        return <Tag color={color}>{status}</Tag>
+      },
+    },
+    {
+      title: "Enrollment",
+      dataIndex: "enrollmentCount",
+      key: "enrollmentCount",
+      sorter: (a, b) => a.enrollmentCount - b.enrollmentCount,
+      render: (count, record) => (
+        <div>
+          <div className="flex items-center gap-1">
+            <UserOutlined className="text-gray-500" />
+            <span className="font-medium">
+              {count}/{record.maxEnrollment}
+            </span>
+          </div>
+          <div className="text-xs text-gray-500">{record.enrollmentType}</div>
+        </div>
+      ),
+    },
+    {
+      title: "Last Updated",
+      dataIndex: "lastUpdated",
+      key: "lastUpdated",
+      sorter: (a, b) => new Date(a.lastUpdated) - new Date(b.lastUpdated),
+      render: (date) => new Date(date).toLocaleDateString(),
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      width: 120,
+      render: (_, record) => (
+        <Dropdown menu={getActionMenu(record)} trigger={["click"]}>
+          <Button type="text" icon={<MoreOutlined />} />
+        </Dropdown>
+      ),
+    },
+  ]
+
+  // Render step content for multi-step form
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 0:
+        return (
+          <div className="space-y-4">
+            <Form.Item name="name" label="Course Name" rules={[{ required: true }]}>
+              <Input placeholder="Enter course name" />
+            </Form.Item>
+            <Form.Item name="code" label="Course Code" rules={[{ required: true }]}>
+              <Input placeholder="Enter course code" />
+            </Form.Item>
+            <Form.Item name="description" label="Description" rules={[{ required: true }]}>
+              <TextArea rows={4} placeholder="Enter course description" />
+            </Form.Item>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item name="category" label="Category" rules={[{ required: true }]}>
+                  <Select placeholder="Select category">
+                    {categoryOptions.map((option) => (
+                      <Option key={option} value={option}>
+                        {option}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name="level" label="Level" rules={[{ required: true }]}>
+                  <Select placeholder="Select level">
+                    {levelOptions.map((option) => (
+                      <Option key={option} value={option}>
+                        {option}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item name="instructor" label="Instructor" rules={[{ required: true }]}>
+                  <Select placeholder="Select instructor">
+                    {instructorOptions.map((option) => (
+                      <Option key={option} value={option}>
+                        {option}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name="duration" label="Duration" rules={[{ required: true }]}>
+                  <Input placeholder="e.g., 8 weeks" />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Form.Item name="thumbnail" label="Course Thumbnail">
+              <Upload.Dragger>
+                <p className="ant-upload-drag-icon">
+                  <UploadOutlined style={{ fontSize: "48px", color: "#1890ff" }} />
+                </p>
+                <p className="ant-upload-text">Click or drag file to upload</p>
+                <p className="ant-upload-hint">Support for image files (JPG, PNG, GIF)</p>
+              </Upload.Dragger>
+            </Form.Item>
+          </div>
+        )
+      case 1:
+        return (
+          <div className="space-y-4">
+            <div className="text-center py-8">
+              <BookOutlined style={{ fontSize: "64px", color: "#1890ff" }} />
+              <Title level={4}>Content Editor</Title>
+              <Text type="secondary">Add modules, lessons, quizzes, and assignments</Text>
+              <div className="mt-4">
+                <Button type="primary" onClick={() => setIsContentEditorOpen(true)}>
+                  Open Content Editor
+                </Button>
+              </div>
+            </div>
+          </div>
+        )
+      case 2:
+        return (
+          <div className="space-y-4">
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item name="price" label="Price ($)" rules={[{ required: true }]}>
+                  <InputNumber min={0} placeholder="0" style={{ width: "100%" }} />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name="maxEnrollment" label="Max Enrollment" rules={[{ required: true }]}>
+                  <InputNumber min={1} placeholder="50" style={{ width: "100%" }} />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Form.Item name="enrollmentType" label="Enrollment Type" rules={[{ required: true }]}>
+              <Radio.Group>
+                <Radio value="Open">Open - Anyone can enroll</Radio>
+                <Radio value="Restricted">Restricted - Approval required</Radio>
+                <Radio value="Closed">Closed - Invitation only</Radio>
+              </Radio.Group>
+            </Form.Item>
+            <Form.Item name="status" label="Initial Status" rules={[{ required: true }]}>
+              <Radio.Group>
+                <Radio value="Draft">Draft - Not visible to students</Radio>
+                <Radio value="Published">Published - Available for enrollment</Radio>
+              </Radio.Group>
+            </Form.Item>
+            <Form.Item name="certificate" label="Certificate" valuePropName="checked">
+              <Checkbox>Award certificate upon completion</Checkbox>
+            </Form.Item>
+          </div>
+        )
+      case 3:
+        return (
+          <div className="space-y-4">
+            <Form.Item name="autoEnroll" label="Auto Enrollment">
+              <Select mode="multiple" placeholder="Select groups for auto enrollment">
+                <Option value="group1">Engineering Team</Option>
+                <Option value="group2">Marketing Team</Option>
+                <Option value="group3">Sales Team</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item name="prerequisites" label="Prerequisites">
+              <Select mode="multiple" placeholder="Select prerequisite courses">
+                <Option value="course1">Introduction to Programming</Option>
+                <Option value="course2">Web Fundamentals</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item name="tags" label="Tags">
+              <Select mode="tags" placeholder="Add tags for better discoverability">
+                <Option value="javascript">JavaScript</Option>
+                <Option value="react">React</Option>
+                <Option value="frontend">Frontend</Option>
+              </Select>
+            </Form.Item>
+          </div>
+        )
+      default:
+        return null
+    }
+  }
+
+  return (
+    <div className="md:p-6 p-3  min-h-screen">
+      {/* Header */}
+      <div className="mb-6">
+        <Title level={2}>Course Management</Title>
+        <Text type="secondary">Manage your courses, content, and enrollments</Text>
+      </div>
+
+      {/* Stats Cards */}
+      <Row gutter={16} className="mb-6">
+        <Col xs={24} sm={12} lg={6}>
+          <Card>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-600">{courses.length}</div>
+              <div className="text-sm text-gray-600">Total Courses</div>
+            </div>
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-green-600">
+                {courses.filter((c) => c.status === "Published").length}
+              </div>
+              <div className="text-sm text-gray-600">Published</div>
+            </div>
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-orange-600">
+                {courses.filter((c) => c.status === "Draft").length}
+              </div>
+              <div className="text-sm text-gray-600">Draft</div>
+            </div>
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-purple-600">
+                {courses.reduce((sum, course) => sum + course.enrollmentCount, 0)}
+              </div>
+              <div className="text-sm text-gray-600">Total Enrollments</div>
+            </div>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Search and Actions */}
+      <Card className="mb-6">
+        <Row gutter={16} align="middle">
+          <Col xs={24} md={12} lg={8}>
+            <Search
+              placeholder="Search courses by name, code, or instructor..."
+              allowClear
+              size="large"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+          </Col>
+          <Col xs={24} md={12} lg={16} className="text-right">
+            <Space wrap>
+              <Button
+                type={showFilters ? "primary" : "default"}
+                icon={<FilterOutlined />}
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                Filters
+              </Button>
+              <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
                 <button
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setShowDropdown(false)
-                    onViewDetails()
-                  }}
+                  onClick={() => setViewMode("table")}
+                  className={`px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm transition-colors ${
+                    viewMode === "table" ? "bg-white text-blue-700 shadow-sm" : "text-gray-600"
+                  }`}
                 >
-                  <span>View Details</span>
+                  Table
                 </button>
                 <button
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setShowDropdown(false)
-                    // Call edit function
-                    onEdit()
-                  }}
+                  onClick={() => setViewMode("card")}
+                  className={`px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm transition-colors ${
+                    viewMode === "card" ? "bg-white text-blue-700 shadow-sm" : "text-gray-600"
+                  }`}
                 >
-                  <Edit className="mr-2 h-4 w-4" />
-                  <span>Edit</span>
-                </button>
-                <button
-                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setShowDropdown(false)
-                    // Call delete function
-                    onDelete()
-                  }}
-                >
-                  <X className="mr-2 h-4 w-4" />
-                  <span>Delete</span>
+                  Cards
                 </button>
               </div>
+              <Button icon={<ExportOutlined />} onClick={exportToCSV}>
+                Export
+              </Button>
+              {selectedRowKeys.length > 0 && (
+                <Button type="primary" icon={<SettingOutlined />} onClick={() => setIsBulkActionsModalOpen(true)}>
+                  Bulk Actions ({selectedRowKeys.length})
+                </Button>
+              )}
+              <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsAddModalOpen(true)}>
+                Add Course
+              </Button>
+            </Space>
+          </Col>
+        </Row>
+
+        {/* Filters */}
+        {showFilters && (
+          <div className="mt-4 pt-4 border-t">
+            <Row gutter={16}>
+              <Col xs={24} sm={12} md={6}>
+                <Select
+                  placeholder="Category"
+                  allowClear
+                  style={{ width: "100%" }}
+                  value={filters.category}
+                  onChange={(value) => setFilters({ ...filters, category: value })}
+                >
+                  {categoryOptions.map((option) => (
+                    <Option key={option} value={option}>
+                      {option}
+                    </Option>
+                  ))}
+                </Select>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Select
+                  placeholder="Status"
+                  allowClear
+                  style={{ width: "100%" }}
+                  value={filters.status}
+                  onChange={(value) => setFilters({ ...filters, status: value })}
+                >
+                  {statusOptions.map((option) => (
+                    <Option key={option} value={option}>
+                      {option}
+                    </Option>
+                  ))}
+                </Select>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Select
+                  placeholder="Instructor"
+                  allowClear
+                  style={{ width: "100%" }}
+                  value={filters.instructor}
+                  onChange={(value) => setFilters({ ...filters, instructor: value })}
+                >
+                  {instructorOptions.map((option) => (
+                    <Option key={option} value={option}>
+                      {option}
+                    </Option>
+                  ))}
+                </Select>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <RangePicker
+                  placeholder={["Start Date", "End Date"]}
+                  style={{ width: "100%" }}
+                  value={filters.dateRange}
+                  onChange={(dates) => setFilters({ ...filters, dateRange: dates })}
+                />
+              </Col>
+            </Row>
+          </div>
+        )}
+      </Card>
+
+      {/* Course List */}
+      {viewMode === "table" ? (
+        <Card>
+          <Table
+            columns={columns}
+            dataSource={filteredCourses}
+            rowKey="id"
+            loading={loading}
+            pagination={{
+              total: filteredCourses.length,
+              pageSize: 10,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} courses`,
+            }}
+            rowSelection={{
+              selectedRowKeys,
+              onChange: setSelectedRowKeys,
+            }}
+            scroll={{ x: 1200 }}
+          />
+        </Card>
+      ) : (
+        <Row gutter={[16, 16]}>
+          {filteredCourses.map((course) => (
+            <Col xs={24} sm={12} lg={8} xl={6} key={course.id}>
+              <Card
+                hoverable
+                cover={
+                  <div className="h-48 bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center relative">
+                    <BookOutlined style={{ fontSize: "48px", color: "white" }} />
+                    <div className="absolute top-2 right-2">
+                      <Tag color={course.status === "Published" ? "green" : "orange"}>{course.status}</Tag>
+                    </div>
+                  </div>
+                }
+                actions={[
+                  <Tooltip key="view" title="View Details">
+                    <Button type="text" icon={<EyeOutlined />} onClick={() => handleView(course)} />
+                  </Tooltip>,
+                  <Tooltip key="edit" title="Edit Course">
+                    <Button type="text" icon={<EditOutlined />} onClick={() => handleEdit(course)} />
+                  </Tooltip>,
+                  <Dropdown key="more" menu={getActionMenu(course)} trigger={["click"]}>
+                    <Button type="text" icon={<MoreOutlined />} />
+                  </Dropdown>,
+                ]}
+              >
+                <Card.Meta
+                  title={course.name}
+                  description={
+                    <div>
+                      <div className="text-sm text-gray-500 mb-2">{course.code}</div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">
+                          <UserOutlined /> {course.enrollmentCount}/{course.maxEnrollment}
+                        </span>
+                        <span className="text-sm font-medium">${course.price}</span>
+                      </div>
+                    </div>
+                  }
+                />
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      )}
+
+      {/* Add/Edit Course Modal */}
+      <Modal
+        title={courseToEdit ? "Edit Course" : "Add New Course"}
+        open={isAddModalOpen || isEditModalOpen}
+        onCancel={() => {
+          setIsAddModalOpen(false)
+          setIsEditModalOpen(false)
+          setCourseToEdit(null)
+          setCurrentStep(0)
+          form.resetFields()
+        }}
+        footer={null}
+        width={800}
+        destroyOnClose
+      >
+        <div className="mb-6">
+          <Steps current={currentStep} size="small">
+            {steps.map((step, index) => (
+              <Step key={index} title={step.title} icon={step.icon} />
+            ))}
+          </Steps>
+        </div>
+
+        <Form form={form} layout="vertical" className="max-h-96 overflow-y-auto">
+          {renderStepContent()}
+        </Form>
+
+        <div className="flex justify-between mt-6 pt-4 border-t">
+          <Button disabled={currentStep === 0} onClick={() => setCurrentStep(currentStep - 1)}>
+            Previous
+          </Button>
+
+          <div className="flex gap-2">
+            {currentStep < steps.length - 1 ? (
+              <Button type="primary" onClick={() => setCurrentStep(currentStep + 1)}>
+                Next
+              </Button>
+            ) : (
+              <Button
+                type="primary"
+                onClick={() => {
+                  form.validateFields().then((values) => {
+                    if (courseToEdit) {
+                      setCourses(
+                        courses.map((course) =>
+                          course.id === courseToEdit.id
+                            ? { ...course, ...values, lastUpdated: new Date().toISOString().split("T")[0] }
+                            : course,
+                        ),
+                      )
+                      message.success("Course updated successfully")
+                    } else {
+                      const newCourse = {
+                        id: Date.now(),
+                        ...values,
+                        enrollmentCount: 0,
+                        createdDate: new Date().toISOString().split("T")[0],
+                        lastUpdated: new Date().toISOString().split("T")[0],
+                        modules: 0,
+                        lessons: 0,
+                        quizzes: 0,
+                        assignments: 0,
+                        progress: 0,
+                      }
+                      setCourses([...courses, newCourse])
+                      message.success("Course created successfully")
+                    }
+                    setIsAddModalOpen(false)
+                    setIsEditModalOpen(false)
+                    setCourseToEdit(null)
+                    setCurrentStep(0)
+                    form.resetFields()
+                  })
+                }}
+              >
+                {courseToEdit ? "Update Course" : "Create Course"}
+              </Button>
             )}
           </div>
         </div>
-        <div className="mt-8 rounded-md">
-          <h3 className="text-[#1F1D39] ml-1 text-lg poppins-thin_600">{course.title}</h3>
-          <div className="flex items-center justify-center gap-1.5 w-18 rounded-xl p-2 mt-2 text-sm text-black bg-[#FCF9FF]">
-            <FiUsers className="font-semibold" />
-            <span className="font-semibold">99</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+      </Modal>
 
-function CourseDetailsModal({ course, onClose, handleEditCourse, handleDeleteCourse }) {
-  return (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div className="fixed inset-0 bg-black/60" onClick={onClose}></div>
-      <div className="bg-white rounded-lg w-full max-w-md relative mx-4 z-10 max-h-[80vh] custom-scrollbar overflow-y-auto">
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-3 cursor-pointer bg-black p-1 text-sm rounded-md text-white z-10"
-        >
-          <X size={15} />
-        </button>
+      {/* Course Details Modal */}
+      <Modal
+        title="Course Details"
+        open={isViewModalOpen}
+        onCancel={() => setIsViewModalOpen(false)}
+        footer={[
+          <Button
+            key="edit"
+            type="primary"
+            onClick={() => {
+              setIsViewModalOpen(false)
+              handleEdit(courseToView)
+            }}
+          >
+            Edit Course
+          </Button>,
+        ]}
+        width={800}
+      >
+        {courseToView && (
+          <div>
+            <Row gutter={16}>
+              <Col span={8}>
+                <div className="h-32 bg-gradient-to-r from-blue-400 to-purple-500 rounded-lg flex items-center justify-center">
+                  <BookOutlined style={{ fontSize: "48px", color: "white" }} />
+                </div>
+              </Col>
+              <Col span={16}>
+                <Title level={3}>{courseToView.name}</Title>
+                <Text type="secondary">{courseToView.code}</Text>
+                <div className="mt-2">
+                  <Tag color="blue">{courseToView.category}</Tag>
+                  <Tag color={courseToView.status === "Published" ? "green" : "orange"}>{courseToView.status}</Tag>
+                </div>
+                <div className="mt-4">
+                  <Text>{courseToView.description}</Text>
+                </div>
+              </Col>
+            </Row>
 
-        <div className="p-5">
-          <div className="flex items-center justify-between p-6 ">
-            <div className="flex items-center gap-3">
-              <div className="relative h-16 w-16">
-                <img src={Frame31 || "/placeholder.svg"} className="h-full w-full" alt="" />
-              </div>
-              <h2 className="text-lg font-semibold">{course.title}</h2>
-            </div>
-            <button
-              className="p-2 rounded-md border border-slate-300 cursor-pointer"
-              onClick={() => {
-                onClose()
-                handleEditCourse(course)
-              }}
-            >
-              <Edit size={20} className="" />
-            </button>
-          </div>
+            <Divider />
 
-          <div className="w-full h-full rounded-lg">
-            <img src={CourseImage || "/placeholder.svg"} alt={course.title} className="w-full h-full object-center" />
-          </div>
+            <Row gutter={16}>
+              <Col span={12}>
+                <div className="space-y-2">
+                  <div>
+                    <strong>Instructor:</strong> {courseToView.instructor}
+                  </div>
+                  <div>
+                    <strong>Duration:</strong> {courseToView.duration}
+                  </div>
+                  <div>
+                    <strong>Level:</strong> {courseToView.level}
+                  </div>
+                  <div>
+                    <strong>Price:</strong> ${courseToView.price}
+                  </div>
+                </div>
+              </Col>
+              <Col span={12}>
+                <div className="space-y-2">
+                  <div>
+                    <strong>Enrollment:</strong> {courseToView.enrollmentCount}/{courseToView.maxEnrollment}
+                  </div>
+                  <div>
+                    <strong>Modules:</strong> {courseToView.modules}
+                  </div>
+                  <div>
+                    <strong>Lessons:</strong> {courseToView.lessons}
+                  </div>
+                  <div>
+                    <strong>Quizzes:</strong> {courseToView.quizzes}
+                  </div>
+                </div>
+              </Col>
+            </Row>
 
-          <div className="mb-4 mt-4">
-            <p className="text-sm text-gray-600">
-              {course.description ||
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."}
-            </p>
-          </div>
+            <Divider />
 
-          <div className="mb-4">
-            <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Category</h3>
-            <div className="flex flex-wrap gap-2">
-              {(course.category || ["Beginner", "Intermediate", "Advanced"]).map((cat, index) => (
-                <span key={index} className="px-4 py-2 bg-gray-200 text-gray-700 text-xs rounded-xl">
-                  {cat}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Details</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-500 md:text-sm text-xs font-bold">Students Enrolled</span>
-                <span className="font-medium text-sm text-gray-700">{course.instructor || "Dr. Smith"}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500 md:text-sm text-xs font-bold">Course code</span>
-                <span className="font-medium text-sm text-gray-700">{course.courseCode || "FND101"}</span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-gray-500 md:text-sm text-xs font-bold">Level</span>
-                <span className="font-medium text-sm text-gray-700">{course.level || "Beginner"}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500 md:text-sm text-xs font-bold">Price</span>
-                <span className="font-medium text-sm text-gray-700">{course.seats || "25/30"}</span>
-              </div>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-500 md:text-sm text-xs font-bold">Link</span>
-              <span className="font-medium text-sm text-gray-700">{course.duration || "3 months"}</span>
+            <div>
+              <Title level={5}>Course Progress</Title>
+              <Progress percent={courseToView.progress} status="active" />
             </div>
           </div>
+        )}
+      </Modal>
 
-          <div className="mb-4">
-            <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Certificate</h3>
-            <button className="flex items-center justify-center w-auto text-white poppins-thin_bold py-2 bg-[#1E1E1F] rounded-xl text-xs px-6 cursor-pointer transition-colors">
-              View PDF
-            </button>
-          </div>
-
-          <div className="mb-4">
-            <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Assign Course</h3>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Student Type</label>
-                <select
-                  className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm text-gray-500"
-                  defaultValue=""
-                >
-                  <option value="" disabled>
-                    Select Student Type
-                  </option>
-                  <option value="janitors">Janitors</option>
-                  <option value="nurses">Nurses</option>
-                  <option value="teachers">Teachers</option>
-                  <option value="administrators">Administrators</option>
-                  <option value="security">Security Personnel</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Course to Assign</label>
-                <select
-                  className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm text-gray-500"
-                  defaultValue=""
-                >
-                  <option value="" disabled>
-                    Select Course
-                  </option>
-                  <option value="fundamental1">Fundamental 1</option>
-                  <option value="fundamental2">Fundamental 2</option>
-                  <option value="advanced">Advanced Programming</option>
-                  <option value="dataScience">Data Science Basics</option>
-                  <option value="webDev">Web Development</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Progress</h3>
-            <div className="space-y-1">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-green-800 font-bold md:text-md text-xs">Success</span>
-                <span className="col-span-2 text-gray-400">{course.progress}%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-1">
-                <div className="bg-[#0B5D3A] h-1 rounded-full" style={{ width: `${course.progress}%` }}></div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mb-2 mt-5">
-            <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Documentation</h3>
-            <div className="flex flex-col justify-start items-start gap-2">
-              <button className="px-6 py-2 cursor-pointer bg-[#1E1E1F] text-sm text-white rounded-xl transition-colors">
-                View PDF
-              </button>
-              <button
-                className="px-6 py-2 cursor-pointer bg-[#C77373] text-sm text-white rounded-xl transition-colors"
+      {/* Content Editor Modal */}
+      <Modal
+        title="Course Content Editor"
+        open={isContentEditorOpen}
+        onCancel={() => setIsContentEditorOpen(false)}
+        width={1000}
+        footer={[
+          <Button key="save" type="primary">
+            Save Changes
+          </Button>,
+        ]}
+      >
+        <Tabs defaultActiveKey="modules">
+          <TabPane tab="Modules" key="modules">
+            <div className="space-y-4">
+              <Button
+                type="dashed"
+                block
+                icon={<PlusOutlined />}
                 onClick={() => {
-                  onClose()
-                  handleDeleteCourse(course.id)
+                  const newModule = {
+                    id: Date.now(),
+                    title: `Module ${courseModules.length + 1}`,
+                    lessons: 0,
+                    duration: "0 hours",
+                    content: [],
+                  }
+                  setCourseModules([...courseModules, newModule])
                 }}
               >
-                Delete
-              </button>
+                Add Module
+              </Button>
+
+              <Collapse>
+                {courseModules.map((module, index) => (
+                  <Panel
+                    header={
+                      <div className="flex justify-between items-center">
+                        <span>{module.title}</span>
+                        <span className="text-gray-500 text-sm">{module.lessons} lessons</span>
+                      </div>
+                    }
+                    key={module.id}
+                    extra={
+                      <Button
+                        type="text"
+                        danger
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setCourseModules(courseModules.filter((m) => m.id !== module.id))
+                        }}
+                      >
+                        <DeleteOutlined />
+                      </Button>
+                    }
+                  >
+                    <div className="space-y-4">
+                      <Input
+                        value={module.title}
+                        onChange={(e) => {
+                          setCourseModules(
+                            courseModules.map((m) => (m.id === module.id ? { ...m, title: e.target.value } : m)),
+                          )
+                        }}
+                        placeholder="Module title"
+                      />
+
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium">Lessons</span>
+                          <Button size="small" type="dashed">
+                            Add Lesson
+                          </Button>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium">Quizzes</span>
+                          <Button size="small" type="dashed">
+                            Add Quiz
+                          </Button>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium">Assignments</span>
+                          <Button size="small" type="dashed">
+                            Add Assignment
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </Panel>
+                ))}
+              </Collapse>
             </div>
+          </TabPane>
+
+          <TabPane tab="Preview" key="preview">
+            <div className="text-center py-8">
+              <EyeOutlined style={{ fontSize: "64px", color: "#1890ff" }} />
+              <Title level={4}>Course Preview</Title>
+              <Text type="secondary">Preview how your course will look to students</Text>
+            </div>
+          </TabPane>
+        </Tabs>
+      </Modal>
+
+      {/* Enrollment Management Modal */}
+      <Modal
+        title="Manage Course Enrollment"
+        open={isEnrollmentModalOpen}
+        onCancel={() => setIsEnrollmentModalOpen(false)}
+        width={800}
+        footer={[
+          <Button key="save" type="primary">
+            Save Changes
+          </Button>,
+        ]}
+      >
+        <Tabs defaultActiveKey="enroll">
+          <TabPane tab="Enroll Users" key="enroll">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Select Users</label>
+                <Select
+                  mode="multiple"
+                  placeholder="Search and select users to enroll"
+                  style={{ width: "100%" }}
+                  options={[
+                    { value: "user1", label: "John Doe (john@example.com)" },
+                    { value: "user2", label: "Jane Smith (jane@example.com)" },
+                    { value: "user3", label: "Bob Johnson (bob@example.com)" },
+                  ]}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Or Select Groups</label>
+                <Select
+                  mode="multiple"
+                  placeholder="Select groups to enroll"
+                  style={{ width: "100%" }}
+                  options={[
+                    { value: "group1", label: "Engineering Team" },
+                    { value: "group2", label: "Marketing Team" },
+                    { value: "group3", label: "Sales Team" },
+                  ]}
+                />
+              </div>
+            </div>
+          </TabPane>
+
+          <TabPane tab="Current Enrollments" key="current">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="font-medium">Total Enrolled: {courseToEnroll?.enrollmentCount || 0}</span>
+                <Button size="small" danger>
+                  Unenroll Selected
+                </Button>
+              </div>
+
+              <List
+                size="small"
+                dataSource={[
+                  { name: "John Doe", email: "john@example.com", enrolledDate: "2024-01-15", progress: 45 },
+                  { name: "Jane Smith", email: "jane@example.com", enrolledDate: "2024-01-12", progress: 78 },
+                  { name: "Bob Johnson", email: "bob@example.com", enrolledDate: "2024-01-10", progress: 23 },
+                ]}
+                renderItem={(item) => (
+                  <List.Item
+                    actions={[
+                      <Button key="unenroll" size="small" danger type="text">
+                        Unenroll
+                      </Button>,
+                    ]}
+                  >
+                    <List.Item.Meta
+                      avatar={<Avatar icon={<UserOutlined />} />}
+                      title={item.name}
+                      description={`${item.email} • Enrolled: ${item.enrolledDate} • Progress: ${item.progress}%`}
+                    />
+                  </List.Item>
+                )}
+              />
+            </div>
+          </TabPane>
+        </Tabs>
+      </Modal>
+
+      {/* Bulk Actions Modal */}
+      <Modal
+        title="Bulk Actions"
+        open={isBulkActionsModalOpen}
+        onCancel={() => setIsBulkActionsModalOpen(false)}
+        footer={null}
+        width={500}
+      >
+        <div className="space-y-4">
+          <div className="text-sm text-gray-600 mb-4">{selectedRowKeys.length} course(s) selected</div>
+
+          <div className="space-y-2">
+            <Button block icon={<CheckCircleOutlined />} onClick={() => handleBulkAction("publish")}>
+              Publish Selected Courses
+            </Button>
+            <Button block icon={<IoArchiveOutline />} onClick={() => handleBulkAction("archive")}>
+              Archive Selected Courses
+            </Button>
+            <Popconfirm
+              title="Delete Courses"
+              description="Are you sure you want to delete the selected courses? This action cannot be undone."
+              onConfirm={() => handleBulkAction("delete")}
+              okText="Delete"
+              okType="danger"
+            >
+              <Button block danger icon={<DeleteOutlined />}>
+                Delete Selected Courses
+              </Button>
+            </Popconfirm>
           </div>
         </div>
-      </div>
+      </Modal>
     </div>
   )
 }
 
-function getColorClass(color) {
-  switch (color) {
-    case "bg-lavender":
-      return "bg-[#E1E2F6]"
-    case "bg-peach":
-      return "bg-[#F8EFE2]"
-    case "bg-mint":
-      return "bg-[#EFF7E2]"
-    case "bg-salmon":
-      return "bg-[#F7E2E2]"
-    default:
-      return "bg-[#F8EFE2]"
-  }
-}
+export default CoursesManagement
