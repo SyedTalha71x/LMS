@@ -1,323 +1,592 @@
-// refercene code of students/users
-
 /* eslint-disable no-unused-vars */
-import { useState, useRef, useEffect } from "react"
+"use client"
+
+import { useState, useEffect, useMemo } from "react"
 import {
-  X,
-  Menu,
-  Edit,
-  MoreVertical,
-  Trash2,
+  Table,
+  Button,
+  Input,
+  Card,
+  Tag,
+  Avatar,
+  Dropdown,
+  Modal,
+  Form,
+  Select,
+  DatePicker,
+  Checkbox,
+  Upload,
+  message,
+  Tabs,
+  Drawer,
+  Row,
+  Col,
+  Statistic,
+  Timeline,
+  Divider,
+  Radio,
+  Badge,
+  Empty,
+  Popconfirm,
+} from "antd"
+import {
+  Search,
+  Plus,
   Filter,
-  Download,
-  Eye,
-  Key,
+  UploadIcon,
+  MoreVertical,
   Power,
-  UserCheck,
-  ChevronDown,
-  ChevronUp,
   Mail,
+  Trash2,
+  Edit,
+  Eye,
+  Users,
   Settings,
+  Calendar,
+  FileText,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  X,
+  ArrowLeft,
+  Key,
 } from "lucide-react"
-import UserManagementModal from "../../components/admin-dashboard/students-components/user-management-modal"
-import AddStudentModal from "../../components/admin-dashboard/students-components/add-student-modal"
-import BulkAddModal from "../../components/admin-dashboard/students-components/bulk-add-modal"
-import AuditLogsModal from "../../components/admin-dashboard/students-components/audit-logs"
-import StudentDetailModal from "../../components/admin-dashboard/students-components/student-detail-modal"
-import { Table, Button, Tag, Dropdown, Input, Select, Checkbox, Pagination, Card, Avatar, message, Modal } from "antd"
-const { Search: AntSearch } = Input
+
 const { Option } = Select
-const { confirm } = Modal
+const { RangePicker } = DatePicker
+const { TextArea } = Input
+const { TabPane } = Tabs
 
-const Students = () => {
-  const [selectedStudent, setSelectedStudent] = useState(null)
-  const [showSidebar, setShowSidebar] = useState(false)
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [isBulkAddModalOpen, setIsBulkAddModalOpen] = useState(false)
-  const [studentToEdit, setStudentToEdit] = useState(null)
-  const [profileImage, setProfileImage] = useState(null)
-  const [customFields, setCustomFields] = useState([])
-  const [showCustomPrompt, setShowCustomPrompt] = useState(false)
-  const [customFieldName, setCustomFieldName] = useState("")
-  const [customFieldValue, setCustomFieldValue] = useState("")
-  const [openDropdownId, setOpenDropdownId] = useState(null)
+const initialStudents = [
+  {
+    id: "1",
+    name: "John Doe",
+    email: "john.doe@example.com",
+    phone: "+1-555-0123",
+    address: "123 Main St, City, State 12345",
+    department: "Computer Science",
+    employeeId: "EMP001",
+    designation: "Student",
+    status: "Active",
+    enrollmentStatus: "Enrolled",
+    lastLogin: "2024-01-15T10:30:00Z",
+    createdDate: "2023-09-01T08:00:00Z",
+    groups: ["CS-2024", "Advanced Programming"],
+    courses: ["React Development", "Database Systems"],
+    profileImage: null,
+    notes: "Excellent student with strong programming skills",
+  },
+  {
+    id: "2",
+    name: "Jane Smith",
+    email: "jane.smith@example.com",
+    phone: "+1-555-0124",
+    address: "456 Oak Ave, City, State 12346",
+    department: "Mathematics",
+    employeeId: "EMP002",
+    designation: "Instructor",
+    status: "Active",
+    enrollmentStatus: "Teaching",
+    lastLogin: "2024-01-14T14:20:00Z",
+    createdDate: "2023-08-15T09:00:00Z",
+    groups: ["Math Faculty", "Research Team"],
+    courses: ["Calculus I", "Statistics"],
+    profileImage: null,
+    notes: "Senior instructor with 10+ years experience",
+  },
+  {
+    id: "3",
+    name: "Bob Johnson",
+    email: "bob.johnson@example.com",
+    phone: "+1-555-0125",
+    address: "789 Pine St, City, State 12347",
+    department: "Administration",
+    employeeId: "EMP003",
+    designation: "Admin",
+    status: "Inactive",
+    enrollmentStatus: "N/A",
+    lastLogin: "Never",
+    createdDate: "2023-07-01T10:00:00Z",
+    groups: ["Admin Staff"],
+    courses: [],
+    profileImage: null,
+    notes: "System administrator",
+  },
+  {
+    id: "4",
+    name: "Alice Brown",
+    email: "alice.brown@example.com",
+    phone: "+1-555-0126",
+    address: "321 Elm St, City, State 12348",
+    department: "Computer Science",
+    employeeId: "EMP004",
+    designation: "Student",
+    status: "Pending",
+    enrollmentStatus: "Pending",
+    lastLogin: "Never",
+    createdDate: "2024-01-10T11:00:00Z",
+    groups: [],
+    courses: [],
+    profileImage: null,
+    notes: "New student pending approval",
+  },
+]
 
-  const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false)
-  const [isActivateModalOpen, setIsActivateModalOpen] = useState(false)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [selectedStudentForAction, setSelectedStudentForAction] = useState(null)
+const roleOptions = ["Student", "Instructor", "Admin", "TA", "Guest"]
+const statusOptions = ["Active", "Inactive", "Pending", "Suspended", "Graduated"]
+const enrollmentStatusOptions = ["Enrolled", "Teaching", "Pending", "Dropped", "Completed", "N/A"]
+const departmentOptions = [
+  "Computer Science",
+  "Mathematics",
+  "Physics",
+  "Chemistry",
+  "Biology",
+  "Engineering",
+  "Business",
+  "Administration",
+]
 
-  const [showUserManageModal, setshowUserManageModal] = useState(false)
+const auditLogs = [
+  {
+    id: "1",
+    action: "User Created",
+    user: "John Doe",
+    performedBy: "Admin User",
+    timestamp: "2024-01-15T10:30:00Z",
+    details: "New student account created",
+  },
+  {
+    id: "2",
+    action: "Status Changed",
+    user: "Jane Smith",
+    performedBy: "System Admin",
+    timestamp: "2024-01-14T14:20:00Z",
+    details: "Status changed from Pending to Active",
+  },
+]
 
-  const [studentForAction, setStudentForAction] = useState(null)
-
-  // Table and filtering states
-  const [viewMode, setViewMode] = useState("table") // "table" or "card"
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedStudents, setSelectedStudents] = useState([])
-  const [showFilters, setShowFilters] = useState(false)
-  const [filters, setFilters] = useState({
-    role: "all",
-    status: "all",
-    dateRange: "all",
-    group: "all",
-  })
-  const [sortBy, setSortBy] = useState("name")
-  const [sortOrder, setSortOrder] = useState("asc")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage] = useState(10)
-  const [showAuditLogs, setShowAuditLogs] = useState(false)
-  const [auditLogs, setAuditLogs] = useState([])
-
-  const dropdownRef = useRef(null)
-
+const StudentsManagement = () => {
+  const [students, setStudents] = useState(initialStudents)
+  const [filteredStudents, setFilteredStudents] = useState(initialStudents)
   const [selectedRowKeys, setSelectedRowKeys] = useState([])
-  const [tableLoading, setTableLoading] = useState(false)
+  const [selectedStudents, setSelectedStudents] = useState([])
+  const [searchTerm, setSearchTerm] = useState("")
+  const [viewMode, setViewMode] = useState("table")
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false)
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false)
+  const [isProfileDrawerVisible, setIsProfileDrawerVisible] = useState(false)
+  const [isAdvancedSearchVisible, setIsAdvancedSearchVisible] = useState(false)
+  const [isBulkImportVisible, setIsBulkImportVisible] = useState(false)
+  const [isAuditLogVisible, setIsAuditLogVisible] = useState(false)
+  const [currentUser, setCurrentUser] = useState(null)
+  const [form] = Form.useForm()
+  const [editForm] = Form.useForm()
+  const [advancedSearchForm] = Form.useForm()
 
-  const roleOptions = ["Student", "Admin", "Instructor", "Janitor", "Pharmacist", "Technician", "IT"]
-  const statusOptions = ["Active", "Inactive", "Pending", "Suspended"]
-  const groupOptions = ["Group A", "Group B", "Group C", "Advanced", "Beginner"]
+  const [searchScope, setSearchScope] = useState("all")
+  const [filters, setFilters] = useState({
+    role: [],
+    status: [],
+    enrollmentStatus: [],
+    department: [],
+    dateRange: null,
+    groups: [],
+  })
 
-  const [selectedRole, setSelectedRole] = useState("Student")
-  const [selectedStatus, setSelectedStatus] = useState("Active")
-  const [selectedGroup, setSelectedGroup] = useState("")
+  const [currentPage, setCurrentPage] = useState("list") // 'list', 'add', 'edit'
+  const [confirmModal, setConfirmModal] = useState({ visible: false, type: "", data: null })
+  const [bulkActionModal, setBulkActionModal] = useState({ visible: false, type: "", selectedUsers: [] })
 
-  // Mock students data with extended fields
-  const [students, setStudents] = useState([
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john.doe@example.com",
-      age: 22,
-      gender: "Male",
-      designation: "Student",
-      status: "Active",
-      lastLogin: "2025-08-15",
-      createdDate: "2025-01-15",
-      group: "Group A",
-      courses: ["React Basics", "JavaScript Advanced"],
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-      achievements: [
-        { name: "Quick Learner", icon: null },
-        { name: "Team Player", icon: null },
-      ],
-      certificates: [
-        { name: "React Certificate", icon: null },
-        { name: "JavaScript Pro", icon: null },
-      ],
-      progress: {
-        groupActivity: 85,
-        singleRange1: 70,
-        singleRange2: 90,
-      },
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane.smith@example.com",
-      age: 24,
-      gender: "Female",
-      designation: "Instructor",
-      status: "Active",
-      lastLogin: "2025-08-17",
-      createdDate: "2025-02-10",
-      group: "Group B",
-      courses: ["Python Fundamentals", "Data Science"],
-      description: "Experienced instructor with focus on practical learning approaches.",
-      achievements: [
-        { name: "Mentor", icon: null },
-        { name: "Expert", icon: null },
-      ],
-      certificates: [
-        { name: "Teaching Excellence", icon: null },
-        { name: "Data Science Pro", icon: null },
-      ],
-      progress: {
-        groupActivity: 95,
-        singleRange1: 88,
-        singleRange2: 92,
-      },
-    },
-    {
-      id: 3,
-      name: "Mike Johnson",
-      email: "mike.j@example.com",
-      age: 20,
-      gender: "Male",
-      designation: "Student",
-      status: "Inactive",
-      lastLogin: "2025-07-20",
-      createdDate: "2025-03-05",
-      group: "Group C",
-      courses: ["HTML/CSS Basics"],
-      description: "New student focusing on web development fundamentals.",
-      achievements: [{ name: "Beginner", icon: null }],
-      certificates: [],
-      progress: {
-        groupActivity: 45,
-        singleRange1: 30,
-        singleRange2: 55,
-      },
-    },
-    {
-      id: 4,
-      name: "Sarah Wilson",
-      email: "sarah.w@example.com",
-      age: 26,
-      gender: "Female",
-      designation: "Admin",
-      status: "Active",
-      lastLogin: "2025-08-18",
-      createdDate: "2025-01-01",
-      group: "Admin Group",
-      courses: ["System Management"],
-      description: "System administrator with full platform access.",
-      achievements: [
-        { name: "Administrator", icon: null },
-        { name: "Security Expert", icon: null },
-      ],
-      certificates: [
-        { name: "System Admin Cert", icon: null },
-        { name: "Security Specialist", icon: null },
-      ],
-      progress: {
-        groupActivity: 100,
-        singleRange1: 95,
-        singleRange2: 98,
-      },
-    },
-    {
-      id: 5,
-      name: "David Brown",
-      email: "david.b@example.com",
-      age: 23,
-      gender: "Male",
-      designation: "Student",
-      status: "Pending",
+  const handleSearch = (value) => {
+    setSearchTerm(value)
+    applyFilters(value, filters)
+  }
+
+  const applyFilters = (searchTerm, currentFilters) => {
+    let filtered = students
+
+    // Apply text search based on scope
+    if (searchTerm) {
+      filtered = filtered.filter((student) => {
+        const searchLower = searchTerm.toLowerCase()
+        switch (searchScope) {
+          case "name":
+            return student.name.toLowerCase().includes(searchLower)
+          case "email":
+            return student.email.toLowerCase().includes(searchLower)
+          case "id":
+            return (
+              student.id.toLowerCase().includes(searchLower) || student.employeeId.toLowerCase().includes(searchLower)
+            )
+          default:
+            return (
+              student.name.toLowerCase().includes(searchLower) ||
+              student.email.toLowerCase().includes(searchLower) ||
+              student.id.toLowerCase().includes(searchLower) ||
+              student.employeeId.toLowerCase().includes(searchLower) ||
+              student.department.toLowerCase().includes(searchLower)
+            )
+        }
+      })
+    }
+
+    // Apply advanced filters
+    if (currentFilters.role.length > 0) {
+      filtered = filtered.filter((student) => currentFilters.role.includes(student.designation))
+    }
+    if (currentFilters.status.length > 0) {
+      filtered = filtered.filter((student) => currentFilters.status.includes(student.status))
+    }
+    if (currentFilters.enrollmentStatus.length > 0) {
+      filtered = filtered.filter((student) => currentFilters.enrollmentStatus.includes(student.enrollmentStatus))
+    }
+    if (currentFilters.department.length > 0) {
+      filtered = filtered.filter((student) => currentFilters.department.includes(student.department))
+    }
+    if (currentFilters.dateRange) {
+      const [start, end] = currentFilters.dateRange
+      filtered = filtered.filter((student) => {
+        const createdDate = new Date(student.createdDate)
+        return createdDate >= start && createdDate <= end
+      })
+    }
+
+    setFilteredStudents(filtered)
+  }
+
+  const handleAdvancedSearch = (values) => {
+    const newFilters = {
+      role: values.role || [],
+      status: values.status || [],
+      enrollmentStatus: values.enrollmentStatus || [],
+      department: values.department || [],
+      dateRange: values.dateRange || null,
+      groups: values.groups || [],
+    }
+    setFilters(newFilters)
+    applyFilters(searchTerm, newFilters)
+    setIsAdvancedSearchVisible(false)
+  }
+
+  const clearFilters = () => {
+    setFilters({
+      role: [],
+      status: [],
+      enrollmentStatus: [],
+      department: [],
+      dateRange: null,
+      groups: [],
+    })
+    setSearchTerm("")
+    advancedSearchForm.resetFields()
+    setFilteredStudents(students)
+  }
+
+  const handleAddUser = (values) => {
+    const newUser = {
+      id: Date.now().toString(),
+      name: values.name,
+      email: values.email,
+      phone: values.phone || "",
+      address: values.address || "",
+      department: values.department,
+      employeeId: values.employeeId || `EMP${Date.now()}`,
+      designation: values.designation,
+      status: values.status || "Active",
+      enrollmentStatus: values.enrollmentStatus || "Enrolled",
       lastLogin: "Never",
-      createdDate: "2025-08-10",
-      group: "Group A",
-      courses: [],
-      description: "Recently registered student awaiting approval.",
-      achievements: [],
-      certificates: [],
-      progress: {
-        groupActivity: 0,
-        singleRange1: 0,
-        singleRange2: 0,
+      createdDate: new Date().toISOString(),
+      groups: values.groups || [],
+      courses: values.courses || [],
+      profileImage: null,
+      notes: values.notes || "",
+    }
+
+    const updatedStudents = [...students, newUser]
+    setStudents(updatedStudents)
+    setFilteredStudents(updatedStudents)
+    setCurrentPage("list") // Navigate back to list
+    form.resetFields()
+    message.success("User added successfully!")
+
+    // Send invitation if requested
+    if (values.sendInvitation) {
+      message.info(`Invitation email sent to ${values.email}`)
+    }
+  }
+
+  const handleEditUser = (values) => {
+    const updatedStudents = students.map((student) =>
+      student.id === currentUser.id ? { ...student, ...values } : student,
+    )
+    setStudents(updatedStudents)
+    applyFilters(searchTerm, filters)
+    setCurrentPage("list") // Navigate back to list
+    setCurrentUser(null)
+    editForm.resetFields()
+    message.success("User updated successfully!")
+  }
+
+  const viewUserProfile = (user) => {
+    setCurrentUser(user)
+    setIsProfileDrawerVisible(true)
+  }
+
+  const editUser = (user) => {
+    setCurrentUser(user)
+    editForm.setFieldsValue(user)
+    setCurrentPage("edit") // Navigate to edit page
+  }
+
+  const deactivateUser = (userId) => {
+    setConfirmModal({
+      visible: true,
+      type: "deactivate",
+      data: { userId },
+      title: "Deactivate User",
+      content: "Are you sure you want to deactivate this user? They will not be able to access the system.",
+      onConfirm: () => {
+        const updatedStudents = students.map((student) =>
+          student.id === userId ? { ...student, status: "Inactive" } : student,
+        )
+        setStudents(updatedStudents)
+        applyFilters(searchTerm, filters)
+        message.success("User deactivated successfully!")
+        setConfirmModal({ visible: false, type: "", data: null })
       },
-    },
-  ])
-
-  const openResetPasswordModal = (student) => {
-    setSelectedStudentForAction(student)
-    setIsResetPasswordModalOpen(true)
-    setOpenDropdownId(null)
+    })
   }
 
-  const openActivateModal = (student) => {
-    setSelectedStudentForAction(student)
-    setIsActivateModalOpen(true)
-    setOpenDropdownId(null)
+  const deleteUser = (userId) => {
+    const user = students.find((s) => s.id === userId)
+    setConfirmModal({
+      visible: true,
+      type: "delete",
+      data: { userId },
+      title: "Delete User",
+      content: `Are you sure you want to permanently delete "${user?.name}"? This action cannot be undone.`,
+      onConfirm: () => {
+        const updatedStudents = students.filter((student) => student.id !== userId)
+        setStudents(updatedStudents)
+        applyFilters(searchTerm, filters)
+        message.success("User deleted successfully!")
+        setConfirmModal({ visible: false, type: "", data: null })
+      },
+    })
   }
 
-  const openDeleteModal = (student) => {
-    setSelectedStudentForAction(student)
-    setIsDeleteModalOpen(true)
-    setOpenDropdownId(null)
+  const resetPassword = (userId) => {
+    const user = students.find((s) => s.id === userId)
+    setConfirmModal({
+      visible: true,
+      type: "resetPassword",
+      data: { userId },
+      title: "Reset Password",
+      content: `Reset password for "${user?.name}"? A new temporary password will be sent to their email.`,
+      onConfirm: () => {
+        message.success(`Password reset email sent to ${user?.email}`)
+        setConfirmModal({ visible: false, type: "", data: null })
+      },
+    })
   }
 
-  const getActionItems = (student) => [
+  const handleBulkAction = (action) => {
+    const selectedUsers = students.filter((s) => selectedStudents.includes(s.id))
+
+    switch (action) {
+      case "activate":
+        setConfirmModal({
+          visible: true,
+          type: "bulkActivate",
+          data: { selectedUsers },
+          title: "Activate Users",
+          content: `Activate ${selectedUsers.length} selected user(s)?`,
+          onConfirm: () => {
+            const updatedStudents = students.map((student) =>
+              selectedStudents.includes(student.id) ? { ...student, status: "Active" } : student,
+            )
+            setStudents(updatedStudents)
+            applyFilters(searchTerm, filters)
+            setSelectedRowKeys([])
+            setSelectedStudents([])
+            message.success(`${selectedUsers.length} user(s) activated`)
+            setConfirmModal({ visible: false, type: "", data: null })
+          },
+        })
+        break
+      case "deactivate":
+        setConfirmModal({
+          visible: true,
+          type: "bulkDeactivate",
+          data: { selectedUsers },
+          title: "Deactivate Users",
+          content: `Deactivate ${selectedUsers.length} selected user(s)? They will not be able to access the system.`,
+          onConfirm: () => {
+            const updatedStudents = students.map((student) =>
+              selectedStudents.includes(student.id) ? { ...student, status: "Inactive" } : student,
+            )
+            setStudents(updatedStudents)
+            applyFilters(searchTerm, filters)
+            setSelectedRowKeys([])
+            setSelectedStudents([])
+            message.success(`${selectedUsers.length} user(s) deactivated`)
+            setConfirmModal({ visible: false, type: "", data: null })
+          },
+        })
+        break
+      case "delete":
+        setConfirmModal({
+          visible: true,
+          type: "bulkDelete",
+          data: { selectedUsers },
+          title: "Delete Users",
+          content: `Permanently delete ${selectedUsers.length} selected user(s)? This action cannot be undone.`,
+          onConfirm: () => {
+            const updatedStudents = students.filter((student) => !selectedStudents.includes(student.id))
+            setStudents(updatedStudents)
+            applyFilters(searchTerm, filters)
+            setSelectedRowKeys([])
+            setSelectedStudents([])
+            message.success(`${selectedUsers.length} user(s) deleted`)
+            setConfirmModal({ visible: false, type: "", data: null })
+          },
+        })
+        break
+      case "assignGroup":
+        setBulkActionModal({
+          visible: true,
+          type: "assignGroup",
+          selectedUsers: selectedUsers,
+        })
+        break
+      case "enrollCourse":
+        setBulkActionModal({
+          visible: true,
+          type: "enrollCourse",
+          selectedUsers: selectedUsers,
+        })
+        break
+      case "changeRole":
+        setBulkActionModal({
+          visible: true,
+          type: "changeRole",
+          selectedUsers: selectedUsers,
+        })
+        break
+      case "email":
+        setBulkActionModal({
+          visible: true,
+          type: "sendEmail",
+          selectedUsers: selectedUsers,
+        })
+        break
+    }
+  }
+
+  const handleBulkGroupAssignment = (values) => {
+    const updatedStudents = students.map((student) => {
+      if (selectedStudents.includes(student.id)) {
+        const newGroups = [...new Set([...(student.groups || []), ...values.groups])]
+        return { ...student, groups: newGroups }
+      }
+      return student
+    })
+    setStudents(updatedStudents)
+    applyFilters(searchTerm, filters)
+    setSelectedRowKeys([])
+    setSelectedStudents([])
+    setBulkActionModal({ visible: false, type: "", selectedUsers: [] })
+    message.success(`Groups assigned to ${bulkActionModal.selectedUsers.length} user(s)`)
+  }
+
+  const handleBulkCourseEnrollment = (values) => {
+    const updatedStudents = students.map((student) => {
+      if (selectedStudents.includes(student.id)) {
+        const newCourses = [...new Set([...(student.courses || []), ...values.courses])]
+        return { ...student, courses: newCourses }
+      }
+      return student
+    })
+    setStudents(updatedStudents)
+    applyFilters(searchTerm, filters)
+    setSelectedRowKeys([])
+    setSelectedStudents([])
+    setBulkActionModal({ visible: false, type: "", selectedUsers: [] })
+    message.success(`Courses enrolled for ${bulkActionModal.selectedUsers.length} user(s)`)
+  }
+
+  const handleBulkRoleChange = (values) => {
+    const updatedStudents = students.map((student) => {
+      if (selectedStudents.includes(student.id)) {
+        return { ...student, designation: values.role }
+      }
+      return student
+    })
+    setStudents(updatedStudents)
+    applyFilters(searchTerm, filters)
+    setSelectedRowKeys([])
+    setSelectedStudents([])
+    setBulkActionModal({ visible: false, type: "", selectedUsers: [] })
+    message.success(`Role changed for ${bulkActionModal.selectedUsers.length} user(s)`)
+  }
+
+  const handleBulkEmail = (values) => {
+    setBulkActionModal({ visible: false, type: "", selectedUsers: [] })
+    setSelectedRowKeys([])
+    setSelectedStudents([])
+    message.success(`Email "${values.subject}" sent to ${bulkActionModal.selectedUsers.length} user(s)`)
+  }
+
+  const getActionItems = (record) => [
     {
       key: "view",
       label: (
-        <span
-          onClick={(e) => {
-            e.stopPropagation()
-            openModal(student)
-          }}
-        >
+        <span onClick={() => viewUserProfile(record)}>
           <Eye className="h-4 w-4 mr-2 inline" />
-          View Details
+          View Profile
         </span>
       ),
     },
     {
       key: "edit",
       label: (
-        <span
-          onClick={(e) => {
-            e.stopPropagation()
-            openEditModal(student, e)
-          }}
-        >
+        <span onClick={() => editUser(record)}>
           <Edit className="h-4 w-4 mr-2 inline" />
-          Edit
+          Edit User
         </span>
       ),
     },
     {
-      key: "resetPassword",
+      key: "deactivate",
       label: (
-        <span
-          onClick={(e) => {
-            e.stopPropagation()
-            openResetPasswordModal(student)
-          }}
+        <Popconfirm
+          title="Are you sure you want to deactivate this user?"
+          onConfirm={() => deactivateUser(record.id)}
+          okText="Yes"
+          cancelText="No"
         >
-          <Key className="h-4 w-4 mr-2 inline" />
-          Reset Password
-        </span>
+          <span>
+            <Power className="h-4 w-4 mr-2 inline" />
+            Deactivate
+          </span>
+        </Popconfirm>
       ),
-    },
-    {
-      key: "toggleStatus",
-      label: (
-        <span
-          onClick={(e) => {
-            e.stopPropagation()
-            openActivateModal(student)
-          }}
-        >
-          <Power className="h-4 w-4 mr-2 inline" />
-          {student.status === "Active" ? "Deactivate" : "Activate"}
-        </span>
-      ),
-    },
-    {
-      key: "loginAs",
-      label: (
-        <span
-          onClick={(e) => {
-            e.stopPropagation()
-            handleLoginAsUser(student.id, e)
-          }}
-        >
-          <UserCheck className="h-4 w-4 mr-2 inline" />
-          Login as User
-        </span>
-      ),
-    },
-    {
-      type: "divider",
     },
     {
       key: "delete",
       label: (
-        <span
-          onClick={(e) => {
-            e.stopPropagation()
-            openDeleteModal(student)
-          }}
-          className="text-red-600"
+        <Popconfirm
+          title="Are you sure you want to delete this user?"
+          onConfirm={() => deleteUser(record.id)}
+          okText="Yes"
+          cancelText="No"
         >
-          <Trash2 className="h-4 w-4 mr-2 inline" />
-          Delete
-        </span>
+          <span style={{ color: "red" }}>
+            <Trash2 className="h-4 w-4 mr-2 inline" />
+            Delete User
+          </span>
+        </Popconfirm>
       ),
-      danger: true,
     },
   ]
 
@@ -337,12 +606,12 @@ const Students = () => {
           </Avatar>
           <div className="min-w-0 flex-1">
             <div className="font-medium text-gray-900 truncate text-sm">{text}</div>
-            <div className="text-xs text-gray-500">ID: {record.id}</div>
+            <div className="text-xs text-gray-500">ID: {record.employeeId}</div>
           </div>
         </div>
       ),
-      width: 160,
-      // fixed: "left", // Fix name column on mobile
+      width: 180,
+      fixed: "left",
     },
     {
       title: "Email",
@@ -350,11 +619,27 @@ const Students = () => {
       key: "email",
       sorter: (a, b) => a.email.localeCompare(b.email),
       render: (email) => (
-        <div className="max-w-[120px] truncate text-sm" title={email}>
+        <div className="max-w-[150px] truncate text-sm" title={email}>
           {email}
         </div>
       ),
-      width: 140,
+      width: 160,
+    },
+    {
+      title: "Phone",
+      dataIndex: "phone",
+      key: "phone",
+      render: (phone) => <span className="text-sm">{phone || "N/A"}</span>,
+      width: 120,
+    },
+    {
+      title: "Department",
+      dataIndex: "department",
+      key: "department",
+      filters: departmentOptions.map((dept) => ({ text: dept, value: dept })),
+      onFilter: (value, record) => record.department === value,
+      render: (department) => <span className="text-sm">{department}</span>,
+      width: 120,
     },
     {
       title: "Role",
@@ -366,13 +651,14 @@ const Students = () => {
         let color = "green"
         if (designation === "Admin") color = "red"
         if (designation === "Instructor") color = "blue"
+        if (designation === "TA") color = "purple"
         return (
           <Tag color={color} className="text-xs">
             {designation}
           </Tag>
         )
       },
-      width: 90,
+      width: 100,
     },
     {
       title: "Status",
@@ -385,13 +671,33 @@ const Students = () => {
         if (status === "Inactive") color = "red"
         if (status === "Pending") color = "orange"
         if (status === "Suspended") color = "gray"
+        if (status === "Graduated") color = "blue"
         return (
           <Tag color={color} className="text-xs">
             {status}
           </Tag>
         )
       },
-      width: 90,
+      width: 100,
+    },
+    {
+      title: "Enrollment",
+      dataIndex: "enrollmentStatus",
+      key: "enrollmentStatus",
+      filters: enrollmentStatusOptions.map((status) => ({ text: status, value: status })),
+      onFilter: (value, record) => record.enrollmentStatus === value,
+      render: (enrollmentStatus) => {
+        let color = "green"
+        if (enrollmentStatus === "Dropped") color = "red"
+        if (enrollmentStatus === "Pending") color = "orange"
+        if (enrollmentStatus === "Teaching") color = "blue"
+        return (
+          <Tag color={color} className="text-xs">
+            {enrollmentStatus}
+          </Tag>
+        )
+      },
+      width: 110,
     },
     {
       title: "Last Login",
@@ -403,9 +709,11 @@ const Students = () => {
         return dateA - dateB
       },
       render: (lastLogin) => (
-        <span className="text-xs">{lastLogin === "Never" ? "Never" : new Date(lastLogin).toLocaleDateString()}</span>
+        <span className="text-xs">
+          {lastLogin === "Never" ? <Badge status="default" text="Never" /> : new Date(lastLogin).toLocaleDateString()}
+        </span>
       ),
-      width: 100,
+      width: 110,
     },
     {
       title: "Created",
@@ -413,231 +721,77 @@ const Students = () => {
       key: "createdDate",
       sorter: (a, b) => new Date(a.createdDate) - new Date(b.createdDate),
       render: (createdDate) => <span className="text-xs">{new Date(createdDate).toLocaleDateString()}</span>,
-      width: 90,
+      width: 100,
     },
     {
-      title: "Action",
-      key: "action",
+      title: "Actions",
+      key: "actions",
+      width: 120,
       render: (_, record) => (
-        <Dropdown menu={{ items: getActionItems(record) }} trigger={["click"]} placement="bottomRight">
-          <Button type="text" icon={<MoreVertical className="h-4 w-4" />} size="small" />
+        <Dropdown
+          menu={{
+            items: [
+              {
+                key: "view",
+                label: "View Profile",
+                icon: <Eye size={14} />,
+                onClick: () => viewUserProfile(record),
+              },
+              {
+                key: "edit",
+                label: "Edit User",
+                icon: <Edit size={14} />,
+                onClick: () => editUser(record),
+              },
+              {
+                key: "reset",
+                label: "Reset Password", // Added reset password option
+                icon: <Key size={14} />,
+                onClick: () => resetPassword(record.id),
+              },
+              {
+                type: "divider",
+              },
+              {
+                key: "deactivate",
+                label: record.status === "Active" ? "Deactivate" : "Activate",
+                icon: record.status === "Active" ? <X size={14} /> : <CheckCircle size={14} />,
+                onClick: () => (record.status === "Active" ? deactivateUser(record.id) : activateUser(record.id)),
+              },
+              {
+                key: "delete",
+                label: "Delete User",
+                icon: <Trash2 size={14} />,
+                danger: true,
+                onClick: () => deleteUser(record.id),
+              },
+            ],
+          }}
+          trigger={["click"]}
+        >
+          <Button type="text" icon={<MoreVertical size={16} />} />
         </Dropdown>
       ),
-      width: 70,
     },
   ]
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setOpenDropdownId(null)
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [])
-
-  // Add audit log function
-  const addAuditLog = (action, targetUser, adminUser = "Current Admin") => {
-    const newLog = {
-      id: Date.now(),
-      timestamp: new Date().toISOString(),
-      admin: adminUser,
-      action: action,
-      target: targetUser,
-      details: `${action} performed on ${targetUser}`,
-    }
-    setAuditLogs((prev) => [newLog, ...prev])
-  }
-
-  // Filter and sort students
-  const filteredStudents = students
-    .filter((student) => {
-      const matchesSearch =
-        student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.email.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesRole = filters.role === "all" || student.designation === filters.role
-      const matchesStatus = filters.status === "all" || student.status === filters.status
-      const matchesGroup = filters.group === "all" || student.group === filters.group
-
-      return matchesSearch && matchesRole && matchesStatus && matchesGroup
+  const activateUser = (userId) => {
+    setConfirmModal({
+      visible: true,
+      type: "activate",
+      data: { userId },
+      title: "Activate User",
+      content: "Are you sure you want to activate this user? They will be able to access the system.",
+      onConfirm: () => {
+        const updatedStudents = students.map((student) =>
+          student.id === userId ? { ...student, status: "Active" } : student,
+        )
+        setStudents(updatedStudents)
+        applyFilters(searchTerm, filters)
+        message.success("User activated successfully!")
+        setConfirmModal({ visible: false, type: "", data: null })
+      },
     })
-    .sort((a, b) => {
-      let aValue = a[sortBy]
-      let bValue = b[sortBy]
-
-      if (sortBy === "lastLogin") {
-        aValue = aValue === "Never" ? new Date(0) : new Date(aValue)
-        bValue = bValue === "Never" ? new Date(0) : new Date(bValue)
-      }
-
-      if (sortOrder === "asc") {
-        return aValue > bValue ? 1 : -1
-      } else {
-        return aValue < bValue ? 1 : -1
-      }
-    })
-
-  // Pagination
-  const totalPages = Math.ceil(filteredStudents.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const paginatedStudents = filteredStudents.slice(startIndex, startIndex + itemsPerPage)
-
-  const handleImageChange = (event) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      const imageUrl = URL.createObjectURL(file)
-      setProfileImage(imageUrl)
-    }
-  }
-
-  const openAddModal = () => {
-    setIsAddModalOpen(true)
-  }
-
-  const closeAddModal = () => {
-    setIsAddModalOpen(false)
-    setCustomFields([])
-    setProfileImage(null)
-  }
-
-  const openEditModal = (student, e) => {
-    if (e) e.stopPropagation()
-    setStudentToEdit(student)
-    setSelectedRole(student.designation)
-    setSelectedStatus(student.status)
-    setSelectedGroup(student.group)
-    setIsEditModalOpen(true)
-    setOpenDropdownId(null)
-  }
-
-  const closeEditModal = () => {
-    setIsEditModalOpen(false)
-    setStudentToEdit(null)
-    setCustomFields([])
-    setProfileImage(null)
-  }
-
-  const toggleSidebar = () => {
-    setShowSidebar(!showSidebar)
-  }
-
-  const toggleDropdown = (studentId, e) => {
-    e.stopPropagation()
-    setOpenDropdownId(openDropdownId === studentId ? null : studentId)
-  }
-
-  const handleDeleteStudent = (studentId, e) => {
-    if (e) e.stopPropagation()
-    const student = students.find((s) => s.id === studentId)
-    openDeleteModal(student)
-    setOpenDropdownId(null)
-  }
-
-  const handleToggleStatusAction = (student) => {
-    openActivateModal(student)
-    setOpenDropdownId(null)
-  }
-
-  const handleResetPasswordAction = (student) => {
-    openResetPasswordModal(student)
-    setOpenDropdownId(null)
-  }
-
-  const handleLoginAsUser = (studentId, e) => {
-    if (e) e.stopPropagation()
-    const student = students.find((s) => s.id === studentId)
-    addAuditLog("Login as User", student.name)
-    message.success(`Logging in as ${student.name}...`)
-    setOpenDropdownId(null)
-  }
-
-  const addCustomField = () => {
-    if (customFieldName.trim()) {
-      setCustomFields([...customFields, { name: customFieldName, value: customFieldValue }])
-      setCustomFieldName("")
-      setCustomFieldValue("")
-      setShowCustomPrompt(false)
-    }
-  }
-
-  const handleSelectAll = (checked) => {
-    if (checked) {
-      setSelectedStudents(paginatedStudents.map((s) => s.id))
-    } else {
-      setSelectedStudents([])
-    }
-  }
-
-  const exportToCSV = () => {
-    const csvContent = [
-      ["Name", "Email", "Role", "Status", "Group", "Last Login", "Created"],
-      ...students.map((s) => [s.name, s.email, s.designation, s.status, s.group, s.lastLogin, s.createdDate]),
-    ]
-      .map((row) => row.join(","))
-      .join("\n")
-
-    const blob = new Blob([csvContent], { type: "text/csv" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = "students_export.csv"
-    a.click()
-    URL.revokeObjectURL(url)
-    message.success("Data exported successfully")
-  }
-
-  const handleSelectStudent = (studentId, checked) => {
-    if (checked) {
-      setSelectedStudents((prev) => [...prev, studentId])
-    } else {
-      setSelectedStudents((prev) => prev.filter((id) => id !== studentId))
-    }
-  }
-
-  const handleBulkAction = (action) => {
-    const selectedStudentNames = students
-      .filter((s) => selectedStudents.includes(s.id))
-      .map((s) => s.name)
-      .join(", ")
-
-    switch (action) {
-      case "delete":
-        setStudents((prev) => prev.filter((s) => !selectedStudents.includes(s.id)))
-        addAuditLog("Bulk Delete", selectedStudentNames)
-        break
-      case "activate":
-        setStudents((prev) => prev.map((s) => (selectedStudents.includes(s.id) ? { ...s, status: "Active" } : s)))
-        addAuditLog("Bulk Activate", selectedStudentNames)
-        break
-      case "deactivate":
-        setStudents((prev) => prev.map((s) => (selectedStudents.includes(s.id) ? { ...s, status: "Inactive" } : s)))
-        addAuditLog("Bulk Deactivate", selectedStudentNames)
-        break
-      case "email":
-        addAuditLog("Bulk Email", selectedStudentNames)
-        alert(`Email sent to ${selectedStudents.length} users`)
-        break
-    }
-    setSelectedStudents([])
-  }
-
-  const handleSort = (column) => {
-    if (sortBy === column) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc")
-    } else {
-      setSortBy(column)
-      setSortOrder("asc")
-    }
-  }
-
-  const openModal = (student) => {
-    setSelectedStudent(student)
-    document.body.style.overflow = "hidden"
   }
 
   const rowSelection = {
@@ -646,1005 +800,1337 @@ const Students = () => {
       setSelectedRowKeys(selectedRowKeys)
       setSelectedStudents(selectedRowKeys)
     },
-  }
-
-  const handleSortableHeaderClick = (column) => {
-    handleSort(column)
-  }
-
-  const handleResetPasswordConfirm = () => {
-    if (selectedStudentForAction) {
-      addAuditLog("Reset Password", selectedStudentForAction.name)
-      message.success(`Password reset email sent to ${selectedStudentForAction.email}`)
-      setIsResetPasswordModalOpen(false)
-      setSelectedStudentForAction(null)
-    }
-  }
-
-  const handleActivateConfirm = () => {
-    if (selectedStudentForAction) {
-      const newStatus = selectedStudentForAction.status === "Active" ? "Inactive" : "Active"
-      const action = selectedStudentForAction.status === "Active" ? "deactivated" : "activated"
-
-      setStudents((prev) =>
-        prev.map((student) =>
-          student.id === selectedStudentForAction.id ? { ...student, status: newStatus } : student,
-        ),
-      )
-
-      addAuditLog(
-        selectedStudentForAction.status === "Active" ? "Deactivate User" : "Activate User",
-        selectedStudentForAction.name,
-      )
-      message.success(`User ${selectedStudentForAction.name} has been ${action} successfully`)
-      setIsActivateModalOpen(false)
-      setSelectedStudentForAction(null)
-    }
-  }
-
-  const handleDeleteConfirm = () => {
-    if (selectedStudentForAction) {
-      setStudents((prev) => prev.filter((s) => s.id !== selectedStudentForAction.id))
-      addAuditLog("Delete User", selectedStudentForAction.name)
-      message.success(`${selectedStudentForAction.name} has been deleted successfully`)
-      setIsDeleteModalOpen(false)
-      setSelectedStudentForAction(null)
-      if (selectedStudent && selectedStudent.id === selectedStudentForAction.id) {
-        setSelectedStudent(null)
+    onSelectAll: (selected, selectedRows, changeRows) => {
+      if (selected) {
+        const allKeys = filteredStudents.map((student) => student.id)
+        setSelectedRowKeys(allKeys)
+        setSelectedStudents(allKeys)
+      } else {
+        setSelectedRowKeys([])
+        setSelectedStudents([])
       }
+    },
+  }
+
+  const statistics = useMemo(() => {
+    const total = students.length
+    const active = students.filter((s) => s.status === "Active").length
+    const pending = students.filter((s) => s.status === "Pending").length
+    const inactive = students.filter((s) => s.status === "Inactive").length
+
+    return { total, active, pending, inactive }
+  }, [students])
+
+  useEffect(() => {
+    applyFilters(searchTerm, filters)
+  }, [students])
+
+  const handleBulkImport = (info) => {
+    if (info.file.status !== "uploading") {
+      console.log(info.file, info.fileList)
+    }
+    if (info.file.status === "done") {
+      message.success(`${info.file.name} file uploaded successfully`)
+    } else if (info.file.status === "error") {
+      message.error(`${info.file.name} file upload failed.`)
     }
   }
 
-  const handleDelete = (studentId, studentName) => {
-    confirm({
-      title: "Delete User",
-      content: (
-        <div>
-          <p>
-            Are you sure you want to delete <strong>{studentName}</strong>?
-          </p>
-          <div
-            style={{
-              backgroundColor: "#fef2f2",
-              border: "1px solid #fecaca",
-              borderRadius: "6px",
-              padding: "12px",
-              marginTop: "12px",
-            }}
-          >
-            <p style={{ color: "#dc2626", fontSize: "14px", margin: 0 }}>
-              <strong>Warning:</strong> This action cannot be undone. All user data will be permanently removed.
-            </p>
+  if (currentPage === "add") {
+    return (
+      <div className="p-3 min-h-screen">
+        <div className="">
+          <div className="mb-6">
+            <Button icon={<ArrowLeft size={16} />} onClick={() => setCurrentPage("list")} className="mb-4">
+              Back to Users
+            </Button>
+            <h1 className="text-2xl font-bold text-gray-900">Add New User</h1>
+            <p className="text-gray-600 mt-1">Create a new user account with all necessary details</p>
           </div>
+
+          <Card>
+            <Form form={form} layout="vertical" onFinish={handleAddUser}>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="name"
+                    label="Full Name"
+                    rules={[{ required: true, message: "Please enter full name" }]}
+                  >
+                    <Input placeholder="Enter full name" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="email"
+                    label="Email"
+                    rules={[
+                      { required: true, message: "Please enter email" },
+                      { type: "email", message: "Please enter valid email" },
+                    ]}
+                  >
+                    <Input placeholder="Enter email address" />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name="phone" label="Phone Number">
+                    <Input placeholder="Enter phone number" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="employeeId" label="Employee/Student ID">
+                    <Input placeholder="Auto-generated if empty" />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Form.Item name="address" label="Address">
+                <TextArea rows={2} placeholder="Enter full address" />
+              </Form.Item>
+
+              <Row gutter={16}>
+                <Col span={8}>
+                  <Form.Item
+                    name="department"
+                    label="Department"
+                    rules={[{ required: true, message: "Please select department" }]}
+                  >
+                    <Select placeholder="Select department">
+                      {departmentOptions.map((dept) => (
+                        <Option key={dept} value={dept}>
+                          {dept}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    name="designation"
+                    label="Role"
+                    rules={[{ required: true, message: "Please select role" }]}
+                  >
+                    <Select placeholder="Select role">
+                      {roleOptions.map((role) => (
+                        <Option key={role} value={role}>
+                          {role}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="status" label="Status" initialValue="Active">
+                    <Select>
+                      {statusOptions.map((status) => (
+                        <Option key={status} value={status}>
+                          {status}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name="enrollmentStatus" label="Enrollment Status" initialValue="Enrolled">
+                    <Select>
+                      {enrollmentStatusOptions.map((status) => (
+                        <Option key={status} value={status}>
+                          {status}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="groups" label="Initial Groups">
+                    <Select mode="multiple" placeholder="Select groups">
+                      <Option value="CS-2024">CS-2024</Option>
+                      <Option value="Math Faculty">Math Faculty</Option>
+                      <Option value="Research Team">Research Team</Option>
+                      <Option value="Admin Staff">Admin Staff</Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Form.Item name="courses" label="Initial Courses">
+                <Select mode="multiple" placeholder="Select courses">
+                  <Option value="React Development">React Development</Option>
+                  <Option value="Database Systems">Database Systems</Option>
+                  <Option value="Calculus I">Calculus I</Option>
+                  <Option value="Statistics">Statistics</Option>
+                </Select>
+              </Form.Item>
+
+              <Form.Item name="notes" label="Notes">
+                <TextArea rows={3} placeholder="Additional notes about the user" />
+              </Form.Item>
+
+              <Divider />
+
+              <Form.Item name="passwordOption" label="Password Setup" initialValue="auto">
+                <Radio.Group>
+                  <Radio value="auto">Auto-generate password</Radio>
+                  <Radio value="invitation">Send invitation email</Radio>
+                </Radio.Group>
+              </Form.Item>
+
+              <Form.Item name="sendInvitation" valuePropName="checked">
+                <Checkbox>Send welcome email with login instructions</Checkbox>
+              </Form.Item>
+
+              <div className="flex justify-end gap-2 mt-6">
+                <Button onClick={() => setCurrentPage("list")}>Cancel</Button>
+                <Button type="primary" htmlType="submit">
+                  Add User
+                </Button>
+              </div>
+            </Form>
+          </Card>
         </div>
-      ),
-      okText: "Delete",
-      okType: "danger",
-      cancelText: "Cancel",
-      onOk() {
-        // Remove student from list
-        setStudents((prev) => prev.filter((student) => student.id !== studentId))
-        addAuditLog("Delete User", studentName)
-        message.success(`User ${studentName} has been deleted successfully`)
-        setSelectedStudent(null)
-      },
-    })
-  }
-
-  const closeModal = () => {
-    setSelectedStudent(null)
-    document.body.style.overflow = "auto"
-  }
-
-  const SortableHeader = ({ column, children }) => (
-    <th
-      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-      onClick={() => handleSortableHeaderClick(column)}
-    >
-      <div className="flex items-center space-x-1">
-        <span>{children}</span>
-        {sortBy === column && (sortOrder === "asc" ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
       </div>
-    </th>
-  )
+    )
+  }
 
-  const handleToggleStatus = (id, name, status) => {
-    confirm({
-      title: status === "Active" ? "Deactivate User" : "Activate User",
-      content: (
-        <div>
-          <p>
-            Are you sure you want to {status === "Active" ? "deactivate" : "activate"} <strong>{name}</strong>?
-          </p>
-          <div
-            style={{
-              backgroundColor: status === "Active" ? "#fef2f2" : "#f0fdf4",
-              border: status === "Active" ? "1px solid #fecaca" : "1px solid #bbf7d0",
-              borderRadius: "6px",
-              padding: "12px",
-              marginTop: "12px",
-            }}
-          >
-            <p
-              style={{
-                color: status === "Active" ? "#dc2626" : "#16a34a",
-                fontSize: "14px",
-                margin: 0,
-              }}
-            >
-              <strong>{status === "Active" ? "Warning:" : "Note:"}</strong>{" "}
-              {status === "Active"
-                ? "Deactivating this user will prevent them from logging in and accessing the system."
-                : "Activating this user will restore their access to the system."}
-            </p>
+  if (currentPage === "edit") {
+    return (
+      <div className="p-3 min-h-screen">
+        <div className="">
+          <div className="mb-6">
+            <Button icon={<ArrowLeft size={16} />} onClick={() => setCurrentPage("list")} className="mb-4">
+              Back to Users
+            </Button>
+            <h1 className="text-2xl font-bold text-gray-900">Edit User</h1>
+            <p className="text-gray-600 mt-1">Update user information and settings</p>
           </div>
+
+          <Card>
+            <Form form={editForm} layout="vertical" onFinish={handleEditUser}>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="name"
+                    label="Full Name"
+                    rules={[{ required: true, message: "Please enter full name" }]}
+                  >
+                    <Input placeholder="Enter full name" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="email"
+                    label="Email"
+                    rules={[
+                      { required: true, message: "Please enter email" },
+                      { type: "email", message: "Please enter valid email" },
+                    ]}
+                  >
+                    <Input placeholder="Enter email address" />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name="phone" label="Phone Number">
+                    <Input placeholder="Enter phone number" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="employeeId" label="Employee/Student ID">
+                    <Input placeholder="Employee/Student ID" />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Form.Item name="address" label="Address">
+                <TextArea rows={2} placeholder="Enter full address" />
+              </Form.Item>
+
+              <Row gutter={16}>
+                <Col span={8}>
+                  <Form.Item
+                    name="department"
+                    label="Department"
+                    rules={[{ required: true, message: "Please select department" }]}
+                  >
+                    <Select placeholder="Select department">
+                      {departmentOptions.map((dept) => (
+                        <Option key={dept} value={dept}>
+                          {dept}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    name="designation"
+                    label="Role"
+                    rules={[{ required: true, message: "Please select role" }]}
+                  >
+                    <Select placeholder="Select role">
+                      {roleOptions.map((role) => (
+                        <Option key={role} value={role}>
+                          {role}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name="status" label="Status">
+                    <Select>
+                      {statusOptions.map((status) => (
+                        <Option key={status} value={status}>
+                          {status}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name="enrollmentStatus" label="Enrollment Status">
+                    <Select>
+                      {enrollmentStatusOptions.map((status) => (
+                        <Option key={status} value={status}>
+                          {status}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="groups" label="Groups">
+                    <Select mode="multiple" placeholder="Select groups">
+                      <Option value="CS-2024">CS-2024</Option>
+                      <Option value="Math Faculty">Math Faculty</Option>
+                      <Option value="Research Team">Research Team</Option>
+                      <Option value="Admin Staff">Admin Staff</Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Form.Item name="courses" label="Courses">
+                <Select mode="multiple" placeholder="Select courses">
+                  <Option value="React Development">React Development</Option>
+                  <Option value="Database Systems">Database Systems</Option>
+                  <Option value="Calculus I">Calculus I</Option>
+                  <Option value="Statistics">Statistics</Option>
+                </Select>
+              </Form.Item>
+
+              <Form.Item name="notes" label="Notes">
+                <TextArea rows={3} placeholder="Additional notes about the user" />
+              </Form.Item>
+
+              <div className="flex justify-end gap-2 mt-6">
+                <Button onClick={() => setCurrentPage("list")}>Cancel</Button>
+                <Button type="primary" htmlType="submit">
+                  Update User
+                </Button>
+              </div>
+            </Form>
+          </Card>
         </div>
-      ),
-      okText: status === "Active" ? "Deactivate" : "Activate",
-      okType: status === "Active" ? "danger" : "primary",
-      cancelText: "Cancel",
-      onOk() {
-        const newStatus = status === "Active" ? "Inactive" : "Active"
-        setStudents((prev) => prev.map((student) => (student.id === id ? { ...student, status: newStatus } : student)))
-        addAuditLog(status === "Active" ? "Deactivate User" : "Activate User", name)
-        message.success(`User ${name} has been ${status === "Active" ? "deactivated" : "activated"} successfully`)
-        setSelectedStudent(null)
-      },
-    })
+      </div>
+    )
   }
 
   return (
-    <div className="flex rounded-3xl text-black min-h-screen overflow-hidden bg-gray-50">
-      <div className="flex-1 min-w-0">
-        <div className="w-full mx-auto p-2 sm:p-4 lg:p-6 max-w-full">
-          <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6">
-            <div className="flex items-center justify-between">
-              <h1 className="text-xl md:text-2xl poppins-thin_600">Manage Students/Users</h1>
-              <button
-                className="p-2 sm:hidden bg-white border border-gray-200 rounded-lg"
-                onClick={() => setShowSidebar(!showSidebar)}
-              >
-                <Menu className="h-5 w-5 text-gray-600" />
-              </button>
+    <div className="p-3  min-h-screen">
+      <div className="">
+        <div className="mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Manage Users/Students</h1>
             </div>
-
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
-                <button
-                  onClick={() => setViewMode("table")}
-                  className={`px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm transition-colors ${
-                    viewMode === "table" ? "bg-white text-blue-700 shadow-sm" : "text-gray-600"
-                  }`}
-                >
-                  Table
-                </button>
-                <button
-                  onClick={() => setViewMode("card")}
-                  className={`px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm transition-colors ${
-                    viewMode === "card" ? "bg-white text-blue-700 shadow-sm" : "text-gray-600"
-                  }`}
-                >
-                  Cards
-                </button>
-              </div>
-
-              <button
-                onClick={() => setshowUserManageModal(true)}
-                className="py-1 px-2 sm:px-3 text-xs sm:text-sm rounded-md bg-white border border-gray-200 hover:bg-gray-50 transition-colors whitespace-nowrap"
-              >
-                <span className="hidden sm:inline">Manage Users</span>
-                <span className="sm:hidden">Manage</span>
-              </button>
-            </div>
-          </div>
-
-          {/* ... existing code for filters and search ... */}
-
-          <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:gap-3 mb-4">
-            <div className="flex-1 min-w-0">
-              <AntSearch
-                placeholder="Search users..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ width: "100%" }}
-                size="middle"
-              />
-            </div>
-
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-3 mt-4 sm:mt-0">
               <Button
-                icon={<Filter size={16} />}
-                onClick={() => setShowFilters(!showFilters)}
-                size="middle"
-                className="flex-shrink-0"
-              >
-                <span className="hidden sm:inline">Filters</span>
-              </Button>
-
-              <Button
-                icon={<Settings size={16} />}
-                onClick={() => setShowAuditLogs(!showAuditLogs)}
-                size="middle"
-                className="flex-shrink-0"
-              >
-                <span className="hidden sm:inline">Audit</span>
-              </Button>
-
-              <Button
-                icon={<Download size={16} />}
-                onClick={exportToCSV}
                 type="primary"
-                ghost
-                size="middle"
-                className="flex-shrink-0"
+                icon={<Plus size={16} />}
+                onClick={() => setCurrentPage("add")} // Navigate to add page
+                className="bg-blue-600 hover:bg-blue-700"
               >
-                <span className="hidden sm:inline">Export</span>
+                Add User
+              </Button>
+              <Button icon={<UploadIcon className="h-4 w-4" />} onClick={() => setIsBulkImportVisible(true)}>
+                Import
+              </Button>
+              <Button icon={<FileText className="h-4 w-4" />} onClick={() => setIsAuditLogVisible(true)}>
+                Audit Log
               </Button>
             </div>
           </div>
 
-          {/* ... existing code for filters and bulk actions ... */}
+          {/* Statistics Cards */}
+          <Row gutter={16} className="mb-6">
+            <Col xs={12} sm={6}>
+              <Card size="small">
+                <Statistic title="Total Users" value={statistics.total} prefix={<Users className="h-4 w-4" />} />
+              </Card>
+            </Col>
+            <Col xs={12} sm={6}>
+              <Card size="small">
+                <Statistic
+                  title="Active"
+                  value={statistics.active}
+                  prefix={<CheckCircle className="h-4 w-4 text-green-500" />}
+                  valueStyle={{ color: "#52c41a" }}
+                />
+              </Card>
+            </Col>
+            <Col xs={12} sm={6}>
+              <Card size="small">
+                <Statistic
+                  title="Pending"
+                  value={statistics.pending}
+                  prefix={<Clock className="h-4 w-4 text-orange-500" />}
+                  valueStyle={{ color: "#fa8c16" }}
+                />
+              </Card>
+            </Col>
+            <Col xs={12} sm={6}>
+              <Card size="small">
+                <Statistic
+                  title="Inactive"
+                  value={statistics.inactive}
+                  prefix={<AlertCircle className="h-4 w-4 text-red-500" />}
+                  valueStyle={{ color: "#ff4d4f" }}
+                />
+              </Card>
+            </Col>
+          </Row>
+        </div>
 
-          {showFilters && (
-            <Card className="mb-4" size="small">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                  <Select
-                    value={filters.role}
-                    onChange={(value) => setFilters((prev) => ({ ...prev, role: value }))}
-                    style={{ width: "100%" }}
-                    size="small"
+        <Card className="mb-4" size="small">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex-1 flex gap-2">
+                <Select value={searchScope} onChange={setSearchScope} style={{ width: 120 }} size="small">
+                  <Option value="all">All Fields</Option>
+                  <Option value="name">Name</Option>
+                  <Option value="email">Email</Option>
+                  <Option value="id">ID</Option>
+                </Select>
+                <Input
+                  placeholder={`Search ${searchScope === "all" ? "users" : searchScope}...`}
+                  prefix={<Search className="h-4 w-4 text-gray-400" />}
+                  value={searchTerm}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="flex-1"
+                  size="small"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  icon={<Filter className="h-4 w-4" />}
+                  onClick={() => setIsAdvancedSearchVisible(true)}
+                  size="small"
+                >
+                  Advanced
+                </Button>
+                <Button onClick={clearFilters} size="small">
+                  Clear
+                </Button>
+              </div>
+            </div>
+
+            {/* Active Filters Display */}
+            {(filters.role.length > 0 ||
+              filters.status.length > 0 ||
+              filters.department.length > 0 ||
+              filters.dateRange) && (
+              <div className="flex flex-wrap gap-2">
+                <span className="text-sm text-gray-500">Active filters:</span>
+                {filters.role.map((role) => (
+                  <Tag
+                    key={role}
+                    closable
+                    onClose={() => {
+                      const newFilters = { ...filters, role: filters.role.filter((r) => r !== role) }
+                      setFilters(newFilters)
+                      applyFilters(searchTerm, newFilters)
+                    }}
                   >
-                    <Option value="all">All Roles</Option>
+                    Role: {role}
+                  </Tag>
+                ))}
+                {filters.status.map((status) => (
+                  <Tag
+                    key={status}
+                    closable
+                    onClose={() => {
+                      const newFilters = { ...filters, status: filters.status.filter((s) => s !== status) }
+                      setFilters(newFilters)
+                      applyFilters(searchTerm, newFilters)
+                    }}
+                  >
+                    Status: {status}
+                  </Tag>
+                ))}
+                {filters.department.map((dept) => (
+                  <Tag
+                    key={dept}
+                    closable
+                    onClose={() => {
+                      const newFilters = { ...filters, department: filters.department.filter((d) => d !== dept) }
+                      setFilters(newFilters)
+                      applyFilters(searchTerm, newFilters)
+                    }}
+                  >
+                    Dept: {dept}
+                  </Tag>
+                ))}
+              </div>
+            )}
+          </div>
+        </Card>
+
+        {selectedStudents.length > 0 && (
+          <Card className="mb-4 bg-blue-50 border-blue-200" size="small">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <span className="text-sm text-blue-700 font-medium">{selectedStudents.length} user(s) selected</span>
+              <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+                <Button
+                  onClick={() => handleBulkAction("activate")}
+                  icon={<CheckCircle size={14} />}
+                  size="small"
+                  type="primary"
+                  ghost
+                >
+                  Activate
+                </Button>
+                <Button
+                  onClick={() => handleBulkAction("deactivate")}
+                  icon={<X size={14} />}
+                  size="small"
+                  style={{ borderColor: "#f97316", color: "#f97316" }}
+                  ghost
+                >
+                  Deactivate
+                </Button>
+                <Button
+                  onClick={() => handleBulkAction("assignGroup")}
+                  icon={<Users size={14} />}
+                  size="small"
+                  type="primary"
+                  ghost
+                >
+                  Assign Group
+                </Button>
+                <Button
+                  onClick={() => handleBulkAction("enrollCourse")}
+                  icon={<Calendar size={14} />}
+                  size="small"
+                  type="primary"
+                  ghost
+                >
+                  Enroll Course
+                </Button>
+                <Button
+                  onClick={() => handleBulkAction("changeRole")}
+                  icon={<Settings size={14} />}
+                  size="small"
+                  type="primary"
+                  ghost
+                >
+                  Change Role
+                </Button>
+                <Button
+                  onClick={() => handleBulkAction("email")}
+                  icon={<Mail size={14} />}
+                  size="small"
+                  type="primary"
+                  ghost
+                >
+                  Send Email
+                </Button>
+                <Button
+                  onClick={() => handleBulkAction("delete")}
+                  icon={<Trash2 size={14} />}
+                  size="small"
+                  danger
+                  ghost
+                >
+                  Delete
+                </Button>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        <Card style={{ marginTop: 16}}>
+          {filteredStudents.length === 0 ? (
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description={
+                <span>
+                  {searchTerm || Object.values(filters).some((f) => (Array.isArray(f) ? f.length > 0 : f))
+                    ? "No users match your search criteria"
+                    : "No users found"}
+                </span>
+              }
+            >
+              {!searchTerm && !Object.values(filters).some((f) => (Array.isArray(f) ? f.length > 0 : f)) && (
+                <Button type="primary" onClick={() => setIsAddModalVisible(true)}>
+                  Add First User
+                </Button>
+              )}
+            </Empty>
+          ) : (
+            <div className="">
+
+            <Table
+              columns={columns}
+              dataSource={filteredStudents}
+              rowKey="id"
+              pagination={{
+                total: filteredStudents.length,
+                pageSize: 10,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} users`,
+              }}
+              rowSelection={rowSelection}
+              scroll={{ x: 1200 }}
+              size="small"
+              />
+              </div>
+          )}
+        </Card>
+
+        <Modal
+          title="Add New User"
+          open={isAddModalVisible}
+          onCancel={() => {
+            setIsAddModalVisible(false)
+            form.resetFields()
+          }}
+          footer={null}
+          width={800}
+        >
+          <Form form={form} layout="vertical" onFinish={handleAddUser} className="mt-4">
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="name"
+                  label="Full Name"
+                  rules={[{ required: true, message: "Please enter full name" }]}
+                >
+                  <Input placeholder="Enter full name" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="email"
+                  label="Email"
+                  rules={[
+                    { required: true, message: "Please enter email" },
+                    { type: "email", message: "Please enter valid email" },
+                  ]}
+                >
+                  <Input placeholder="Enter email address" />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item name="phone" label="Phone Number">
+                  <Input placeholder="Enter phone number" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name="employeeId" label="Employee/Student ID">
+                  <Input placeholder="Auto-generated if empty" />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Form.Item name="address" label="Address">
+              <TextArea rows={2} placeholder="Enter full address" />
+            </Form.Item>
+
+            <Row gutter={16}>
+              <Col span={8}>
+                <Form.Item
+                  name="department"
+                  label="Department"
+                  rules={[{ required: true, message: "Please select department" }]}
+                >
+                  <Select placeholder="Select department">
+                    {departmentOptions.map((dept) => (
+                      <Option key={dept} value={dept}>
+                        {dept}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item name="designation" label="Role" rules={[{ required: true, message: "Please select role" }]}>
+                  <Select placeholder="Select role">
                     {roleOptions.map((role) => (
                       <Option key={role} value={role}>
                         {role}
                       </Option>
                     ))}
                   </Select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                  <Select
-                    value={filters.status}
-                    onChange={(value) => setFilters((prev) => ({ ...prev, status: value }))}
-                    style={{ width: "100%" }}
-                    size="small"
-                  >
-                    <Option value="all">All Status</Option>
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item name="status" label="Status" initialValue="Active">
+                  <Select>
                     {statusOptions.map((status) => (
                       <Option key={status} value={status}>
                         {status}
                       </Option>
                     ))}
                   </Select>
-                </div>
+                </Form.Item>
+              </Col>
+            </Row>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Group</label>
-                  <Select
-                    value={filters.group}
-                    onChange={(value) => setFilters((prev) => ({ ...prev, group: value }))}
-                    style={{ width: "100%" }}
-                    size="small"
-                  >
-                    <Option value="all">All Groups</Option>
-                    {groupOptions.map((group) => (
-                      <Option key={group} value={group}>
-                        {group}
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item name="enrollmentStatus" label="Enrollment Status" initialValue="Enrolled">
+                  <Select>
+                    {enrollmentStatusOptions.map((status) => (
+                      <Option key={status} value={status}>
+                        {status}
                       </Option>
                     ))}
                   </Select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
-                  <Select
-                    value={filters.dateRange}
-                    onChange={(value) => setFilters((prev) => ({ ...prev, dateRange: value }))}
-                    style={{ width: "100%" }}
-                    size="small"
-                  >
-                    <Option value="all">All Time</Option>
-                    <Option value="today">Today</Option>
-                    <Option value="week">This Week</Option>
-                    <Option value="month">This Month</Option>
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name="groups" label="Initial Groups">
+                  <Select mode="multiple" placeholder="Select groups">
+                    <Option value="CS-2024">CS-2024</Option>
+                    <Option value="Math Faculty">Math Faculty</Option>
+                    <Option value="Research Team">Research Team</Option>
+                    <Option value="Admin Staff">Admin Staff</Option>
                   </Select>
-                </div>
-              </div>
+                </Form.Item>
+              </Col>
+            </Row>
 
-              <div className="flex justify-end mt-4">
-                <Button
-                  onClick={() => setFilters({ role: "all", status: "all", dateRange: "all", group: "all" })}
-                  type="link"
-                  size="small"
-                >
-                  Clear Filters
-                </Button>
-              </div>
-            </Card>
-          )}
+            <Form.Item name="courses" label="Initial Courses">
+              <Select mode="multiple" placeholder="Select courses">
+                <Option value="React Development">React Development</Option>
+                <Option value="Database Systems">Database Systems</Option>
+                <Option value="Calculus I">Calculus I</Option>
+                <Option value="Statistics">Statistics</Option>
+              </Select>
+            </Form.Item>
 
-          {selectedStudents.length > 0 && (
-            <Card className="mb-4 bg-blue-50 border-blue-200" size="small">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <span className="text-sm text-blue-700 font-medium">{selectedStudents.length} user(s) selected</span>
-                <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
-                  <Button
-                    onClick={() => handleBulkAction("activate")}
-                    icon={<Power size={14} />}
-                    size="small"
-                    type="primary"
-                    ghost
-                    className="flex-1 sm:flex-none"
-                  >
-                    <span className="hidden xs:inline">Activate</span>
-                  </Button>
-                  <Button
-                    onClick={() => handleBulkAction("deactivate")}
-                    icon={<Power size={14} />}
-                    size="small"
-                    style={{ borderColor: "#f97316", color: "#f97316" }}
-                    ghost
-                    className="flex-1 sm:flex-none"
-                  >
-                    <span className="hidden xs:inline">Deactivate</span>
-                  </Button>
-                  <Button
-                    onClick={() => handleBulkAction("email")}
-                    icon={<Mail size={14} />}
-                    size="small"
-                    type="primary"
-                    ghost
-                    className="flex-1 sm:flex-none"
-                  >
-                    <span className="hidden xs:inline">Email</span>
-                  </Button>
-                  <Button
-                    onClick={() => handleBulkAction("delete")}
-                    icon={<Trash2 size={14} />}
-                    size="small"
-                    danger
-                    ghost
-                    className="flex-1 sm:flex-none"
-                  >
-                    <span className="hidden xs:inline">Delete</span>
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          )}
+            <Form.Item name="notes" label="Notes">
+              <TextArea rows={3} placeholder="Additional notes about the user" />
+            </Form.Item>
 
-          {/* Content based on view mode */}
-          {viewMode === "table" ? (
-            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-              <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: "touch" }}>
-                <Table
-                  columns={columns}
-                  dataSource={filteredStudents}
-                  rowKey="id"
-                  pagination={{
-                    current: currentPage,
-                    pageSize: itemsPerPage,
-                    total: filteredStudents.length,
-                    onChange: (page) => setCurrentPage(page),
-                    showSizeChanger: false,
-                    showQuickJumper: false,
-                    showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
-                    size: "small",
-                  }}
-                  rowSelection={{
-                    selectedRowKeys,
-                    onChange: (keys, rows) => {
-                      setSelectedRowKeys(keys)
-                      setSelectedStudents(keys)
-                    },
-                    onSelectAll: (selected, selectedRows, changeRows) => {
-                      if (selected) {
-                        const allKeys = filteredStudents.map((student) => student.id)
-                        setSelectedRowKeys(allKeys)
-                        setSelectedStudents(allKeys)
-                      } else {
-                        setSelectedRowKeys([])
-                        setSelectedStudents([])
-                      }
-                    },
-                  }}
-                  scroll={{ x: 600 }}
-                  size="small"
-                />
-              </div>
-            </div>
-          ) : (
-            /* Improved responsive card view layout */
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-              {filteredStudents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((student) => (
-                <Card
-                  key={student.id}
-                  hoverable
-                  className="cursor-pointer relative transition-all duration-200 hover:shadow-md"
-                  onClick={() => openModal(student)}
-                  size="small"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <Checkbox
-                        checked={selectedStudents.includes(student.id)}
-                        onChange={(e) => {
-                          e.stopPropagation()
-                          if (e.target.checked) {
-                            setSelectedStudents((prev) => [...prev, student.id])
-                            setSelectedRowKeys((prev) => [...prev, student.id])
-                          } else {
-                            setSelectedStudents((prev) => prev.filter((id) => id !== student.id))
-                            setSelectedRowKeys((prev) => prev.filter((id) => id !== student.id))
-                          }
-                        }}
-                        className="flex-shrink-0"
-                      />
-                      <Avatar size={40} className="bg-gray-200 text-gray-700 flex-shrink-0">
-                        {student.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </Avatar>
-                    </div>
+            <Divider />
 
-                    <Dropdown menu={{ items: getActionItems(student) }} trigger={["click"]} placement="bottomRight">
-                      <Button
-                        type="text"
-                        icon={<MoreVertical className="h-4 w-4" />}
-                        onClick={(e) => e.stopPropagation()}
-                        size="small"
-                        className="flex-shrink-0"
-                      />
-                    </Dropdown>
-                  </div>
+            <Form.Item name="passwordOption" label="Password Setup" initialValue="auto">
+              <Radio.Group>
+                <Radio value="auto">Auto-generate password</Radio>
+                <Radio value="invitation">Send invitation email</Radio>
+              </Radio.Group>
+            </Form.Item>
 
-                  <div className="mb-3 min-w-0">
-                    <h3 className="text-base font-semibold truncate">{student.name}</h3>
-                    <p className="text-sm text-gray-500 truncate" title={student.email}>
-                      {student.email}
-                    </p>
-                  </div>
+            <Form.Item name="sendInvitation" valuePropName="checked">
+              <Checkbox>Send welcome email with login instructions</Checkbox>
+            </Form.Item>
 
-                  <div className="flex items-center justify-between mb-3 gap-2">
-                    <Tag
-                      color={
-                        student.designation === "Admin"
-                          ? "red"
-                          : student.designation === "Instructor"
-                            ? "blue"
-                            : "green"
-                      }
-                      className="text-xs flex-shrink-0"
-                    >
-                      {student.designation}
-                    </Tag>
-                    <Tag
-                      color={
-                        student.status === "Active"
-                          ? "green"
-                          : student.status === "Inactive"
-                            ? "red"
-                            : student.status === "Pending"
-                              ? "orange"
-                              : "gray"
-                      }
-                      className="text-xs flex-shrink-0"
-                    >
-                      {student.status}
-                    </Tag>
-                  </div>
-
-                  <div className="text-xs text-gray-500 space-y-1">
-                    <div className="truncate">
-                      Last Login:{" "}
-                      {student.lastLogin === "Never" ? "Never" : new Date(student.lastLogin).toLocaleDateString()}
-                    </div>
-                    <div className="truncate">Created: {new Date(student.createdDate).toLocaleDateString()}</div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
-
-          {/* ... existing code for pagination ... */}
-
-          {viewMode === "card" && (
-            <div className="mt-6 flex justify-center">
-              <Pagination
-                current={currentPage}
-                pageSize={itemsPerPage}
-                total={filteredStudents.length}
-                onChange={(page) => setCurrentPage(page)}
-                showSizeChanger={false}
-                showQuickJumper={false}
-                showTotal={(total, range) => (
-                  <span className="text-sm text-gray-500">
-                    {range[0]}-{range[1]} of {total}
-                  </span>
-                )}
-                responsive={true}
-                showLessItems={true}
-                simple={window.innerWidth < 640}
-              />
-            </div>
-          )}
-
-          {/* Student Detail Modal */}
-          {selectedStudent && (
-            // Updated Student Detail Modal to pass proper handlers
-            <StudentDetailModal
-              student={selectedStudent}
-              onClose={closeModal}
-              onEdit={(student) => {
-                setStudentToEdit(student)
-                setIsEditModalOpen(true)
-                setSelectedStudent(null)
-              }}
-              onResetPassword={(id) => {
-                const student = students.find((s) => s.id === id)
-                if (student) {
-                  handleResetPasswordAction(student)
-                }
-              }}
-              onToggleStatus={(id) => {
-                const student = students.find((s) => s.id === id)
-                if (student) {
-                  const student = students.find((s) => s.id === id)
-                  if (student) {
-                    handleToggleStatus(student.id, student.name, student.status)
-                  }
-                }
-              }}
-              onDelete={(id) => {
-                const student = students.find((s) => s.id === id)
-                if (student) {
-                  handleDelete(student.id, student.name)
-                }
-              }}
-            />
-          )}
-        </div>
-      </div>
-
-      {showAuditLogs && (
-        <AuditLogsModal isOpen={showAuditLogs} onClose={() => setShowAuditLogs(false)} auditLogs={auditLogs} />
-      )}
-
-      {showUserManageModal && (
-        <UserManagementModal
-          show={showUserManageModal}
-          onClose={() => setshowUserManageModal(false)}
-          students={students}
-          openAddModal={() => setIsAddModalOpen(true)}
-          setIsBulkAddModalOpen={setIsBulkAddModalOpen}
-        />
-      )}
-
-      {isAddModalOpen && (
-        <AddStudentModal
-          isOpen={isAddModalOpen}
-          onClose={() => setIsAddModalOpen(false)}
-          roleOptions={roleOptions}
-          statusOptions={statusOptions}
-          groupOptions={groupOptions}
-          addAuditLog={addAuditLog}
-        />
-      )}
-
-      {isBulkAddModalOpen && (
-        <BulkAddModal
-          isOpen={isBulkAddModalOpen}
-          onClose={() => setIsBulkAddModalOpen(false)}
-          roleOptions={roleOptions}
-          statusOptions={statusOptions}
-          groupOptions={groupOptions}
-          addAuditLog={addAuditLog}
-        />
-      )}
-
-      {/* ... existing edit modal and other modals ... */}
-
-      {isEditModalOpen && studentToEdit && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg w-full max-w-2xl relative max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 p-4 sm:p-6">
-              <button onClick={closeEditModal} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
-                <X size={20} />
-              </button>
-              <h2 className="text-xl font-semibold text-center pr-8">Edit User</h2>
-            </div>
-
-            <div className="p-4 sm:p-6">
-              <div className="flex flex-col items-center mb-6">
-                <div className="relative w-20 h-20 sm:w-24 sm:h-24 mb-3 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden">
-                  {profileImage ? (
-                    <img
-                      src={profileImage || "/placeholder.svg"}
-                      alt="Profile"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-lg sm:text-xl font-medium">
-                      {studentToEdit.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </span>
-                  )}
-                  <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <label
-                      htmlFor="edit-profile-upload"
-                      className="cursor-pointer w-full h-full flex items-center justify-center text-white"
-                    >
-                      <Edit size={18} />
-                    </label>
-                    <input
-                      id="edit-profile-upload"
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleImageChange}
-                    />
-                  </div>
-                </div>
-                <label
-                  htmlFor="edit-profile-upload-btn"
-                  className="bg-gray-700 cursor-pointer text-white text-sm py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors"
-                >
-                  Change Picture
-                </label>
-                <input
-                  id="edit-profile-upload-btn"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageChange}
-                />
-              </div>
-
-              <form
-                className="space-y-4"
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  const formData = new FormData(e.target)
-                  const updatedStudent = {
-                    ...studentToEdit,
-                    name: `${formData.get("firstName")} ${formData.get("lastName")}`.trim(),
-                    email: formData.get("email"),
-                    age: Number.parseInt(formData.get("age")),
-                    gender: formData.get("gender"),
-                    designation: selectedRole,
-                    status: selectedStatus,
-                    group: selectedGroup,
-                    description: formData.get("description"),
-                  }
-
-                  setStudents((prev) => prev.map((s) => (s.id === studentToEdit.id ? updatedStudent : s)))
-                  addAuditLog("Edit User", updatedStudent.name)
-                  message.success(`${updatedStudent.name} has been updated successfully`)
-                  closeEditModal()
+            <div className="flex justify-end gap-2 mt-6">
+              <Button
+                onClick={() => {
+                  setIsAddModalVisible(false)
+                  form.resetFields()
                 }}
               >
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                    <input
-                      name="firstName"
-                      type="text"
-                      className="w-full p-2 border border-gray-300 rounded-md outline-none text-sm focus:ring-2 focus:ring-blue-500"
-                      defaultValue={studentToEdit.name.split(" ")[0] || ""}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                    <input
-                      name="lastName"
-                      type="text"
-                      className="w-full p-2 border border-gray-300 rounded-md outline-none text-sm focus:ring-2 focus:ring-blue-500"
-                      defaultValue={studentToEdit.name.split(" ").slice(1).join(" ") || ""}
-                    />
-                  </div>
-                </div>
+                Cancel
+              </Button>
+              <Button type="primary" htmlType="submit">
+                Add User
+              </Button>
+            </div>
+          </Form>
+        </Modal>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                  <input
-                    name="email"
-                    type="email"
-                    className="w-full p-2 border border-gray-300 rounded-md outline-none text-sm focus:ring-2 focus:ring-blue-500"
-                    defaultValue={studentToEdit.email}
-                    required
-                  />
-                </div>
+        <Modal
+          title="Edit User"
+          open={isEditModalVisible}
+          onCancel={() => {
+            setIsEditModalVisible(false)
+            setCurrentUser(null)
+            editForm.resetFields()
+          }}
+          footer={null}
+          width={800}
+        >
+          <Form form={editForm} layout="vertical" onFinish={handleEditUser} className="mt-4">
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="name"
+                  label="Full Name"
+                  rules={[{ required: true, message: "Please enter full name" }]}
+                >
+                  <Input placeholder="Enter full name" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="email"
+                  label="Email"
+                  rules={[
+                    { required: true, message: "Please enter email" },
+                    { type: "email", message: "Please enter valid email" },
+                  ]}
+                >
+                  <Input placeholder="Enter email address" />
+                </Form.Item>
+              </Col>
+            </Row>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
-                    <input
-                      name="age"
-                      type="number"
-                      className="w-full p-2 border border-gray-300 rounded-md outline-none text-sm focus:ring-2 focus:ring-blue-500"
-                      defaultValue={studentToEdit.age}
-                      min="1"
-                      max="120"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                    <select
-                      name="gender"
-                      className="w-full p-2 border border-gray-300 rounded-md outline-none text-sm focus:ring-2 focus:ring-blue-500"
-                      defaultValue={studentToEdit.gender}
-                    >
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </div>
-                </div>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item name="phone" label="Phone Number">
+                  <Input placeholder="Enter phone number" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name="employeeId" label="Employee/Student ID">
+                  <Input placeholder="Employee/Student ID" />
+                </Form.Item>
+              </Col>
+            </Row>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                    <select
-                      className="w-full p-2 border border-gray-300 rounded-md outline-none text-sm focus:ring-2 focus:ring-blue-500"
-                      value={selectedRole}
-                      onChange={(e) => setSelectedRole(e.target.value)}
-                    >
-                      {roleOptions.map((role) => (
-                        <option key={role} value={role}>
-                          {role}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                    <select
-                      className="w-full p-2 border border-gray-300 rounded-md outline-none text-sm focus:ring-2 focus:ring-blue-500"
-                      value={selectedStatus}
-                      onChange={(e) => setSelectedStatus(e.target.value)}
-                    >
-                      {statusOptions.map((status) => (
-                        <option key={status} value={status}>
-                          {status}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
+            <Form.Item name="address" label="Address">
+              <TextArea rows={2} placeholder="Enter full address" />
+            </Form.Item>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Group</label>
-                  <select
-                    className="w-full p-2 border border-gray-300 rounded-md outline-none text-sm focus:ring-2 focus:ring-blue-500"
-                    value={selectedGroup}
-                    onChange={(e) => setSelectedGroup(e.target.value)}
-                  >
-                    <option value="">Select group</option>
-                    {groupOptions.map((group) => (
-                      <option key={group} value={group}>
-                        {group}
-                      </option>
+            <Row gutter={16}>
+              <Col span={8}>
+                <Form.Item
+                  name="department"
+                  label="Department"
+                  rules={[{ required: true, message: "Please select department" }]}
+                >
+                  <Select placeholder="Select department">
+                    {departmentOptions.map((dept) => (
+                      <Option key={dept} value={dept}>
+                        {dept}
+                      </Option>
                     ))}
-                  </select>
-                </div>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item name="designation" label="Role" rules={[{ required: true, message: "Please select role" }]}>
+                  <Select placeholder="Select role">
+                    {roleOptions.map((role) => (
+                      <Option key={role} value={role}>
+                        {role}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item name="status" label="Status">
+                  <Select>
+                    {statusOptions.map((status) => (
+                      <Option key={status} value={status}>
+                        {status}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                  <textarea
-                    name="description"
-                    className="w-full p-2 border border-gray-300 rounded-md outline-none text-sm focus:ring-2 focus:ring-blue-500"
-                    rows="3"
-                    defaultValue={studentToEdit.description}
-                  />
-                </div>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item name="enrollmentStatus" label="Enrollment Status">
+                  <Select>
+                    {enrollmentStatusOptions.map((status) => (
+                      <Option key={status} value={status}>
+                        {status}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name="groups" label="Groups">
+                  <Select mode="multiple" placeholder="Select groups">
+                    <Option value="CS-2024">CS-2024</Option>
+                    <Option value="Math Faculty">Math Faculty</Option>
+                    <Option value="Research Team">Research Team</Option>
+                    <Option value="Admin Staff">Admin Staff</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
 
-                <div className="flex gap-3 justify-end pt-4 border-t">
-                  <button
-                    type="button"
-                    onClick={closeEditModal}
-                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    Save Changes
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
+            <Form.Item name="courses" label="Courses">
+              <Select mode="multiple" placeholder="Select courses">
+                <Option value="React Development">React Development</Option>
+                <Option value="Database Systems">Database Systems</Option>
+                <Option value="Calculus I">Calculus I</Option>
+                <Option value="Statistics">Statistics</Option>
+              </Select>
+            </Form.Item>
 
-      <Modal
-        title="Reset Password"
-        open={isResetPasswordModalOpen}
-        onOk={handleResetPasswordConfirm}
-        onCancel={() => {
-          setIsResetPasswordModalOpen(false)
-          setSelectedStudentForAction(null)
-        }}
-        okText="Send Reset Email"
-        cancelText="Cancel"
-        width={500}
-      >
-        {selectedStudentForAction && (
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
-              <Avatar size={48} style={{ backgroundColor: "#f3f4f6", color: "#374151" }}>
-                {selectedStudentForAction.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
-              </Avatar>
-              <div>
-                <h3 style={{ margin: 0, fontWeight: 500, fontSize: "16px" }}>{selectedStudentForAction.name}</h3>
-                <p style={{ margin: 0, fontSize: "14px", color: "#6b7280" }}>{selectedStudentForAction.email}</p>
-                <p style={{ margin: 0, fontSize: "12px", color: "#9ca3af" }}>
-                  Role: {selectedStudentForAction.designation} | Status: {selectedStudentForAction.status}
-                </p>
-              </div>
-            </div>
-            <p style={{ marginBottom: "16px" }}>
-              Are you sure you want to reset the password for this user? A password reset email will be sent to their
-              registered email address.
-            </p>
-            <div
-              style={{
-                backgroundColor: "#fefce8",
-                border: "1px solid #fde047",
-                borderRadius: "6px",
-                padding: "12px",
-              }}
-            >
-              <p style={{ color: "#a16207", fontSize: "14px", margin: 0 }}>
-                <strong>Note:</strong> The user will receive an email with instructions to create a new password.
-              </p>
-            </div>
-          </div>
-        )}
-      </Modal>
+            <Form.Item name="notes" label="Notes">
+              <TextArea rows={3} placeholder="Additional notes about the user" />
+            </Form.Item>
 
-      <Modal
-        title={selectedStudentForAction?.status === "Active" ? "Deactivate User" : "Activate User"}
-        open={isActivateModalOpen}
-        onOk={handleActivateConfirm}
-        onCancel={() => {
-          setIsActivateModalOpen(false)
-          setSelectedStudentForAction(null)
-        }}
-        okText={selectedStudentForAction?.status === "Active" ? "Deactivate User" : "Activate User"}
-        okType={selectedStudentForAction?.status === "Active" ? "danger" : "primary"}
-        cancelText="Cancel"
-        width={500}
-      >
-        {selectedStudentForAction && (
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
-              <Avatar size={48} style={{ backgroundColor: "#f3f4f6", color: "#374151" }}>
-                {selectedStudentForAction.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
-              </Avatar>
-              <div>
-                <h3 style={{ margin: 0, fontWeight: 500, fontSize: "16px" }}>{selectedStudentForAction.name}</h3>
-                <p style={{ margin: 0, fontSize: "14px", color: "#6b7280" }}>{selectedStudentForAction.email}</p>
-                <p style={{ margin: 0, fontSize: "12px", color: "#9ca3af" }}>
-                  Role: {selectedStudentForAction.designation} | Current Status: {selectedStudentForAction.status}
-                </p>
-              </div>
-            </div>
-            <p style={{ marginBottom: "16px" }}>
-              Are you sure you want to {selectedStudentForAction.status === "Active" ? "deactivate" : "activate"}{" "}
-              <strong>{selectedStudentForAction.name}</strong>?
-            </p>
-            <div
-              style={{
-                backgroundColor: selectedStudentForAction.status === "Active" ? "#fef2f2" : "#f0fdf4",
-                border: selectedStudentForAction.status === "Active" ? "1px solid #fecaca" : "1px solid #bbf7d0",
-                borderRadius: "6px",
-                padding: "12px",
-              }}
-            >
-              <p
-                style={{
-                  color: selectedStudentForAction.status === "Active" ? "#dc2626" : "#16a34a",
-                  fontSize: "14px",
-                  margin: 0,
+            <div className="flex justify-end gap-2 mt-6">
+              <Button
+                onClick={() => {
+                  setIsEditModalVisible(false)
+                  setCurrentUser(null)
+                  editForm.resetFields()
                 }}
               >
-                <strong>{selectedStudentForAction.status === "Active" ? "Warning:" : "Note:"}</strong>{" "}
-                {selectedStudentForAction.status === "Active"
-                  ? "Deactivating this user will prevent them from logging in and accessing the system."
-                  : "Activating this user will restore their access to the system."}
-              </p>
+                Cancel
+              </Button>
+              <Button type="primary" htmlType="submit">
+                Update User
+              </Button>
             </div>
-          </div>
-        )}
-      </Modal>
+          </Form>
+        </Modal>
 
-      <Modal
-        title="Delete User"
-        open={isDeleteModalOpen}
-        onOk={handleDeleteConfirm}
-        onCancel={() => {
-          setIsDeleteModalOpen(false)
-          setSelectedStudentForAction(null)
-        }}
-        okText="Delete User"
-        okType="danger"
-        cancelText="Cancel"
-        width={500}
-      >
-        {selectedStudentForAction && (
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
-              <Avatar size={48} style={{ backgroundColor: "#f3f4f6", color: "#374151" }}>
-                {selectedStudentForAction.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
-              </Avatar>
-              <div>
-                <h3 style={{ margin: 0, fontWeight: 500, fontSize: "16px" }}>{selectedStudentForAction.name}</h3>
-                <p style={{ margin: 0, fontSize: "14px", color: "#6b7280" }}>{selectedStudentForAction.email}</p>
-                <div style={{ display: "flex", gap: "16px", marginTop: "4px" }}>
-                  <p style={{ margin: 0, fontSize: "12px", color: "#9ca3af" }}>
-                    Role: {selectedStudentForAction.designation}
-                  </p>
-                  <p style={{ margin: 0, fontSize: "12px", color: "#9ca3af" }}>
-                    Status: {selectedStudentForAction.status}
-                  </p>
-                  <p style={{ margin: 0, fontSize: "12px", color: "#9ca3af" }}>
-                    Group: {selectedStudentForAction.group || "No Group"}
-                  </p>
+        <Drawer
+          title="User Profile"
+          placement="right"
+          onClose={() => {
+            setIsProfileDrawerVisible(false)
+            setCurrentUser(null)
+          }}
+          open={isProfileDrawerVisible}
+          width={600}
+        >
+          {currentUser && (
+            <div>
+              <div className="text-center mb-6">
+                <Avatar size={80} className="mb-4 bg-blue-500">
+                  {currentUser.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
+                </Avatar>
+                <h2 className="text-xl font-semibold">{currentUser.name}</h2>
+                <p className="text-gray-600">{currentUser.email}</p>
+                <div className="flex justify-center gap-2 mt-2">
+                  <Tag color={currentUser.status === "Active" ? "green" : "red"}>{currentUser.status}</Tag>
+                  <Tag color="blue">{currentUser.designation}</Tag>
                 </div>
-                <p style={{ margin: 0, fontSize: "12px", color: "#9ca3af", marginTop: "2px" }}>
-                  Last Login: {selectedStudentForAction.lastLogin}
-                </p>
+              </div>
+
+              <Tabs defaultActiveKey="details">
+                <TabPane tab="Details" key="details">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="font-medium text-gray-700">Employee ID:</label>
+                      <p>{currentUser.employeeId}</p>
+                    </div>
+                    <div>
+                      <label className="font-medium text-gray-700">Phone:</label>
+                      <p>{currentUser.phone || "N/A"}</p>
+                    </div>
+                    <div>
+                      <label className="font-medium text-gray-700">Department:</label>
+                      <p>{currentUser.department}</p>
+                    </div>
+                    <div>
+                      <label className="font-medium text-gray-700">Address:</label>
+                      <p>{currentUser.address || "N/A"}</p>
+                    </div>
+                    <div>
+                      <label className="font-medium text-gray-700">Enrollment Status:</label>
+                      <p>{currentUser.enrollmentStatus}</p>
+                    </div>
+                    <div>
+                      <label className="font-medium text-gray-700">Last Login:</label>
+                      <p>
+                        {currentUser.lastLogin === "Never" ? "Never" : new Date(currentUser.lastLogin).toLocaleString()}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="font-medium text-gray-700">Created:</label>
+                      <p>{new Date(currentUser.createdDate).toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <label className="font-medium text-gray-700">Notes:</label>
+                      <p>{currentUser.notes || "No notes available"}</p>
+                    </div>
+                  </div>
+                </TabPane>
+                <TabPane tab="Groups" key="groups">
+                  <div>
+                    <h4 className="font-medium mb-2">Group Memberships:</h4>
+                    {currentUser.groups && currentUser.groups.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {currentUser.groups.map((group) => (
+                          <Tag key={group} color="blue">
+                            {group}
+                          </Tag>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500">No groups assigned</p>
+                    )}
+                  </div>
+                </TabPane>
+                <TabPane tab="Courses" key="courses">
+                  <div>
+                    <h4 className="font-medium mb-2">Enrolled Courses:</h4>
+                    {currentUser.courses && currentUser.courses.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {currentUser.courses.map((course) => (
+                          <Tag key={course} color="green">
+                            {course}
+                          </Tag>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500">No courses assigned</p>
+                    )}
+                  </div>
+                </TabPane>
+              </Tabs>
+
+              <div className="mt-6 flex gap-2">
+                <Button type="primary" onClick={() => editUser(currentUser)}>
+                  Edit User
+                </Button>
+                <Button onClick={() => deactivateUser(currentUser.id)}>Deactivate</Button>
               </div>
             </div>
-            <p style={{ marginBottom: "16px" }}>
-              Are you sure you want to delete <strong>{selectedStudentForAction.name}</strong>?
-            </p>
-            <div
-              style={{
-                backgroundColor: "#fef2f2",
-                border: "1px solid #fecaca",
-                borderRadius: "6px",
-                padding: "12px",
-              }}
-            >
-              <p style={{ color: "#dc2626", fontSize: "14px", margin: 0 }}>
-                <strong>Warning:</strong> This action cannot be undone. All user data including:
-              </p>
-              <ul style={{ color: "#dc2626", fontSize: "14px", margin: "8px 0 0 16px", paddingLeft: 0 }}>
-                <li>Profile information and settings</li>
-                <li>Activity logs and progress data</li>
-                <li>Group memberships and permissions</li>
-                <li>All associated records</li>
+          )}
+        </Drawer>
+
+        <Modal
+          title="Advanced Search & Filters"
+          open={isAdvancedSearchVisible}
+          onCancel={() => setIsAdvancedSearchVisible(false)}
+          footer={null}
+          width={600}
+        >
+          <Form form={advancedSearchForm} layout="vertical" onFinish={handleAdvancedSearch} className="mt-4">
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item name="role" label="Role">
+                  <Select mode="multiple" placeholder="Select roles">
+                    {roleOptions.map((role) => (
+                      <Option key={role} value={role}>
+                        {role}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name="status" label="Status">
+                  <Select mode="multiple" placeholder="Select status">
+                    {statusOptions.map((status) => (
+                      <Option key={status} value={status}>
+                        {status}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item name="enrollmentStatus" label="Enrollment Status">
+                  <Select mode="multiple" placeholder="Select enrollment status">
+                    {enrollmentStatusOptions.map((status) => (
+                      <Option key={status} value={status}>
+                        {status}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name="department" label="Department">
+                  <Select mode="multiple" placeholder="Select departments">
+                    {departmentOptions.map((dept) => (
+                      <Option key={dept} value={dept}>
+                        {dept}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Form.Item name="dateRange" label="Creation Date Range">
+              <RangePicker style={{ width: "100%" }} />
+            </Form.Item>
+
+            <Form.Item name="groups" label="Groups">
+              <Select mode="multiple" placeholder="Select groups">
+                <Option value="CS-2024">CS-2024</Option>
+                <Option value="Math Faculty">Math Faculty</Option>
+                <Option value="Research Team">Research Team</Option>
+                <Option value="Admin Staff">Admin Staff</Option>
+              </Select>
+            </Form.Item>
+
+            <div className="flex justify-end gap-2 mt-6">
+              <Button onClick={() => setIsAdvancedSearchVisible(false)}>Cancel</Button>
+              <Button
+                onClick={() => {
+                  advancedSearchForm.resetFields()
+                  clearFilters()
+                }}
+              >
+                Clear All
+              </Button>
+              <Button type="primary" htmlType="submit">
+                Apply Filters
+              </Button>
+            </div>
+          </Form>
+        </Modal>
+
+        <Modal
+          title="Bulk Import Users"
+          open={isBulkImportVisible}
+          onCancel={() => setIsBulkImportVisible(false)}
+          footer={null}
+          width={600}
+        >
+          <div className="mt-4">
+            <p className="mb-4 text-gray-600">Upload a CSV or Excel file to import multiple users at once.</p>
+
+            <div className="mb-4">
+              <h4 className="font-medium mb-2">Required Columns:</h4>
+              <ul className="text-sm text-gray-600 list-disc list-inside">
+                <li>name (required)</li>
+                <li>email (required)</li>
+                <li>department (required)</li>
+                <li>designation (required)</li>
+                <li>phone (optional)</li>
+                <li>address (optional)</li>
+                <li>status (optional, defaults to Active)</li>
               </ul>
-              <p style={{ color: "#dc2626", fontSize: "14px", margin: "8px 0 0 0" }}>
-                will be permanently removed from the system.
+            </div>
+
+            <Upload.Dragger
+              name="file"
+              multiple={false}
+              accept=".csv,.xlsx,.xls"
+              onChange={handleBulkImport}
+              beforeUpload={() => false}
+            >
+              <p className="ant-upload-drag-icon">
+                <UploadIcon className="h-12 w-12 mx-auto text-gray-400" />
               </p>
+              <p className="ant-upload-text">Click or drag file to this area to upload</p>
+              <p className="ant-upload-hint">Support for CSV and Excel files. Maximum file size: 10MB</p>
+            </Upload.Dragger>
+
+            <div className="mt-4 flex justify-end gap-2">
+              <Button onClick={() => setIsBulkImportVisible(false)}>Cancel</Button>
+              <Button type="link">Download Template</Button>
             </div>
           </div>
-        )}
-      </Modal>
+        </Modal>
+
+        <Modal
+          title="Audit Log"
+          open={isAuditLogVisible}
+          onCancel={() => setIsAuditLogVisible(false)}
+          footer={null}
+          width={800}
+        >
+          <div className="mt-4">
+            <Timeline>
+              {auditLogs.map((log) => (
+                <Timeline.Item key={log.id}>
+                  <div>
+                    <div className="font-medium">{log.action}</div>
+                    <div className="text-sm text-gray-600">
+                      User: {log.user} | Performed by: {log.performedBy}
+                    </div>
+                    <div className="text-xs text-gray-500">{new Date(log.timestamp).toLocaleString()}</div>
+                    <div className="text-sm mt-1">{log.details}</div>
+                  </div>
+                </Timeline.Item>
+              ))}
+            </Timeline>
+          </div>
+        </Modal>
+
+        <Modal
+          title={confirmModal.title}
+          open={confirmModal.visible}
+          onOk={confirmModal.onConfirm}
+          onCancel={() => setConfirmModal({ visible: false, type: "", data: null })}
+          okText="Confirm"
+          cancelText="Cancel"
+          okButtonProps={{
+            danger: ["delete", "bulkDelete", "deactivate", "bulkDeactivate"].includes(confirmModal.type),
+          }}
+        >
+          <p>{confirmModal.content}</p>
+        </Modal>
+
+        <Modal
+          title="Assign Groups"
+          open={bulkActionModal.visible && bulkActionModal.type === "assignGroup"}
+          onCancel={() => setBulkActionModal({ visible: false, type: "", selectedUsers: [] })}
+          footer={null}
+          width={500}
+        >
+          <Form onFinish={handleBulkGroupAssignment} layout="vertical">
+            <p className="mb-4 text-gray-600">
+              Assign groups to {bulkActionModal.selectedUsers.length} selected user(s)
+            </p>
+            <Form.Item
+              name="groups"
+              label="Select Groups"
+              rules={[{ required: true, message: "Please select at least one group" }]}
+            >
+              <Select mode="multiple" placeholder="Select groups to assign">
+                <Option value="CS-2024">CS-2024</Option>
+                <Option value="Math Faculty">Math Faculty</Option>
+                <Option value="Research Team">Research Team</Option>
+                <Option value="Admin Staff">Admin Staff</Option>
+              </Select>
+            </Form.Item>
+            <div className="flex justify-end gap-2">
+              <Button onClick={() => setBulkActionModal({ visible: false, type: "", selectedUsers: [] })}>
+                Cancel
+              </Button>
+              <Button type="primary" htmlType="submit">
+                Assign Groups
+              </Button>
+            </div>
+          </Form>
+        </Modal>
+
+        <Modal
+          title="Enroll in Courses"
+          open={bulkActionModal.visible && bulkActionModal.type === "enrollCourse"}
+          onCancel={() => setBulkActionModal({ visible: false, type: "", selectedUsers: [] })}
+          footer={null}
+          width={500}
+        >
+          <Form onFinish={handleBulkCourseEnrollment} layout="vertical">
+            <p className="mb-4 text-gray-600">
+              Enroll {bulkActionModal.selectedUsers.length} selected user(s) in courses
+            </p>
+            <Form.Item
+              name="courses"
+              label="Select Courses"
+              rules={[{ required: true, message: "Please select at least one course" }]}
+            >
+              <Select mode="multiple" placeholder="Select courses to enroll">
+                <Option value="React Development">React Development</Option>
+                <Option value="Database Systems">Database Systems</Option>
+                <Option value="Calculus I">Calculus I</Option>
+                <Option value="Statistics">Statistics</Option>
+              </Select>
+            </Form.Item>
+            <div className="flex justify-end gap-2">
+              <Button onClick={() => setBulkActionModal({ visible: false, type: "", selectedUsers: [] })}>
+                Cancel
+              </Button>
+              <Button type="primary" htmlType="submit">
+                Enroll in Courses
+              </Button>
+            </div>
+          </Form>
+        </Modal>
+
+        <Modal
+          title="Change Role"
+          open={bulkActionModal.visible && bulkActionModal.type === "changeRole"}
+          onCancel={() => setBulkActionModal({ visible: false, type: "", selectedUsers: [] })}
+          footer={null}
+          width={500}
+        >
+          <Form onFinish={handleBulkRoleChange} layout="vertical">
+            <p className="mb-4 text-gray-600">
+              Change role for {bulkActionModal.selectedUsers.length} selected user(s)
+            </p>
+            <Form.Item name="role" label="New Role" rules={[{ required: true, message: "Please select a role" }]}>
+              <Select placeholder="Select new role">
+                {roleOptions.map((role) => (
+                  <Option key={role} value={role}>
+                    {role}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+            <div className="flex justify-end gap-2">
+              <Button onClick={() => setBulkActionModal({ visible: false, type: "", selectedUsers: [] })}>
+                Cancel
+              </Button>
+              <Button type="primary" htmlType="submit">
+                Change Role
+              </Button>
+            </div>
+          </Form>
+        </Modal>
+
+        <Modal
+          title="Send Email"
+          open={bulkActionModal.visible && bulkActionModal.type === "sendEmail"}
+          onCancel={() => setBulkActionModal({ visible: false, type: "", selectedUsers: [] })}
+          footer={null}
+          width={600}
+        >
+          <Form onFinish={handleBulkEmail} layout="vertical">
+            <p className="mb-4 text-gray-600">Send email to {bulkActionModal.selectedUsers.length} selected user(s)</p>
+            <Form.Item
+              name="subject"
+              label="Subject"
+              rules={[{ required: true, message: "Please enter email subject" }]}
+            >
+              <Input placeholder="Enter email subject" />
+            </Form.Item>
+            <Form.Item
+              name="message"
+              label="Message"
+              rules={[{ required: true, message: "Please enter email message" }]}
+            >
+              <TextArea rows={4} placeholder="Enter your message" />
+            </Form.Item>
+            <div className="flex justify-end gap-2">
+              <Button onClick={() => setBulkActionModal({ visible: false, type: "", selectedUsers: [] })}>
+                Cancel
+              </Button>
+              <Button type="primary" htmlType="submit">
+                Send Email
+              </Button>
+            </div>
+          </Form>
+        </Modal>
+      </div>
     </div>
   )
 }
 
-export default Students
+export default StudentsManagement

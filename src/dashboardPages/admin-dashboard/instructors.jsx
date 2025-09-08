@@ -1,238 +1,361 @@
+/* eslint-disable no-unused-vars */
 "use client"
 
-/* eslint-disable no-unused-vars */
-import { useState, useRef } from "react"
+import { useState, useMemo } from "react"
 import {
-  X,
-  Menu,
-  Edit,
-  MoreVertical,
-  Trash2,
+  Table,
+  Button,
+  Input,
+  Card,
+  Tag,
+  Avatar,
+  Dropdown,
+  Modal,
+  Form,
+  Select,
+  DatePicker,
+  message,
+  Tabs,
+  Drawer,
+  Row,
+  Col,
+  Statistic,
+  Timeline,
+  Empty,
+  Switch,
+} from "antd"
+import {
+  Search,
   Plus,
   Filter,
-  Download,
-  Upload,
-  Eye,
-  Key,
+  UploadIcon,
+  MoreVertical,
   Power,
-  UserCheck,
   Mail,
+  Trash2,
+  Edit,
+  Eye,
   Users,
+  Settings,
+  FileText,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  X,
+  ArrowLeft,
+  Key,
+  UserCheck,
+  BookOpen,
 } from "lucide-react"
-import { Table, Button, Tag, Dropdown, Input, Select, Card, Avatar, Modal, message, Form } from "antd"
 
-const { Search: AntSearch } = Input
 const { Option } = Select
-const { confirm } = Modal
+const { RangePicker } = DatePicker
+const { TextArea } = Input
+const { TabPane } = Tabs
+
+const initialInstructors = [
+  {
+    id: 1,
+    name: "Dr. Sarah Johnson",
+    email: "sarah.johnson@pharmacy.edu",
+    phone: "+1 (555) 123-4567",
+    employeeId: "INS001",
+    address: "123 Medical Center Dr, Healthcare City, HC 12345",
+    department: "Clinical Pharmacy",
+    designation: "Department Head",
+    status: "Active",
+    enrollmentStatus: "Teaching",
+    lastLogin: "2024-01-15T10:30:00Z",
+    createdDate: "2023-06-15T00:00:00Z",
+    notes: "Experienced department head with excellent leadership skills",
+    groups: ["Senior Faculty", "Curriculum Committee"],
+    pharmacy: "Central Pharmacy College",
+    specialty: "Clinical Pharmacy",
+    studentsCount: 45,
+    coursesCount: 8,
+    bio: "Dr. Sarah Johnson is a renowned clinical pharmacist with over 15 years of experience in pharmaceutical education and patient care.",
+    qualifications: ["PharmD", "PhD in Clinical Pharmacy", "Board Certified Pharmacotherapy Specialist"],
+    courses: [
+      { id: 1, name: "Advanced Clinical Pharmacy", students: 25, status: "Active" },
+      { id: 2, name: "Pharmacotherapy", students: 30, status: "Active" },
+      { id: 3, name: "Patient Care Management", students: 20, status: "Active" },
+    ],
+    permissions: {
+      canCreateCourses: true,
+      canManageStudents: true,
+      canAccessReports: true,
+      canManageInstructors: true,
+    },
+    activityLog: [
+      { date: "2024-01-15", action: "Logged in", details: "Accessed dashboard" },
+      { date: "2024-01-14", action: "Course Updated", details: "Modified Advanced Clinical Pharmacy syllabus" },
+      { date: "2024-01-13", action: "Student Graded", details: "Graded 15 assignments" },
+    ],
+  },
+  {
+    id: 2,
+    name: "Prof. Michael Chen",
+    email: "michael.chen@pharmacy.edu",
+    phone: "+1 (555) 234-5678",
+    employeeId: "INS002",
+    address: "456 University Ave, Academic City, AC 67890",
+    department: "Pharmaceutical Sciences",
+    designation: "Senior Instructor",
+    status: "Active",
+    enrollmentStatus: "Teaching",
+    lastLogin: "2024-01-14T14:20:00Z",
+    createdDate: "2023-08-20T00:00:00Z",
+    notes: "Research-focused instructor with strong publication record",
+    groups: ["Research Committee", "Graduate Faculty"],
+    pharmacy: "Metro Pharmacy Institute",
+    specialty: "Pharmaceutical Sciences",
+    studentsCount: 32,
+    coursesCount: 5,
+    bio: "Prof. Chen specializes in pharmaceutical research and drug development.",
+    qualifications: ["PharmD", "PhD in Pharmaceutical Sciences"],
+    courses: [
+      { id: 4, name: "Medicinal Chemistry", students: 20, status: "Active" },
+      { id: 5, name: "Drug Development", students: 12, status: "Active" },
+    ],
+    permissions: {
+      canCreateCourses: true,
+      canManageStudents: true,
+      canAccessReports: false,
+      canManageInstructors: false,
+    },
+    activityLog: [
+      { date: "2024-01-14", action: "Published research paper", details: "New drug discovery methodology" },
+      { date: "2024-01-13", action: "Conducted lab session", details: "Medicinal Chemistry lab" },
+    ],
+  },
+  {
+    id: 3,
+    name: "Dr. Emily Rodriguez",
+    email: "emily.rodriguez@pharmacy.edu",
+    phone: "+1 (555) 345-6789",
+    employeeId: "INS003",
+    address: "789 Research Blvd, Science Park, SP 13579",
+    department: "Pharmacology",
+    designation: "Instructor",
+    status: "Pending",
+    enrollmentStatus: "Pending",
+    lastLogin: "Never",
+    createdDate: "2023-09-10T00:00:00Z",
+    notes: "New hire, pending orientation completion",
+    groups: [],
+    pharmacy: "Regional Pharmacy School",
+    specialty: "Pharmacology",
+    studentsCount: 0,
+    coursesCount: 2,
+    bio: "Dr. Rodriguez focuses on pharmacological research and toxicology studies.",
+    qualifications: ["PharmD", "PhD in Pharmacology"],
+    courses: [
+      { id: 6, name: "Basic Pharmacology", students: 28, status: "Pending" },
+      { id: 7, name: "Toxicology", students: 15, status: "Pending" },
+    ],
+    permissions: {
+      canCreateCourses: false,
+      canManageStudents: true,
+      canAccessReports: false,
+      canManageInstructors: false,
+    },
+    activityLog: [{ date: "2023-09-10", action: "Account created", details: "Initial setup completed" }],
+  },
+]
+
+const departmentOptions = ["Clinical Pharmacy", "Pharmaceutical Sciences", "Pharmacology", "Pharmacy Administration"]
+const roleOptions = ["Department Head", "Senior Instructor", "Instructor", "Assistant Instructor"]
+const statusOptions = ["Active", "Inactive", "Pending", "Suspended"]
+const enrollmentStatusOptions = ["Teaching", "Pending", "On Leave", "Retired"]
+const pharmacyOptions = ["Central Pharmacy College", "Metro Pharmacy Institute", "Regional Pharmacy School"]
 
 const InstructorsPage = () => {
-  const [selectedInstructor, setSelectedInstructor] = useState(null)
-  const [showSidebar, setShowSidebar] = useState(false)
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [isBulkAddModalOpen, setIsBulkAddModalOpen] = useState(false)
-  const [instructorToEdit, setInstructorToEdit] = useState(null)
-  const [profileImage, setProfileImage] = useState(null)
-  const [showConvertModal, setShowConvertModal] = useState(false)
-  const [openDropdownId, setOpenDropdownId] = useState(null)
-
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false)
-  const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
-  const [isLoginAsModalOpen, setIsLoginAsModalOpen] = useState(false)
-  const [selectedInstructorForAction, setSelectedInstructorForAction] = useState(null)
-  const [form] = Form.useForm()
-
-  // Table and filtering states
-  const [viewMode, setViewMode] = useState("table") // "table" or "card"
+  const [instructors, setInstructors] = useState(initialInstructors)
   const [searchTerm, setSearchTerm] = useState("")
+  const [searchScope, setSearchScope] = useState("all")
   const [selectedInstructors, setSelectedInstructors] = useState([])
-  const [showFilters, setShowFilters] = useState(false)
   const [filters, setFilters] = useState({
-    role: "all",
-    status: "all",
-    pharmacy: "all",
-    specialty: "all",
+    designation: [],
+    status: [],
+    department: [],
+    enrollmentStatus: [],
+    pharmacy: [],
   })
-  const [sortBy, setSortBy] = useState("name")
-  const [sortOrder, setSortOrder] = useState("asc")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage] = useState(12)
-  const [showAuditLogs, setShowAuditLogs] = useState(false)
 
-  const dropdownRef = useRef(null)
-  const [selectedRowKeys, setSelectedRowKeys] = useState([])
-  const [tableLoading, setTableLoading] = useState(false)
+  // Modal states
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false)
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false)
+  const [isProfileDrawerVisible, setIsProfileDrawerVisible] = useState(false)
+  const [isBulkImportVisible, setIsBulkImportVisible] = useState(false)
+  const [isAuditLogVisible, setIsAuditLogVisible] = useState(false)
+  const [currentInstructor, setCurrentInstructor] = useState(null)
+  const [currentPage, setCurrentPage] = useState("list")
 
-  // Mock data with enhanced properties
-  const instructors = [
-    {
-      id: 1,
-      name: "Dr. Sarah Johnson",
-      email: "sarah.johnson@pharmacy.edu",
-      phone: "+1 (555) 123-4567",
-      role: "Department Head",
-      pharmacy: "Central Pharmacy",
-      specialty: "Clinical Pharmacy",
-      status: "Active",
-      lastLogin: "2024-01-15T10:30:00Z",
-      createdDate: "2023-06-15T00:00:00Z",
-      studentsCount: 45,
-      coursesAssigned: ["Advanced Clinical Pharmacy", "Pharmacotherapy", "Patient Care"],
-      bio: "Dr. Johnson has over 15 years of experience in clinical pharmacy practice and education.",
-      permissions: ["Course Management", "Student Assessment", "Curriculum Development"],
-      activityLog: [
-        { action: "Updated course materials", date: "2024-01-15T09:00:00Z" },
-        { action: "Graded assignments", date: "2024-01-14T16:30:00Z" },
-      ],
-      photo: "https://randomuser.me/api/portraits/women/44.jpg",
-    },
-    {
-      id: 2,
-      name: "Prof. Michael Chen",
-      email: "michael.chen@pharmacy.edu",
-      phone: "+1 (555) 234-5678",
-      role: "Senior Instructor",
-      pharmacy: "North Branch",
-      specialty: "Pharmaceutical Sciences",
-      status: "Active",
-      lastLogin: "2024-01-14T14:20:00Z",
-      createdDate: "2023-08-20T00:00:00Z",
-      studentsCount: 32,
-      coursesAssigned: ["Medicinal Chemistry", "Drug Development"],
-      bio: "Prof. Chen specializes in pharmaceutical research and drug development.",
-      permissions: ["Course Management", "Research Supervision"],
-      activityLog: [
-        { action: "Published research paper", date: "2024-01-12T11:00:00Z" },
-        { action: "Conducted lab session", date: "2024-01-11T13:45:00Z" },
-      ],
-      photo: "https://randomuser.me/api/portraits/men/32.jpg",
-    },
-    {
-      id: 3,
-      name: "Dr. Emily Rodriguez",
-      email: "emily.rodriguez@pharmacy.edu",
-      phone: "+1 (555) 345-6789",
-      role: "Lead Instructor",
-      pharmacy: "South Branch",
-      specialty: "Pharmacology",
-      status: "Inactive",
-      lastLogin: "Never",
-      createdDate: "2023-09-10T00:00:00Z",
-      studentsCount: 28,
-      coursesAssigned: ["Basic Pharmacology", "Toxicology"],
-      bio: "Dr. Rodriguez focuses on pharmacological research and toxicology studies.",
-      permissions: ["Course Management", "Student Mentoring"],
-      activityLog: [{ action: "Account created", date: "2023-09-10T00:00:00Z" }],
-      photo: "https://randomuser.me/api/portraits/women/25.jpg",
-    },
-  ]
+  // Form instances
+  const [form] = Form.useForm()
+  const [editForm] = Form.useForm()
 
-  const [auditLogs, setAuditLogs] = useState([
-    {
-      id: 1,
-      timestamp: "2024-01-15T10:30:00Z",
-      action: "Instructor Sarah Johnson logged in",
-      user: "System",
-    },
-  ])
+  const statistics = useMemo(() => {
+    return {
+      total: instructors.length,
+      active: instructors.filter((i) => i.status === "Active").length,
+      pending: instructors.filter((i) => i.status === "Pending").length,
+      inactive: instructors.filter((i) => i.status === "Inactive").length,
+    }
+  }, [instructors])
 
-  const pharmacyOptions = ["Central Pharmacy", "North Branch", "South Branch", "East Campus", "West Campus"]
-  const roleOptions = ["Instructor", "Senior Instructor", "Lead Instructor", "Department Head"]
-  const specialtyOptions = ["Clinical Pharmacy", "Pharmaceutical Sciences", "Pharmacology", "Pharmacy Administration"]
-  const statusOptions = ["Active", "Inactive", "Pending", "Suspended"]
+  const filteredInstructors = useMemo(() => {
+    return instructors.filter((instructor) => {
+      // Search filter
+      const searchFields = {
+        all: [instructor.name, instructor.email, instructor.phone, instructor.department, instructor.pharmacy],
+        name: [instructor.name],
+        email: [instructor.email],
+        phone: [instructor.phone],
+        department: [instructor.department],
+        pharmacy: [instructor.pharmacy],
+      }
 
-  // Filter instructors based on search and filters
-  const filteredInstructors = instructors.filter((instructor) => {
-    const matchesSearch =
-      instructor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      instructor.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      instructor.pharmacy.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      instructor.specialty.toLowerCase().includes(searchTerm.toLowerCase())
+      const fieldsToSearch = searchFields[searchScope] || searchFields.all
+      const matchesSearch =
+        searchTerm === "" || fieldsToSearch.some((field) => field?.toLowerCase().includes(searchTerm.toLowerCase()))
 
-    const matchesRole = filters.role === "all" || instructor.role === filters.role
-    const matchesStatus = filters.status === "all" || instructor.status === filters.status
-    const matchesPharmacy = filters.pharmacy === "all" || instructor.pharmacy === filters.pharmacy
-    const matchesSpecialty = filters.specialty === "all" || instructor.specialty === filters.specialty
+      // Filter conditions
+      const matchesDesignation =
+        filters.designation.length === 0 || filters.designation.includes(instructor.designation)
+      const matchesStatus = filters.status.length === 0 || filters.status.includes(instructor.status)
+      const matchesDepartment = filters.department.length === 0 || filters.department.includes(instructor.department)
+      const matchesEnrollmentStatus =
+        filters.enrollmentStatus.length === 0 || filters.enrollmentStatus.includes(instructor.enrollmentStatus)
+      const matchesPharmacy = filters.pharmacy.length === 0 || filters.pharmacy.includes(instructor.pharmacy)
 
-    return matchesSearch && matchesRole && matchesStatus && matchesPharmacy && matchesSpecialty
-  })
+      return (
+        matchesSearch &&
+        matchesDesignation &&
+        matchesStatus &&
+        matchesDepartment &&
+        matchesEnrollmentStatus &&
+        matchesPharmacy
+      )
+    })
+  }, [instructors, searchTerm, searchScope, filters])
 
   const handleViewInstructor = (instructor) => {
-    setSelectedInstructorForAction(instructor)
-    setIsViewModalOpen(true)
+    setCurrentInstructor(instructor)
+    setIsProfileDrawerVisible(true)
   }
 
   const handleEditInstructor = (instructor) => {
-    setInstructorToEdit(instructor)
-    setSelectedInstructorForAction(instructor)
-    setIsEditModalOpen(true)
-    // Pre-fill form with instructor data
-    form.setFieldsValue({
-      firstName: instructor.name.split(" ")[0],
-      lastName: instructor.name.split(" ").slice(1).join(" "),
+    setCurrentInstructor(instructor)
+    setIsEditModalVisible(true)
+    editForm.setFieldsValue({
+      name: instructor.name,
       email: instructor.email,
       phone: instructor.phone,
-      pharmacy: instructor.pharmacy,
-      role: instructor.role,
-      specialty: instructor.specialty,
+      employeeId: instructor.employeeId,
+      address: instructor.address,
+      department: instructor.department,
+      designation: instructor.designation,
       status: instructor.status,
+      enrollmentStatus: instructor.enrollmentStatus,
+      pharmacy: instructor.pharmacy,
       bio: instructor.bio,
     })
   }
 
+  const handleDeleteInstructor = (instructor) => {
+    Modal.confirm({
+      title: "Delete Instructor",
+      content: (
+        <div>
+          <p>
+            Are you sure you want to delete <strong>{instructor.name}</strong>?
+          </p>
+          <p className="text-red-600 mt-2">This action cannot be undone and will:</p>
+          <ul className="list-disc list-inside mt-2 text-sm">
+            <li>Permanently remove their account and profile</li>
+            <li>Unassign them from {instructor.coursesCount} courses</li>
+            <li>Affect {instructor.studentsCount} students</li>
+            <li>Remove all their activity history</li>
+          </ul>
+        </div>
+      ),
+      okText: "Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk() {
+        message.success(`Instructor ${instructor.name} deleted successfully`)
+      },
+    })
+  }
+
   const handleResetPassword = (instructor) => {
-    setSelectedInstructorForAction(instructor)
-    setIsResetPasswordModalOpen(true)
+    Modal.confirm({
+      title: "Reset Password",
+      content: (
+        <div>
+          <p>
+            A password reset email will be sent to <strong>{instructor.email}</strong>.
+          </p>
+          <p className="mt-2">The instructor will receive instructions to create a new password.</p>
+        </div>
+      ),
+      okText: "Send Reset Email",
+      cancelText: "Cancel",
+      onOk() {
+        message.success(`Password reset email sent to ${instructor.email}`)
+      },
+    })
   }
 
   const handleToggleStatus = (instructor) => {
-    setSelectedInstructorForAction(instructor)
-    setIsStatusModalOpen(true)
-  }
-
-  const handleDeleteInstructor = (instructor) => {
-    setSelectedInstructorForAction(instructor)
-    setIsDeleteModalOpen(true)
+    const newStatus = instructor.status === "Active" ? "Inactive" : "Active"
+    Modal.confirm({
+      title: `${newStatus === "Active" ? "Activate" : "Deactivate"} Instructor`,
+      content: (
+        <div>
+          <p>
+            Are you sure you want to {newStatus === "Active" ? "activate" : "deactivate"}{" "}
+            <strong>{instructor.name}</strong>?
+          </p>
+          {newStatus === "Inactive" && (
+            <div className="mt-2">
+              <p className="text-orange-600">Deactivating will:</p>
+              <ul className="list-disc list-inside text-sm">
+                <li>Prevent them from logging into the system</li>
+                <li>Remove access to assigned courses</li>
+                <li>Hide them from student views</li>
+              </ul>
+            </div>
+          )}
+        </div>
+      ),
+      okText: newStatus === "Active" ? "Activate" : "Deactivate",
+      okType: newStatus === "Active" ? "primary" : "danger",
+      cancelText: "Cancel",
+      onOk() {
+        message.success(`Instructor ${instructor.name} ${newStatus.toLowerCase()} successfully`)
+      },
+    })
   }
 
   const handleLoginAsInstructor = (instructor) => {
-    setSelectedInstructorForAction(instructor)
-    setIsLoginAsModalOpen(true)
-  }
-
-  const confirmResetPassword = () => {
-    message.success(`Password reset email sent to ${selectedInstructorForAction.email}`)
-    addAuditLog(
-      `Password reset for instructor ${selectedInstructorForAction.name} (ID: ${selectedInstructorForAction.id})`,
-    )
-    setIsResetPasswordModalOpen(false)
-    setSelectedInstructorForAction(null)
-  }
-
-  const confirmToggleStatus = () => {
-    const newStatus = selectedInstructorForAction.status === "Active" ? "Inactive" : "Active"
-    message.success(`Instructor ${selectedInstructorForAction.name} ${newStatus.toLowerCase()} successfully`)
-    addAuditLog(`Instructor ${selectedInstructorForAction.name} status changed to ${newStatus}`)
-    setIsStatusModalOpen(false)
-    setSelectedInstructorForAction(null)
-  }
-
-  const confirmDeleteInstructor = () => {
-    message.success(`Instructor ${selectedInstructorForAction.name} deleted successfully`)
-    addAuditLog(`Instructor ${selectedInstructorForAction.name} (ID: ${selectedInstructorForAction.id}) deleted`)
-    setIsDeleteModalOpen(false)
-    setSelectedInstructorForAction(null)
-  }
-
-  const confirmLoginAsInstructor = () => {
-    message.success(`Logged in as ${selectedInstructorForAction.name}`)
-    addAuditLog(
-      `Admin logged in as instructor ${selectedInstructorForAction.name} (ID: ${selectedInstructorForAction.id})`,
-    )
-    setIsLoginAsModalOpen(false)
-    setSelectedInstructorForAction(null)
+    Modal.confirm({
+      title: "Login as Instructor",
+      content: (
+        <div>
+          <p>
+            You will be logged in as <strong>{instructor.name}</strong> and redirected to their dashboard.
+          </p>
+          <p className="mt-2 text-yellow-600">This action will be logged for security purposes.</p>
+        </div>
+      ),
+      okText: "Login as Instructor",
+      cancelText: "Cancel",
+      onOk() {
+        message.success(`Logged in as ${instructor.name}`)
+      },
+    })
   }
 
   const handleBulkAction = (action) => {
@@ -242,47 +365,23 @@ const InstructorsPage = () => {
       onOk() {
         message.success(`Bulk ${action} completed successfully`)
         setSelectedInstructors([])
-        setSelectedRowKeys([])
       },
     })
   }
 
-  const addAuditLog = (action) => {
-    const newLog = {
-      id: Date.now(),
-      timestamp: new Date().toISOString(),
-      action,
-      user: "Admin User",
-    }
-    setAuditLogs((prev) => [newLog, ...prev])
-  }
-
-  const openModal = (instructor) => {
-    setSelectedInstructor(instructor)
-  }
-
-  const openAddModal = () => {
-    setIsAddModalOpen(true)
-  }
-
-  const closeEditModal = () => {
-    setIsEditModalOpen(false)
-    setInstructorToEdit(null)
-    setSelectedInstructorForAction(null)
+  const handleAddInstructor = (values) => {
+    console.log("Add instructor:", values)
+    message.success("Instructor added successfully")
+    setIsAddModalVisible(false)
     form.resetFields()
   }
 
-  const exportToCSV = () => {
-    message.success("Instructors data exported successfully")
-  }
-
-  // Row selection for table
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: (selectedRowKeys, selectedRows) => {
-      setSelectedRowKeys(selectedRowKeys)
-      setSelectedInstructors(selectedRowKeys)
-    },
+  const handleUpdateInstructor = (values) => {
+    console.log("Update instructor:", values)
+    message.success("Instructor updated successfully")
+    setIsEditModalVisible(false)
+    setCurrentInstructor(null)
+    editForm.resetFields()
   }
 
   const getActionItems = (instructor) => [
@@ -291,7 +390,7 @@ const InstructorsPage = () => {
       label: (
         <span onClick={() => handleViewInstructor(instructor)}>
           <Eye className="h-4 w-4 mr-2 inline" />
-          View Profile
+          View Details
         </span>
       ),
     },
@@ -346,109 +445,141 @@ const InstructorsPage = () => {
     },
   ]
 
-  // Table columns
   const columns = [
     {
       title: "Instructor",
       dataIndex: "name",
       key: "name",
-      width: 250,
+      sorter: (a, b) => a.name.localeCompare(b.name),
       render: (text, record) => (
-        <div className="flex items-center gap-2 min-w-0">
-          <Avatar size={32} src={record.photo} className="bg-gray-200 text-gray-700 flex-shrink-0">
-            {text
+        <div className="flex items-center min-w-0">
+          <Avatar size={32} className="mr-2 flex-shrink-0 bg-gray-200 text-gray-700">
+            {record.name
               .split(" ")
               .map((n) => n[0])
               .join("")}
           </Avatar>
           <div className="min-w-0 flex-1">
-            <div className="font-medium text-sm truncate">{text}</div>
-            <div className="text-xs text-gray-500 truncate">{record.email}</div>
+            <div className="font-medium text-gray-900 truncate text-sm">{text}</div>
+            <div className="text-xs text-gray-500">ID: {record.employeeId}</div>
           </div>
         </div>
       ),
+      width: 180,
+      fixed: "left",
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+      sorter: (a, b) => a.email.localeCompare(b.email),
+      render: (email) => (
+        <div className="max-w-[150px] truncate text-sm" title={email}>
+          {email}
+        </div>
+      ),
+      width: 160,
+    },
+    {
+      title: "Phone",
+      dataIndex: "phone",
+      key: "phone",
+      render: (phone) => <span className="text-sm">{phone || "N/A"}</span>,
+      width: 120,
+    },
+    {
+      title: "Department",
+      dataIndex: "department",
+      key: "department",
+      filters: departmentOptions.map((dept) => ({ text: dept, value: dept })),
+      onFilter: (value, record) => record.department === value,
+      render: (department) => <span className="text-sm">{department}</span>,
+      width: 120,
     },
     {
       title: "Role",
-      dataIndex: "role",
-      key: "role",
-      width: 120,
-      responsive: ["md"],
-      render: (role) => (
-        <Tag
-          size="small"
-          color={
-            role === "Department Head"
-              ? "red"
-              : role === "Senior Instructor"
-                ? "purple"
-                : role === "Lead Instructor"
-                  ? "orange"
-                  : "blue"
-          }
-        >
-          {role}
-        </Tag>
-      ),
+      dataIndex: "designation",
+      key: "designation",
+      filters: roleOptions.map((role) => ({ text: role, value: role })),
+      onFilter: (value, record) => record.designation === value,
+      render: (designation) => {
+        let color = "green"
+        if (designation === "Department Head") color = "red"
+        if (designation === "Senior Instructor") color = "blue"
+        if (designation === "Instructor") color = "purple"
+        return (
+          <Tag color={color} className="text-xs">
+            {designation}
+          </Tag>
+        )
+      },
+      width: 100,
     },
     {
-      title: "Pharmacy",
-      dataIndex: "pharmacy",
-      key: "pharmacy",
-      width: 120,
-      // responsive: ["lg"],
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      filters: statusOptions.map((status) => ({ text: status, value: status })),
+      onFilter: (value, record) => record.status === value,
+      render: (status) => {
+        let color = "green"
+        if (status === "Inactive") color = "red"
+        if (status === "Pending") color = "orange"
+        if (status === "Suspended") color = "gray"
+        return (
+          <Tag color={color} className="text-xs">
+            {status}
+          </Tag>
+        )
+      },
+      width: 100,
     },
     {
-      title: "Specialty",
-      dataIndex: "specialty",
-      key: "specialty",
-      width: 140,
-      // responsive: ["lg"],
+      title: "Teaching Status",
+      dataIndex: "enrollmentStatus",
+      key: "enrollmentStatus",
+      filters: enrollmentStatusOptions.map((status) => ({ text: status, value: status })),
+      onFilter: (value, record) => record.enrollmentStatus === value,
+      render: (enrollmentStatus) => {
+        let color = "green"
+        if (enrollmentStatus === "On Leave") color = "red"
+        if (enrollmentStatus === "Pending") color = "orange"
+        if (enrollmentStatus === "Retired") color = "blue"
+        return (
+          <Tag color={color} className="text-xs">
+            {enrollmentStatus}
+          </Tag>
+        )
+      },
+      width: 110,
     },
     {
       title: "Students",
       dataIndex: "studentsCount",
       key: "studentsCount",
-      width: 80,
-      // responsive: ["md"],
+      sorter: (a, b) => a.studentsCount - b.studentsCount,
       render: (count) => (
         <div className="flex items-center gap-1">
           <Users className="h-3 w-3 text-gray-500" />
           <span className="text-sm">{count}</span>
         </div>
       ),
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
       width: 80,
-      render: (status) => (
-        <Tag
-          size="small"
-          color={
-            status === "Active" ? "green" : status === "Inactive" ? "red" : status === "Pending" ? "orange" : "blue"
-          }
-        >
-          {status}
-        </Tag>
-      ),
     },
     {
       title: "Last Login",
       dataIndex: "lastLogin",
       key: "lastLogin",
-      width: 100,
-      // responsive: ["md"],
+      sorter: (a, b) => new Date(a.lastLogin || 0) - new Date(b.lastLogin || 0),
       render: (lastLogin) => (
         <span className="text-xs">{lastLogin === "Never" ? "Never" : new Date(lastLogin).toLocaleDateString()}</span>
       ),
+      width: 100,
     },
     {
-      title: "Action",
-      key: "action",
+      title: "Actions",
+      key: "actions",
       width: 60,
-      // fixed: "right",
       render: (_, record) => (
         <Dropdown menu={{ items: getActionItems(record) }} trigger={["click"]}>
           <Button type="text" size="small" icon={<MoreVertical className="h-4 w-4" />} />
@@ -457,894 +588,749 @@ const InstructorsPage = () => {
     },
   ]
 
+  const rowSelection = {
+    selectedRowKeys: selectedInstructors,
+    onChange: (selectedRowKeys) => {
+      setSelectedInstructors(selectedRowKeys)
+    },
+  }
+
+  const AddInstructorPage = () => {
+    return (
+      <div className="p-3 min-h-screen">
+        <div className="">
+          <div className="mb-6">
+            <Button icon={<ArrowLeft size={16} />} onClick={() => setCurrentPage("list")} className="mb-4">
+              Back to Instructors
+            </Button>
+            <h1 className="text-2xl font-bold text-gray-900">Add New Instructor</h1>
+            <p className="text-gray-600 mt-1">Create a new instructor account with all necessary details</p>
+          </div>
+
+          <Card>
+            <Form form={form} layout="vertical" onFinish={handleAddInstructor}>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="name"
+                    label="Full Name"
+                    rules={[{ required: true, message: "Please enter full name" }]}
+                  >
+                    <Input placeholder="Enter full name" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="email"
+                    label="Email"
+                    rules={[
+                      { required: true, message: "Please enter email" },
+                      { type: "email", message: "Please enter valid email" },
+                    ]}
+                  >
+                    <Input placeholder="Enter email address" />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name="phone" label="Phone Number">
+                    <Input placeholder="Enter phone number" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="employeeId" label="Employee ID">
+                    <Input placeholder="Auto-generated if empty" />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Form.Item name="address" label="Address">
+                <TextArea rows={2} placeholder="Enter full address" />
+              </Form.Item>
+
+              <Row gutter={16}>
+                <Col span={8}>
+                  <Form.Item
+                    name="department"
+                    label="Department"
+                    rules={[{ required: true, message: "Please select department" }]}
+                  >
+                    <Select placeholder="Select department">
+                      {departmentOptions.map((dept) => (
+                        <Option key={dept} value={dept}>
+                          {dept}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    name="designation"
+                    label="Role"
+                    rules={[{ required: true, message: "Please select role" }]}
+                  >
+                    <Select placeholder="Select role">
+                      {roleOptions.map((role) => (
+                        <Option key={role} value={role}>
+                          {role}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    name="pharmacy"
+                    label="Pharmacy"
+                    rules={[{ required: true, message: "Please select pharmacy" }]}
+                  >
+                    <Select placeholder="Select pharmacy">
+                      {pharmacyOptions.map((pharmacy) => (
+                        <Option key={pharmacy} value={pharmacy}>
+                          {pharmacy}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name="status" label="Status" initialValue="Active">
+                    <Select>
+                      {statusOptions.map((status) => (
+                        <Option key={status} value={status}>
+                          {status}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="enrollmentStatus" label="Teaching Status" initialValue="Teaching">
+                    <Select>
+                      {enrollmentStatusOptions.map((status) => (
+                        <Option key={status} value={status}>
+                          {status}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Form.Item name="bio" label="Biography">
+                <TextArea rows={3} placeholder="Enter instructor biography" />
+              </Form.Item>
+
+              <div className="flex justify-end gap-2">
+                <Button onClick={() => setCurrentPage("list")}>Cancel</Button>
+                <Button type="primary" htmlType="submit">
+                  Add Instructor
+                </Button>
+              </div>
+            </Form>
+          </Card>
+        </div>
+      </div>
+    )
+  }
+
+  if (currentPage === "add") {
+    return <AddInstructorPage />
+  }
+
   return (
-    <div className="flex rounded-3xl text-black min-h-screen bg-gray-50 overflow-hidden">
-      <div className="flex-1 min-w-0">
-        <div className="w-full mx-auto p-3 sm:p-4 md:p-6 max-w-full">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-            <div className="flex items-center justify-between w-full sm:w-auto">
-              <h1 className="text-lg sm:text-xl md:text-2xl poppins-thin_600 truncate">Manage Instructors</h1>
-              <button
-                className="sm:hidden p-2 bg-white border border-gray-200 rounded-lg flex-shrink-0"
-                onClick={() => setShowSidebar(!showSidebar)}
-              >
-                <Menu className="h-5 w-5 text-gray-600" />
-              </button>
+    <div className="p-3 min-h-screen">
+      <div className="">
+        <div className="mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Manage Instructors</h1>
             </div>
-            <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1 flex-shrink-0">
-              <button
-                onClick={() => setViewMode("table")}
-                className={`px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm transition-colors ${
-                  viewMode === "table" ? "bg-white text-blue-700 shadow-sm" : "text-gray-600"
-                }`}
+            <div className="flex items-center gap-3 mt-4 sm:mt-0">
+              <Button
+                type="primary"
+                icon={<Plus size={16} />}
+                onClick={() => setCurrentPage("add")}
+                className="bg-blue-600 hover:bg-blue-700"
               >
-                Table
-              </button>
-              <button
-                onClick={() => setViewMode("card")}
-                className={`px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm transition-colors ${
-                  viewMode === "card" ? "bg-white text-blue-700 shadow-sm" : "text-gray-600"
-                }`}
-              >
-                Cards
-              </button>
+                Add Instructor
+              </Button>
+              <Button icon={<UploadIcon className="h-4 w-4" />} onClick={() => setIsBulkImportVisible(true)}>
+                Import
+              </Button>
+              <Button icon={<FileText className="h-4 w-4" />} onClick={() => setIsAuditLogVisible(true)}>
+                Audit Log
+              </Button>
             </div>
           </div>
 
-          {/* Search and Actions */}
-          <div className="flex flex-col gap-3 mb-4">
-            <div className="w-full">
-              <AntSearch
-                placeholder="Search instructors..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+          {/* Statistics Cards */}
+          <Row gutter={16} className="mb-6">
+            <Col xs={12} sm={6}>
+              <Card size="small">
+                <Statistic title="Total Instructors" value={statistics.total} prefix={<Users className="h-4 w-4" />} />
+              </Card>
+            </Col>
+            <Col xs={12} sm={6}>
+              <Card size="small">
+                <Statistic
+                  title="Active"
+                  value={statistics.active}
+                  prefix={<CheckCircle className="h-4 w-4 text-green-500" />}
+                  valueStyle={{ color: "#52c41a" }}
+                />
+              </Card>
+            </Col>
+            <Col xs={12} sm={6}>
+              <Card size="small">
+                <Statistic
+                  title="Pending"
+                  value={statistics.pending}
+                  prefix={<Clock className="h-4 w-4 text-orange-500" />}
+                  valueStyle={{ color: "#fa8c16" }}
+                />
+              </Card>
+            </Col>
+            <Col xs={12} sm={6}>
+              <Card size="small">
+                <Statistic
+                  title="Inactive"
+                  value={statistics.inactive}
+                  prefix={<AlertCircle className="h-4 w-4 text-red-500" />}
+                  valueStyle={{ color: "#ff4d4f" }}
+                />
+              </Card>
+            </Col>
+          </Row>
+        </div>
+
+        <Card className="mb-4" size="small">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex-1 flex gap-2">
+                <Select value={searchScope} onChange={setSearchScope} style={{ width: 120 }} size="small">
+                  <Option value="all">All Fields</Option>
+                  <Option value="name">Name</Option>
+                  <Option value="email">Email</Option>
+                  <Option value="phone">Phone</Option>
+                  <Option value="department">Department</Option>
+                  <Option value="pharmacy">Pharmacy</Option>
+                </Select>
+                <Input
+                  placeholder="Search instructors..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  prefix={<Search className="h-4 w-4 text-gray-400" />}
+                  allowClear
+                  className="flex-1"
+                  size="small"
+                />
+              </div>
+              <Button
+                icon={<Filter className="h-4 w-4" />}
+                onClick={() => {
+                  // Toggle filters visibility
+                }}
+                size="small"
+              >
+                Filters
+              </Button>
+            </div>
+
+            {/* Filter Controls */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+              <Select
+                mode="multiple"
+                placeholder="Role"
+                value={filters.designation}
+                onChange={(value) => setFilters((prev) => ({ ...prev, designation: value }))}
                 style={{ width: "100%" }}
-                size="middle"
+                size="small"
+                maxTagCount="responsive"
+              >
+                {roleOptions.map((role) => (
+                  <Option key={role} value={role}>
+                    {role}
+                  </Option>
+                ))}
+              </Select>
+
+              <Select
+                mode="multiple"
+                placeholder="Status"
+                value={filters.status}
+                onChange={(value) => setFilters((prev) => ({ ...prev, status: value }))}
+                style={{ width: "100%" }}
+                size="small"
+                maxTagCount="responsive"
+              >
+                {statusOptions.map((status) => (
+                  <Option key={status} value={status}>
+                    {status}
+                  </Option>
+                ))}
+              </Select>
+
+              <Select
+                mode="multiple"
+                placeholder="Department"
+                value={filters.department}
+                onChange={(value) => setFilters((prev) => ({ ...prev, department: value }))}
+                style={{ width: "100%" }}
+                size="small"
+                maxTagCount="responsive"
+              >
+                {departmentOptions.map((dept) => (
+                  <Option key={dept} value={dept}>
+                    {dept}
+                  </Option>
+                ))}
+              </Select>
+
+              <Select
+                mode="multiple"
+                placeholder="Teaching Status"
+                value={filters.enrollmentStatus}
+                onChange={(value) => setFilters((prev) => ({ ...prev, enrollmentStatus: value }))}
+                style={{ width: "100%" }}
+                size="small"
+                maxTagCount="responsive"
+              >
+                {enrollmentStatusOptions.map((status) => (
+                  <Option key={status} value={status}>
+                    {status}
+                  </Option>
+                ))}
+              </Select>
+
+              <Select
+                mode="multiple"
+                placeholder="Pharmacy"
+                value={filters.pharmacy}
+                onChange={(value) => setFilters((prev) => ({ ...prev, pharmacy: value }))}
+                style={{ width: "100%" }}
+                size="small"
+                maxTagCount="responsive"
+              >
+                {pharmacyOptions.map((pharmacy) => (
+                  <Option key={pharmacy} value={pharmacy}>
+                    {pharmacy}
+                  </Option>
+                ))}
+              </Select>
+            </div>
+
+            {/* Clear Filters */}
+            {Object.values(filters).some((f) => (Array.isArray(f) ? f.length > 0 : f)) && (
+              <div className="flex justify-end">
+                <Button
+                  type="link"
+                  size="small"
+                  onClick={() =>
+                    setFilters({
+                      designation: [],
+                      status: [],
+                      department: [],
+                      enrollmentStatus: [],
+                      pharmacy: [],
+                    })
+                  }
+                >
+                  Clear all filters
+                </Button>
+              </div>
+            )}
+          </div>
+        </Card>
+
+        {/* Bulk Actions */}
+        {selectedInstructors.length > 0 && (
+          <Card className="mb-4 bg-blue-50 border-blue-200" size="small">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <span className="text-sm text-blue-700 font-medium">
+                {selectedInstructors.length} instructor(s) selected
+              </span>
+              <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+                <Button
+                  onClick={() => handleBulkAction("activate")}
+                  icon={<CheckCircle size={14} />}
+                  size="small"
+                  type="primary"
+                  ghost
+                >
+                  Activate
+                </Button>
+                <Button
+                  onClick={() => handleBulkAction("deactivate")}
+                  icon={<X size={14} />}
+                  size="small"
+                  style={{ borderColor: "#f97316", color: "#f97316" }}
+                  ghost
+                >
+                  Deactivate
+                </Button>
+                <Button
+                  onClick={() => handleBulkAction("assignCourse")}
+                  icon={<BookOpen size={14} />}
+                  size="small"
+                  type="primary"
+                  ghost
+                >
+                  Assign Course
+                </Button>
+                <Button
+                  onClick={() => handleBulkAction("changeRole")}
+                  icon={<Settings size={14} />}
+                  size="small"
+                  type="primary"
+                  ghost
+                >
+                  Change Role
+                </Button>
+                <Button
+                  onClick={() => handleBulkAction("email")}
+                  icon={<Mail size={14} />}
+                  size="small"
+                  type="primary"
+                  ghost
+                >
+                  Send Email
+                </Button>
+                <Button
+                  onClick={() => handleBulkAction("delete")}
+                  icon={<Trash2 size={14} />}
+                  size="small"
+                  danger
+                  ghost
+                >
+                  Delete
+                </Button>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        <Card style={{ marginTop: 16 }}>
+          {filteredInstructors.length === 0 ? (
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description={
+                <span>
+                  {searchTerm || Object.values(filters).some((f) => (Array.isArray(f) ? f.length > 0 : f))
+                    ? "No instructors match your search criteria"
+                    : "No instructors found"}
+                </span>
+              }
+            />
+          ) : (
+            <div className="overflow-x-auto">
+              <Table
+                columns={columns}
+                dataSource={filteredInstructors}
+                rowKey="id"
+                pagination={{
+                  pageSize: 10,
+                  showSizeChanger: true,
+                  showQuickJumper: true,
+                  showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} instructors`,
+                }}
+                rowSelection={rowSelection}
+                scroll={{ x: 1200 }}
+                size="small"
               />
             </div>
+          )}
+        </Card>
 
-            <div className="flex items-center justify-end gap-2 overflow-x-auto pb-1">
-              <Button
-                icon={<Filter size={16} />}
-                onClick={() => setShowFilters(!showFilters)}
-                size="middle"
-                className="flex-shrink-0"
-              >
-                <span className="hidden sm:inline">Filters</span>
-              </Button>
+        {/* Profile Drawer */}
+        <Drawer
+          title="Instructor Profile"
+          placement="right"
+          onClose={() => {
+            setIsProfileDrawerVisible(false)
+            setCurrentInstructor(null)
+          }}
+          open={isProfileDrawerVisible}
+          width={600}
+        >
+          {currentInstructor && (
+            <div>
+              <div className="text-center mb-6">
+                <Avatar size={80} className="mb-4 bg-blue-500">
+                  {currentInstructor.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
+                </Avatar>
+                <h2 className="text-xl font-semibold">{currentInstructor.name}</h2>
+                <p className="text-gray-600">{currentInstructor.email}</p>
+                <div className="flex justify-center gap-2 mt-2">
+                  <Tag color={currentInstructor.status === "Active" ? "green" : "red"}>{currentInstructor.status}</Tag>
+                  <Tag color="blue">{currentInstructor.designation}</Tag>
+                </div>
+              </div>
 
-              <Button
-                icon={<Plus size={16} />}
-                onClick={openAddModal}
-                type="primary"
-                size="middle"
-                className="flex-shrink-0"
-              >
-                <span className="hidden sm:inline">Add</span>
-              </Button>
-
-              <Button
-                icon={<Download size={16} />}
-                onClick={exportToCSV}
-                type="primary"
-                ghost
-                size="middle"
-                className="flex-shrink-0"
-              >
-                <span className="hidden sm:inline">Export</span>
-              </Button>
+              <Tabs defaultActiveKey="details">
+                <TabPane tab="Details" key="details">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="font-medium text-gray-700">Employee ID:</label>
+                      <p>{currentInstructor.employeeId}</p>
+                    </div>
+                    <div>
+                      <label className="font-medium text-gray-700">Phone:</label>
+                      <p>{currentInstructor.phone || "N/A"}</p>
+                    </div>
+                    <div>
+                      <label className="font-medium text-gray-700">Department:</label>
+                      <p>{currentInstructor.department}</p>
+                    </div>
+                    <div>
+                      <label className="font-medium text-gray-700">Pharmacy:</label>
+                      <p>{currentInstructor.pharmacy}</p>
+                    </div>
+                    <div>
+                      <label className="font-medium text-gray-700">Address:</label>
+                      <p>{currentInstructor.address || "N/A"}</p>
+                    </div>
+                    <div>
+                      <label className="font-medium text-gray-700">Teaching Status:</label>
+                      <p>{currentInstructor.enrollmentStatus}</p>
+                    </div>
+                    <div>
+                      <label className="font-medium text-gray-700">Last Login:</label>
+                      <p>
+                        {currentInstructor.lastLogin === "Never"
+                          ? "Never"
+                          : new Date(currentInstructor.lastLogin).toLocaleString()}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="font-medium text-gray-700">Created:</label>
+                      <p>{new Date(currentInstructor.createdDate).toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <label className="font-medium text-gray-700">Notes:</label>
+                      <p>{currentInstructor.notes || "No notes available"}</p>
+                    </div>
+                  </div>
+                </TabPane>
+                <TabPane tab="Courses" key="courses">
+                  <div>
+                    <h4 className="font-medium mb-2">Assigned Courses:</h4>
+                    {currentInstructor.courses && currentInstructor.courses.length > 0 ? (
+                      <div className="space-y-2">
+                        {currentInstructor.courses.map((course) => (
+                          <div key={course.id} className="p-3 border rounded-lg">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <h5 className="font-medium">{course.name}</h5>
+                                <p className="text-sm text-gray-600">{course.students} students</p>
+                              </div>
+                              <Tag color={course.status === "Active" ? "green" : "orange"} size="small">
+                                {course.status}
+                              </Tag>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500">No courses assigned</p>
+                    )}
+                  </div>
+                </TabPane>
+                <TabPane tab="Permissions" key="permissions">
+                  <div>
+                    <h4 className="font-medium mb-2">Role & Permissions:</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <Tag color="blue" className="mb-2">
+                          {currentInstructor.designation}
+                        </Tag>
+                      </div>
+                      {currentInstructor.permissions &&
+                        Object.entries(currentInstructor.permissions).map(([key, value]) => (
+                          <div key={key} className="flex items-center justify-between">
+                            <span className="text-gray-700">
+                              {key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
+                            </span>
+                            <Switch checked={value} disabled size="small" />
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                </TabPane>
+                <TabPane tab="Activity" key="activity">
+                  <div>
+                    <h4 className="font-medium mb-2">Recent Activity:</h4>
+                    {currentInstructor.activityLog && currentInstructor.activityLog.length > 0 ? (
+                      <Timeline size="small">
+                        {currentInstructor.activityLog.map((activity, index) => (
+                          <Timeline.Item key={index}>
+                            <div className="text-sm">
+                              <div className="font-medium">{activity.action}</div>
+                              <div className="text-gray-500">{activity.details}</div>
+                              <div className="text-xs text-gray-400 mt-1">{activity.date}</div>
+                            </div>
+                          </Timeline.Item>
+                        ))}
+                      </Timeline>
+                    ) : (
+                      <p className="text-gray-500">No recent activity</p>
+                    )}
+                  </div>
+                </TabPane>
+              </Tabs>
             </div>
-          </div>
+          )}
+        </Drawer>
 
-          {/* Filters */}
-          {showFilters && (
-            <Card className="mb-4" size="small">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                  <Select
-                    value={filters.role}
-                    onChange={(value) => setFilters((prev) => ({ ...prev, role: value }))}
-                    style={{ width: "100%" }}
-                    size="small"
-                  >
-                    <Option value="all">All Roles</Option>
+        {/* Edit Modal */}
+        <Modal
+          title="Edit Instructor"
+          open={isEditModalVisible}
+          onCancel={() => {
+            setIsEditModalVisible(false)
+            setCurrentInstructor(null)
+            editForm.resetFields()
+          }}
+          footer={null}
+          width={800}
+        >
+          <Form form={editForm} layout="vertical" onFinish={handleUpdateInstructor} className="mt-4">
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="name"
+                  label="Full Name"
+                  rules={[{ required: true, message: "Please enter full name" }]}
+                >
+                  <Input placeholder="Enter full name" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="email"
+                  label="Email"
+                  rules={[
+                    { required: true, message: "Please enter email" },
+                    { type: "email", message: "Please enter valid email" },
+                  ]}
+                >
+                  <Input placeholder="Enter email address" />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item name="phone" label="Phone Number">
+                  <Input placeholder="Enter phone number" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name="employeeId" label="Employee ID">
+                  <Input placeholder="Employee ID" />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Form.Item name="address" label="Address">
+              <TextArea rows={2} placeholder="Enter full address" />
+            </Form.Item>
+
+            <Row gutter={16}>
+              <Col span={8}>
+                <Form.Item
+                  name="department"
+                  label="Department"
+                  rules={[{ required: true, message: "Please select department" }]}
+                >
+                  <Select placeholder="Select department">
+                    {departmentOptions.map((dept) => (
+                      <Option key={dept} value={dept}>
+                        {dept}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item name="designation" label="Role" rules={[{ required: true, message: "Please select role" }]}>
+                  <Select placeholder="Select role">
                     {roleOptions.map((role) => (
                       <Option key={role} value={role}>
                         {role}
                       </Option>
                     ))}
                   </Select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                  <Select
-                    value={filters.status}
-                    onChange={(value) => setFilters((prev) => ({ ...prev, status: value }))}
-                    style={{ width: "100%" }}
-                    size="small"
-                  >
-                    <Option value="all">All Status</Option>
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item name="status" label="Status" rules={[{ required: true, message: "Please select status" }]}>
+                  <Select placeholder="Select status">
                     {statusOptions.map((status) => (
                       <Option key={status} value={status}>
                         {status}
                       </Option>
                     ))}
                   </Select>
-                </div>
+                </Form.Item>
+              </Col>
+            </Row>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Pharmacy</label>
-                  <Select
-                    value={filters.pharmacy}
-                    onChange={(value) => setFilters((prev) => ({ ...prev, pharmacy: value }))}
-                    style={{ width: "100%" }}
-                    size="small"
-                  >
-                    <Option value="all">All Pharmacies</Option>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item name="pharmacy" label="Pharmacy">
+                  <Select placeholder="Select pharmacy">
                     {pharmacyOptions.map((pharmacy) => (
                       <Option key={pharmacy} value={pharmacy}>
                         {pharmacy}
                       </Option>
                     ))}
                   </Select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Specialty</label>
-                  <Select
-                    value={filters.specialty}
-                    onChange={(value) => setFilters((prev) => ({ ...prev, specialty: value }))}
-                    style={{ width: "100%" }}
-                    size="small"
-                  >
-                    <Option value="all">All Specialties</Option>
-                    {specialtyOptions.map((specialty) => (
-                      <Option key={specialty} value={specialty}>
-                        {specialty}
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name="enrollmentStatus" label="Teaching Status">
+                  <Select placeholder="Select teaching status">
+                    {enrollmentStatusOptions.map((status) => (
+                      <Option key={status} value={status}>
+                        {status}
                       </Option>
                     ))}
                   </Select>
-                </div>
-              </div>
+                </Form.Item>
+              </Col>
+            </Row>
 
-              <div className="flex justify-end mt-4">
-                <Button
-                  onClick={() => setFilters({ role: "all", status: "all", pharmacy: "all", specialty: "all" })}
-                  type="link"
-                  size="small"
-                >
-                  Clear Filters
-                </Button>
-              </div>
-            </Card>
-          )}
+            <Form.Item name="bio" label="Biography">
+              <TextArea rows={3} placeholder="Enter instructor biography" />
+            </Form.Item>
 
-          {/* Bulk Actions */}
-          {selectedInstructors.length > 0 && (
-            <Card className="mb-4 bg-blue-50 border-blue-200" size="small">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-                <span className="text-sm text-blue-700">{selectedInstructors.length} instructor(s) selected</span>
-                <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-                  <Button
-                    onClick={() => handleBulkAction("activate")}
-                    icon={<Power size={14} />}
-                    size="small"
-                    type="primary"
-                    ghost
-                  >
-                    <span className="hidden xs:inline">Activate</span>
-                  </Button>
-                  <Button
-                    onClick={() => handleBulkAction("deactivate")}
-                    icon={<Power size={14} />}
-                    size="small"
-                    style={{ borderColor: "#f97316", color: "#f97316" }}
-                    ghost
-                  >
-                    <span className="hidden xs:inline">Deactivate</span>
-                  </Button>
-                  <Button
-                    onClick={() => handleBulkAction("email")}
-                    icon={<Mail size={14} />}
-                    size="small"
-                    type="primary"
-                    ghost
-                  >
-                    <span className="hidden xs:inline">Email</span>
-                  </Button>
-                  <Button
-                    onClick={() => handleBulkAction("delete")}
-                    icon={<Trash2 size={14} />}
-                    size="small"
-                    danger
-                    ghost
-                  >
-                    <span className="hidden xs:inline">Delete</span>
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          )}
-
-          {/* Table View */}
-          {viewMode === "table" && (
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-              <div className="overflow-x-auto">
-                <Table
-                  columns={columns}
-                  dataSource={instructors}
-                  rowKey="id"
-                  pagination={{
-                    total: instructors.length,
-                    pageSize: 10,
-                    showSizeChanger: true,
-                    showQuickJumper: true,
-                    showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} instructors`,
-                    simple: window.innerWidth < 768,
-                    size: "small",
-                  }}
-                  scroll={{ x: "max-content" }}
-                  rowSelection={{
-                    selectedRowKeys: selectedInstructors,
-                    onChange: setSelectedInstructors,
-                  }}
-                  size="small"
-                />
-              </div>
+            <div className="flex justify-end gap-2 mt-6">
+              <Button
+                onClick={() => {
+                  setIsEditModalVisible(false)
+                  setCurrentInstructor(null)
+                  editForm.resetFields()
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="primary" htmlType="submit">
+                Update Instructor
+              </Button>
             </div>
-          )}
-
-          {/* Card View */}
-          {viewMode === "card" && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {instructors.map((instructor) => (
-                <Card
-                  key={instructor.id}
-                  className="hover:shadow-md transition-shadow"
-                  actions={[
-                    <div key="actions" className="flex justify-center items-center gap-3 text-gray-600 px-2">
-                      <Eye
-                        onClick={() => handleViewInstructor(instructor)}
-                        className="cursor-pointer hover:text-blue-500"
-                        size={18}
-                      />
-                      <Edit
-                        onClick={() => handleEditInstructor(instructor)}
-                        className="cursor-pointer hover:text-green-500"
-                        size={18}
-                      />
-                      <Dropdown menu={{ items: getActionItems(instructor) }} trigger={["click"]} placement="topRight">
-                        <MoreVertical className="cursor-pointer hover:text-gray-800" size={18} />
-                      </Dropdown>
-                    </div>,
-                  ]}
-                >
-                  <Card.Meta
-                    avatar={
-                      <Avatar size={50} src={instructor.photo}>
-                        {instructor.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </Avatar>
-                    }
-                    title={<div className="truncate">{instructor.name}</div>}
-                    description={
-                      <div className="space-y-2">
-                        <div className="text-sm text-gray-600 truncate">{instructor.email}</div>
-                        <div className="flex flex-wrap gap-1">
-                          <Tag
-                            size="small"
-                            color={
-                              instructor.role === "Department Head"
-                                ? "red"
-                                : instructor.role === "Senior Instructor"
-                                  ? "purple"
-                                  : "blue"
-                            }
-                          >
-                            {instructor.role}
-                          </Tag>
-                          <Tag size="small" color={instructor.status === "Active" ? "green" : "red"}>
-                            {instructor.status}
-                          </Tag>
-                        </div>
-                        <div className="text-sm">
-                          <div className="truncate">{instructor.pharmacy}</div>
-                          <div className="truncate">{instructor.specialty}</div>
-                          <div className="flex items-center gap-1 mt-1">
-                            <Users className="h-3 w-3" />
-                            <span>{instructor.studentsCount} students</span>
-                          </div>
-                        </div>
-                      </div>
-                    }
-                  />
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
+          </Form>
+        </Modal>
       </div>
-
-      <Modal
-        title={
-          <div className="flex items-center gap-3">
-            <Avatar size={40} src={selectedInstructorForAction?.photo}>
-              {selectedInstructorForAction?.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
-            </Avatar>
-            <div className="min-w-0 flex-1">
-              <div className="font-semibold truncate">{selectedInstructorForAction?.name}</div>
-              <div className="text-sm text-gray-500 truncate">{selectedInstructorForAction?.role}</div>
-            </div>
-          </div>
-        }
-        open={isViewModalOpen}
-        onCancel={() => {
-          setIsViewModalOpen(false)
-          setSelectedInstructorForAction(null)
-        }}
-        footer={[
-          <Button
-            key="edit"
-            type="primary"
-            onClick={() => {
-              setIsViewModalOpen(false)
-              handleEditInstructor(selectedInstructorForAction)
-            }}
-          >
-            Edit Instructor
-          </Button>,
-          <Button
-            key="close"
-            onClick={() => {
-              setIsViewModalOpen(false)
-              setSelectedInstructorForAction(null)
-            }}
-          >
-            Close
-          </Button>,
-        ]}
-        width="95%"
-        style={{ maxWidth: 800, top: 20 }}
-      >
-        {selectedInstructorForAction && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-semibold mb-3">Contact Information</h4>
-                <div className="space-y-2">
-                  <div className="break-words">
-                    <strong>Email:</strong> {selectedInstructorForAction.email}
-                  </div>
-                  <div>
-                    <strong>Phone:</strong> {selectedInstructorForAction.phone}
-                  </div>
-                  <div>
-                    <strong>Status:</strong>
-                    <Tag color={selectedInstructorForAction.status === "Active" ? "green" : "red"} className="ml-2">
-                      {selectedInstructorForAction.status}
-                    </Tag>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <h4 className="font-semibold mb-3">Professional Details</h4>
-                <div className="space-y-2">
-                  <div className="break-words">
-                    <strong>Pharmacy:</strong> {selectedInstructorForAction.pharmacy}
-                  </div>
-                  <div className="break-words">
-                    <strong>Specialty:</strong> {selectedInstructorForAction.specialty}
-                  </div>
-                  <div>
-                    <strong>Students:</strong> {selectedInstructorForAction.studentsCount}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-3">Bio</h4>
-              <p className="text-gray-700 break-words">{selectedInstructorForAction.bio}</p>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-3">
-                Courses Assigned ({selectedInstructorForAction.coursesAssigned?.length || 0})
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {selectedInstructorForAction.coursesAssigned?.map((course, index) => (
-                  <Tag key={index} color="blue">
-                    {course}
-                  </Tag>
-                )) || <span className="text-gray-500">No courses assigned</span>}
-              </div>
-            </div>
-          </div>
-        )}
-      </Modal>
-
-      <Modal
-        title="Reset Password"
-        open={isResetPasswordModalOpen}
-        onOk={confirmResetPassword}
-        onCancel={() => {
-          setIsResetPasswordModalOpen(false)
-          setSelectedInstructorForAction(null)
-        }}
-        okText="Send Reset Email"
-        cancelText="Cancel"
-        okType="primary"
-        width="95%"
-        style={{ maxWidth: 500, top: 20 }}
-      >
-        <div className="space-y-4">
-          <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
-            <Avatar src={selectedInstructorForAction?.photo}>
-              {selectedInstructorForAction?.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
-            </Avatar>
-            <div className="min-w-0 flex-1">
-              <div className="font-semibold truncate">{selectedInstructorForAction?.name}</div>
-              <div className="text-sm text-gray-600 truncate">{selectedInstructorForAction?.email}</div>
-            </div>
-          </div>
-          <div className="text-gray-700">
-            <p>
-              A password reset email will be sent to{" "}
-              <strong className="break-words">{selectedInstructorForAction?.email}</strong>.
-            </p>
-            <p className="mt-2">The instructor will receive instructions to create a new password.</p>
-          </div>
-        </div>
-      </Modal>
-
-      <Modal
-        title={`${selectedInstructorForAction?.status === "Active" ? "Deactivate" : "Activate"} Instructor`}
-        open={isStatusModalOpen}
-        onOk={confirmToggleStatus}
-        onCancel={() => {
-          setIsStatusModalOpen(false)
-          setSelectedInstructorForAction(null)
-        }}
-        okText={selectedInstructorForAction?.status === "Active" ? "Deactivate" : "Activate"}
-        cancelText="Cancel"
-        okType={selectedInstructorForAction?.status === "Active" ? "danger" : "primary"}
-        width="95%"
-        style={{ maxWidth: 600, top: 20 }}
-      >
-        <div className="space-y-4">
-          <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
-            <Avatar src={selectedInstructorForAction?.photo}>
-              {selectedInstructorForAction?.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
-            </Avatar>
-            <div className="min-w-0 flex-1">
-              <div className="font-semibold truncate">{selectedInstructorForAction?.name}</div>
-              <div className="text-sm text-gray-600 truncate">{selectedInstructorForAction?.role}</div>
-              <Tag color={selectedInstructorForAction?.status === "Active" ? "green" : "red"}>
-                Current: {selectedInstructorForAction?.status}
-              </Tag>
-            </div>
-          </div>
-          <div className="text-gray-700">
-            {selectedInstructorForAction?.status === "Active" ? (
-              <div>
-                <p>Deactivating this instructor will:</p>
-                <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
-                  <li>Prevent them from logging into the system</li>
-                  <li>Remove access to assigned courses</li>
-                  <li>Hide them from student views</li>
-                  <li>Maintain their data for future reactivation</li>
-                </ul>
-              </div>
-            ) : (
-              <div>
-                <p>Activating this instructor will:</p>
-                <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
-                  <li>Restore their system access</li>
-                  <li>Re-enable course assignments</li>
-                  <li>Make them visible to students</li>
-                  <li>Send them a notification email</li>
-                </ul>
-              </div>
-            )}
-          </div>
-        </div>
-      </Modal>
-
-      <Modal
-        title="Delete Instructor"
-        open={isDeleteModalOpen}
-        onOk={confirmDeleteInstructor}
-        onCancel={() => {
-          setIsDeleteModalOpen(false)
-          setSelectedInstructorForAction(null)
-        }}
-        okText="Delete Instructor"
-        cancelText="Cancel"
-        okType="danger"
-        width="95%"
-        style={{ maxWidth: 600, top: 20 }}
-      >
-        <div className="space-y-4">
-          <div className="flex items-center gap-3 p-4 bg-red-50 rounded-lg border border-red-200">
-            <Avatar src={selectedInstructorForAction?.photo}>
-              {selectedInstructorForAction?.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
-            </Avatar>
-            <div className="min-w-0 flex-1">
-              <div className="font-semibold truncate">{selectedInstructorForAction?.name}</div>
-              <div className="text-sm text-gray-600 truncate">{selectedInstructorForAction?.email}</div>
-              <div className="text-sm text-gray-600 truncate">{selectedInstructorForAction?.role}</div>
-            </div>
-          </div>
-
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <div className="flex items-start gap-2">
-              <div className="text-yellow-600 font-semibold">⚠️ Warning</div>
-            </div>
-            <p className="text-yellow-800 mt-1">This action cannot be undone!</p>
-          </div>
-
-          <div className="text-gray-700">
-            <p className="font-semibold mb-2">Deleting this instructor will:</p>
-            <ul className="list-disc list-inside space-y-1 text-sm">
-              <li>Permanently remove their account and profile</li>
-              <li>
-                Unassign them from <strong>{selectedInstructorForAction?.coursesAssigned?.length || 0}</strong> courses
-              </li>
-              <li>
-                Affect <strong>{selectedInstructorForAction?.studentsCount || 0}</strong> students
-              </li>
-              <li>Remove all their activity history</li>
-              <li>Delete associated files and documents</li>
-            </ul>
-          </div>
-
-          <div className="bg-gray-50 rounded-lg p-4">
-            <p className="text-sm text-gray-600">
-              <strong>Alternative:</strong> Consider deactivating the instructor instead to preserve data while removing
-              access.
-            </p>
-          </div>
-        </div>
-      </Modal>
-
-      <Modal
-        title="Login as Instructor"
-        open={isLoginAsModalOpen}
-        onOk={confirmLoginAsInstructor}
-        onCancel={() => {
-          setIsLoginAsModalOpen(false)
-          setSelectedInstructorForAction(null)
-        }}
-        okText="Login as Instructor"
-        cancelText="Cancel"
-        okType="primary"
-        width="95%"
-        style={{ maxWidth: 600, top: 20 }}
-      >
-        <div className="space-y-4">
-          <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
-            <Avatar src={selectedInstructorForAction?.photo}>
-              {selectedInstructorForAction?.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
-            </Avatar>
-            <div className="min-w-0 flex-1">
-              <div className="font-semibold truncate">{selectedInstructorForAction?.name}</div>
-              <div className="text-sm text-gray-600 truncate">{selectedInstructorForAction?.email}</div>
-              <div className="text-sm text-gray-600 truncate">{selectedInstructorForAction?.role}</div>
-            </div>
-          </div>
-
-          <div className="text-gray-700">
-            <p>You will be logged in as this instructor and will have access to:</p>
-            <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
-              <li>Their dashboard and course materials</li>
-              <li>Student interactions and grades</li>
-              <li>All instructor-level permissions</li>
-              <li>Their personal settings and preferences</li>
-            </ul>
-          </div>
-
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <div className="text-yellow-800 text-sm">
-              <strong>Note:</strong> This action will be logged for security purposes. You can return to admin view at
-              any time.
-            </div>
-          </div>
-        </div>
-      </Modal>
-
-      <Modal
-        title="Edit Instructor"
-        open={isEditModalOpen}
-        onCancel={closeEditModal}
-        footer={[
-          <Button key="cancel" onClick={closeEditModal}>
-            Cancel
-          </Button>,
-          <Button
-            key="save"
-            type="primary"
-            onClick={() => {
-              message.success(`Instructor ${selectedInstructorForAction?.name} updated successfully`)
-              addAuditLog(`Instructor ${selectedInstructorForAction?.name} details updated`)
-              closeEditModal()
-            }}
-          >
-            Save Changes
-          </Button>,
-        ]}
-        width="95%"
-        style={{ maxWidth: 800, top: 20 }}
-      >
-        <Form form={form} layout="vertical" className="mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Form.Item label="First Name" name="firstName" rules={[{ required: true }]}>
-              <Input placeholder="First name" />
-            </Form.Item>
-            <Form.Item label="Last Name" name="lastName" rules={[{ required: true }]}>
-              <Input placeholder="Last name" />
-            </Form.Item>
-            <Form.Item label="Email" name="email" rules={[{ required: true, type: "email" }]}>
-              <Input placeholder="Email address" />
-            </Form.Item>
-            <Form.Item label="Phone" name="phone">
-              <Input placeholder="Phone number" />
-            </Form.Item>
-            <Form.Item label="Pharmacy" name="pharmacy" rules={[{ required: true }]}>
-              <Select placeholder="Select Pharmacy">
-                <Option value="Central Pharmacy">Central Pharmacy</Option>
-                <Option value="North Branch">North Branch</Option>
-                <Option value="South Branch">South Branch</Option>
-                <Option value="East Branch">East Branch</Option>
-              </Select>
-            </Form.Item>
-            <Form.Item label="Role" name="role" rules={[{ required: true }]}>
-              <Select placeholder="Select Role">
-                <Option value="Instructor">Instructor</Option>
-                <Option value="Senior Instructor">Senior Instructor</Option>
-                <Option value="Lead Instructor">Lead Instructor</Option>
-                <Option value="Department Head">Department Head</Option>
-              </Select>
-            </Form.Item>
-            <Form.Item label="Specialty" name="specialty">
-              <Select placeholder="Select Specialty">
-                <Option value="Clinical Pharmacy">Clinical Pharmacy</Option>
-                <Option value="Pharmaceutical Sciences">Pharmaceutical Sciences</Option>
-                <Option value="Pharmacology">Pharmacology</Option>
-              </Select>
-            </Form.Item>
-            <Form.Item label="Status" name="status" rules={[{ required: true }]}>
-              <Select placeholder="Select Status">
-                <Option value="Active">Active</Option>
-                <Option value="Inactive">Inactive</Option>
-                <Option value="Pending">Pending</Option>
-              </Select>
-            </Form.Item>
-          </div>
-          <Form.Item label="Bio" name="bio">
-            <Input.TextArea rows={4} placeholder="Brief bio and background" />
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      {/* Add Instructor Modal */}
-      {isAddModalOpen && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-2 sm:p-4">
-          <div className="bg-white rounded-lg w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
-            <div className="p-3 sm:p-6">
-              <div className="flex justify-between items-center mb-4 sm:mb-6">
-                <h2 className="text-lg sm:text-xl font-semibold">Add New Instructor</h2>
-                <button onClick={() => setIsAddModalOpen(false)} className="text-gray-400 hover:text-gray-600 p-1">
-                  <X className="h-5 w-5 sm:h-6 sm:w-6" />
-                </button>
-              </div>
-
-              <div className="mb-4 sm:mb-6">
-                <div className="flex gap-2 sm:gap-4 mb-4 overflow-x-auto">
-                  <button
-                    onClick={() => setShowConvertModal(false)}
-                    className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm whitespace-nowrap ${!showConvertModal ? "bg-blue-100 text-blue-700" : "bg-gray-100"}`}
-                  >
-                    Create New Instructor
-                  </button>
-                  <button
-                    onClick={() => setShowConvertModal(true)}
-                    className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm whitespace-nowrap ${showConvertModal ? "bg-blue-100 text-blue-700" : "bg-gray-100"}`}
-                  >
-                    Convert Existing User
-                  </button>
-                </div>
-              </div>
-
-              {!showConvertModal ? (
-                /* Create New Instructor Form */
-                <form className="space-y-4">
-                  <div className="flex flex-col items-center mb-6">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-200 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
-                      <img
-                        src="https://randomuser.me/api/portraits/women/44.jpg"
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      className="bg-[#1E1E1F] text-white px-3 sm:px-4 py-2 cursor-pointer rounded-lg text-xs sm:text-sm flex items-center gap-2"
-                    >
-                      <Upload className="h-4 w-4" />
-                      Upload Picture
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                      <input
-                        type="text"
-                        placeholder="First name"
-                        className="w-full px-3 py-2 rounded-xl bg-[#F1F1F1] text-sm outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                      <input
-                        type="text"
-                        placeholder="Last name"
-                        className="w-full px-3 py-2 rounded-xl bg-[#F1F1F1] text-sm outline-none"
-                      />
-                    </div>
-
-                    <div className="sm:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                      <input
-                        type="email"
-                        placeholder="Email address"
-                        className="w-full px-3 py-2 rounded-xl bg-[#F1F1F1] text-sm outline-none"
-                      />
-                    </div>
-
-                    <div className="sm:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                      <input
-                        type="tel"
-                        placeholder="Phone number"
-                        className="w-full px-3 py-2 rounded-xl bg-[#F1F1F1] text-sm outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Pharmacy</label>
-                      <select className="w-full px-3 py-2 rounded-xl bg-[#F1F1F1] text-sm outline-none">
-                        <option value="">Select Pharmacy</option>
-                        {pharmacyOptions.map((pharmacy) => (
-                          <option key={pharmacy} value={pharmacy}>
-                            {pharmacy}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                      <select className="w-full px-3 py-2 rounded-xl bg-[#F1F1F1] text-sm outline-none">
-                        <option value="">Select Role</option>
-                        {roleOptions.map((role) => (
-                          <option key={role} value={role}>
-                            {role}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Specialty</label>
-                      <select className="w-full px-3 py-2 rounded-xl bg-[#F1F1F1] text-sm outline-none">
-                        <option value="">Select Specialty</option>
-                        {specialtyOptions.map((specialty) => (
-                          <option key={specialty} value={specialty}>
-                            {specialty}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                      <select className="w-full px-3 py-2 rounded-xl bg-[#F1F1F1] text-sm outline-none">
-                        {statusOptions.map((status) => (
-                          <option key={status} value={status}>
-                            {status}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-                    <textarea
-                      placeholder="Brief bio and background"
-                      rows={3}
-                      className="w-full px-3 py-2 rounded-xl bg-[#F1F1F1] text-sm outline-none resize-none"
-                    />
-                  </div>
-
-                  <div className="flex justify-center items-center">
-                    <button
-                      type="submit"
-                      className="bg-[#0B5D3A] text-white py-2 px-4 sm:px-6 rounded-xl text-sm w-full sm:w-auto font-semibold mt-4 sm:mt-6"
-                    >
-                      Create Instructor
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                /* Convert Existing User */
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Search Existing Users</label>
-                    <input
-                      type="text"
-                      placeholder="Search by name or email..."
-                      className="w-full px-3 py-2 rounded-xl bg-[#F1F1F1] text-sm outline-none"
-                    />
-                  </div>
-
-                  <div className="max-h-60 overflow-y-auto border rounded-lg">
-                    {/* Mock existing users list */}
-                    {[
-                      { id: 1, name: "John Smith", email: "john.smith@example.com", role: "Student" },
-                      { id: 2, name: "Jane Doe", email: "jane.doe@example.com", role: "Student" },
-                      { id: 3, name: "Mike Johnson", email: "mike.johnson@example.com", role: "Student" },
-                    ].map((user) => (
-                      <div
-                        key={user.id}
-                        className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 border-b hover:bg-gray-50 gap-2 sm:gap-0"
-                      >
-                        <div className="flex-1 min-w-0 w-full sm:w-auto">
-                          <div className="font-medium truncate">{user.name}</div>
-                          <div className="text-sm text-gray-500 truncate">{user.email}</div>
-                          <Tag size="small" color="blue" className="mt-1">
-                            {user.role}
-                          </Tag>
-                        </div>
-                        <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm flex-shrink-0 w-full sm:w-auto">
-                          Convert
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="text-sm text-gray-600">
-                    Select a user to convert them to an instructor. They will retain their existing account but gain
-                    instructor permissions.
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

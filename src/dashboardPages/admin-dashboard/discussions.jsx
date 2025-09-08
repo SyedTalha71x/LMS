@@ -1,3 +1,5 @@
+"use client"
+
 // refercen code
 
 /* eslint-disable no-unused-vars */
@@ -27,8 +29,9 @@ import {
   Eye,
   AlertTriangle,
 } from "lucide-react"
+import { Edit } from "lucide-react"
 
-export default function DiscussionsEnhanced() {
+const DiscussionsEnhanced = () => {
   const [isMessagesOpen, setIsMessagesOpen] = useState(true)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [messageText, setMessageText] = useState("")
@@ -50,6 +53,12 @@ export default function DiscussionsEnhanced() {
   const [selectedCourse, setSelectedCourse] = useState("")
   const [selectedGroup, setSelectedGroup] = useState("")
   const [showRichEditor, setShowRichEditor] = useState(false)
+  const [replyingTo, setReplyingTo] = useState(null)
+  const [replyText, setReplyText] = useState("")
+  const [editingDiscussion, setEditingDiscussion] = useState(null)
+  const [editTitle, setEditTitle] = useState("")
+  const [editDescription, setEditDescription] = useState("")
+  const [showEditModal, setShowEditModal] = useState(false)
 
   const [chatList, setChatList] = useState([
     {
@@ -274,28 +283,30 @@ export default function DiscussionsEnhanced() {
   }, [])
 
   const handleSendMessage = () => {
-    if (!messageText.trim() || !selectedChat) return
+    if (messageText.trim() || replyingTo) {
+      const newMessage = {
+        id: Date.now(),
+        text: messageText.trim(),
+        sender: "You",
+        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        isOwn: true,
+        isPinned: false,
+        replyTo: replyingTo
+          ? {
+              id: replyingTo.id,
+              text: replyingTo.text,
+              sender: replyingTo.sender,
+            }
+          : null,
+      }
+      setMessages((prev) => [...prev, newMessage])
+      setMessageText("")
+      setReplyingTo(null)
+      setReplyText("")
 
-    const newMessage = {
-      id: messages.length + 1,
-      sender: "You",
-      content: messageText,
-      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      isYou: true,
-      isPinned: false,
-      reactions: [],
+      // Mark discussion as read when user sends a message
+      setChatList((prev) => prev.map((chat) => (chat.id === selectedChat?.id ? { ...chat, unreadCount: 0 } : chat)))
     }
-
-    setMessages([...messages, newMessage])
-    setMessageText("")
-
-    setChatList((prevList) =>
-      prevList.map((chat) =>
-        chat.id === selectedChat.id
-          ? { ...chat, lastMessage: messageText, time: "Just now", messages: [...chat.messages, newMessage] }
-          : chat,
-      ),
-    )
   }
 
   const handleChatSelect = (chat) => {
@@ -365,12 +376,51 @@ export default function DiscussionsEnhanced() {
     }
   }
 
+  const handleReplyToMessage = (message) => {
+    setReplyingTo(message)
+    setReplyText(`@${message.sender} `)
+    setMessageText(`@${message.sender} `)
+  }
+
+  const cancelReply = () => {
+    setReplyingTo(null)
+    setReplyText("")
+    setMessageText("")
+  }
+
+  const handleEditDiscussion = (discussion) => {
+    setEditingDiscussion(discussion)
+    setEditTitle(discussion.name)
+    setEditDescription(discussion.description || "")
+    setShowEditModal(true)
+    setActiveDropdownId(null)
+  }
+
+  const saveDiscussionEdit = () => {
+    setChatList((prev) =>
+      prev.map((chat) =>
+        chat.id === editingDiscussion.id ? { ...chat, name: editTitle, description: editDescription } : chat,
+      ),
+    )
+    if (selectedChat?.id === editingDiscussion.id) {
+      setSelectedChat((prev) => ({ ...prev, name: editTitle, description: editDescription }))
+    }
+    setShowEditModal(false)
+    setEditingDiscussion(null)
+    setEditTitle("")
+    setEditDescription("")
+  }
+
   const handleExportDiscussion = () => {
     const discussionData = {
       name: selectedChat.name,
-      participants: selectedChat.participants,
+      description: selectedChat.description || "",
+      participants: selectedChat.participants || [],
       messages: messages,
-      exportDate: new Date().toISOString(),
+      createdAt: selectedChat.createdAt || new Date().toISOString(),
+      type: selectedChat.type || "General",
+      course: selectedChat.course || "",
+      group: selectedChat.group || "",
     }
 
     const dataStr = JSON.stringify(discussionData, null, 2)
@@ -378,8 +428,15 @@ export default function DiscussionsEnhanced() {
     const url = URL.createObjectURL(dataBlob)
     const link = document.createElement("a")
     link.href = url
-    link.download = `${selectedChat.name.replace(/\s+/g, "_")}_discussion.json`
+    link.download = `${selectedChat.name.replace(/[^a-z0-9]/gi, "_").toLowerCase()}_discussion.json`
+    document.body.appendChild(link)
     link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
+  const markAsRead = (chatId) => {
+    setChatList((prev) => prev.map((chat) => (chat.id === chatId ? { ...chat, unreadCount: 0 } : chat)))
   }
 
   const getFilteredChats = () => {
@@ -499,7 +556,10 @@ export default function DiscussionsEnhanced() {
                 className={`flex items-start gap-3 p-3 sm:p-4 border-b border-gray-200 ${
                   selectedChat?.id === chat.id ? "bg-green-50" : "hover:bg-gray-50"
                 } cursor-pointer relative group transition-colors`}
-                onClick={() => handleChatSelect(chat)}
+                onClick={() => {
+                  handleChatSelect(chat)
+                  markAsRead(chat.id)
+                }}
               >
                 <div className="relative flex-shrink-0">
                   <img
@@ -559,6 +619,40 @@ export default function DiscussionsEnhanced() {
                   >
                     <Star size={16} className={chat.isStarred ? "fill-yellow-500 text-yellow-500" : ""} />
                   </button>
+
+                  <div className="relative">
+                    <button
+                      className="text-gray-400 hover:text-gray-600 p-1 transition-colors"
+                      onClick={(e) => toggleDropdown(e, `chat-${chat.id}`)}
+                    >
+                      <MoreVertical size={16} />
+                    </button>
+                    {activeDropdownId === `chat-${chat.id}` && (
+                      <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-50 py-1 border">
+                        <button
+                          className="block w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 flex items-center gap-2 transition-colors"
+                          onClick={() => handleEditDiscussion(chat)}
+                        >
+                          <Edit size={12} />
+                          Edit Discussion
+                        </button>
+                        <button
+                          className="block w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 flex items-center gap-2 transition-colors"
+                          onClick={() => handleArchiveDiscussion(chat)}
+                        >
+                          <Archive size={12} />
+                          Archive
+                        </button>
+                        <button
+                          className="block w-full text-left px-3 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
+                          onClick={() => handleDeleteDiscussion(chat)}
+                        >
+                          <Trash2 size={12} />
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -628,15 +722,12 @@ export default function DiscussionsEnhanced() {
                     className="text-gray-500 hover:text-gray-700 p-1 transition-colors"
                     onClick={() => setShowParticipantsModal(true)}
                   >
-                    <Users size={18}  />
+                    <Users size={18} />
                   </button>
                   <button className="text-gray-500 hover:text-gray-700 p-1 transition-colors">
-                    <Star
-                      size={18}
-                      className={selectedChat.isStarred ? "fill-yellow-500 text-yellow-500" : ""}
-                    />
+                    <Star size={18} className={selectedChat.isStarred ? "fill-yellow-500 text-yellow-500" : ""} />
                   </button>
-              
+
                   <div className="relative">
                     <button
                       className="text-gray-500 hover:text-gray-700 p-1 transition-colors"
@@ -800,7 +891,7 @@ export default function DiscussionsEnhanced() {
                     <Paperclip size={18} />
                   </button>
                   <button className="text-black hover:text-gray-600 transition-colors flex-shrink-0">
-                    <Smile size={18}  />
+                    <Smile size={18} />
                   </button>
                   <input
                     type="text"
@@ -1152,6 +1243,69 @@ export default function DiscussionsEnhanced() {
           </div>
         </div>
       )}
+      {showEditModal && editingDiscussion && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-md mx-4 overflow-hidden">
+            <div className="p-6">
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <X size={20} />
+              </button>
+
+              <h2 className="text-xl font-semibold mb-6">Edit Discussion</h2>
+
+              <form
+                className="space-y-4"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  saveDiscussionEdit()
+                }}
+              >
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                  <input
+                    type="text"
+                    className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm focus:bg-white focus:ring-2 focus:ring-[#0B5D3A] transition-colors"
+                    placeholder="Discussion title"
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <textarea
+                    className="w-full p-3 rounded-xl bg-[#F1F1F1] outline-none text-sm h-24 resize-none focus:bg-white focus:ring-2 focus:ring-[#0B5D3A] transition-colors"
+                    placeholder="Discussion description"
+                    value={editDescription}
+                    onChange={(e) => setEditDescription(e.target.value)}
+                  />
+                </div>
+
+                <div className="pt-4 flex gap-3">
+                  <button
+                    type="button"
+                    className="flex-1 bg-gray-200 text-gray-800 text-sm py-3 px-6 rounded-xl hover:bg-gray-300 transition-colors"
+                    onClick={() => setShowEditModal(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 bg-[#0B5D3A] text-white text-sm py-3 px-6 rounded-xl hover:bg-green-700 transition-colors"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
+
+export default DiscussionsEnhanced
