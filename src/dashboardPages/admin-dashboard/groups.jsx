@@ -634,32 +634,6 @@ const GroupsPage = () => {
     },
   ]
 
-  const validateForm = (formData) => {
-    const errors = {}
-
-    if (!formData.name || formData.name.trim().length < 3) {
-      errors.name = "Group name must be at least 3 characters long"
-    }
-
-    if (!formData.description || formData.description.trim().length < 10) {
-      errors.description = "Description must be at least 10 characters long"
-    }
-
-    if (!formData.branch || formData.branch === "") {
-      errors.branch = "Please select a branch"
-    }
-
-    if (!formData.department || formData.department === "") {
-      errors.department = "Please select a department"
-    }
-
-    if (!formData.maxMembers || formData.maxMembers < 1) {
-      errors.maxMembers = "Maximum members must be at least 1"
-    }
-
-    return errors
-  }
-
   const viewGroupDetails = (group) => {
     setSelectedGroup(group)
     setShowGroupDetailsModal(true)
@@ -879,15 +853,11 @@ const GroupsPage = () => {
   return (
     <div className="p-3 min-h-screen">
       <div className="">
-        {/* Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Manage Groups</h1>
-          {/* <p className="text-gray-600">Manage and organize your learning groups</p> */}
         </div>
 
-        {/* Main Content */}
         <Card className="">
-          {/* Search and Actions Bar */}
           <div className="flex flex-col sm:flex-row gap-4 mb-4">
             <div className="flex-1 min-w-[200px]">
               <div className="flex gap-2">
