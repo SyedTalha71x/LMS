@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useMemo } from "react"
 import {
   Table,
@@ -37,12 +39,7 @@ import {
   AlertCircle,
   FileText,
   Key,
-  Grid3X3,
-  ListIcon,
-  Download,
-  UploadIcon,
   Power,
-  UserCheck,
   ArrowLeft,
 } from "lucide-react"
 
@@ -291,6 +288,8 @@ const InstructorsPage = () => {
       okType: "danger",
       cancelText: "Cancel",
       onOk() {
+        const updatedInstructors = instructors.filter((inst) => inst.id !== instructor.id)
+        setInstructors(updatedInstructors)
         message.success(`Instructor ${instructor.name} deleted successfully`)
       },
     })
@@ -385,26 +384,11 @@ const InstructorsPage = () => {
       okType: newStatus === "Active" ? "primary" : "danger",
       cancelText: "Cancel",
       onOk() {
+        const updatedInstructors = instructors.map((inst) =>
+          inst.id === instructor.id ? { ...inst, status: newStatus } : inst,
+        )
+        setInstructors(updatedInstructors)
         message.success(`Instructor ${instructor.name} ${newStatus.toLowerCase()} successfully`)
-      },
-    })
-  }
-
-  const handleLoginAsInstructor = (instructor) => {
-    Modal.confirm({
-      title: "Login as Instructor",
-      content: (
-        <div>
-          <p>
-            You will be logged in as <strong>{instructor.name}</strong> and redirected to their dashboard.
-          </p>
-          <p className="mt-2 text-yellow-600">This action will be logged for security purposes.</p>
-        </div>
-      ),
-      okText: "Login as Instructor",
-      cancelText: "Cancel",
-      onOk() {
-        message.success(`Logged in as ${instructor.name}`)
       },
     })
   }
@@ -439,46 +423,49 @@ const InstructorsPage = () => {
     {
       key: "view",
       label: (
-        <span onClick={() => handleViewInstructor(instructor)}>
-          <Eye className="h-4 w-4 mr-2 inline" />
+        <div
+          onClick={() => handleViewInstructor(instructor)}
+          className="flex items-center"
+        >
+          <Eye className="h-4 w-4 mr-2" />
           View Details
-        </span>
+        </div>
       ),
     },
     {
       key: "edit",
       label: (
-        <span onClick={() => handleEditInstructor(instructor)}>
-          <Edit className="h-4 w-4 mr-2 inline" />
+        <div
+          onClick={() => handleEditInstructor(instructor)}
+          className="flex items-center"
+        >
+          <Edit className="h-4 w-4 mr-2" />
           Edit
-        </span>
+        </div>
       ),
     },
     {
       key: "resetPassword",
       label: (
-        <span onClick={() => handleResetPasswordConfirm(instructor)}>
-          <Key className="h-4 w-4 mr-2 inline" />
+        <div
+          onClick={() => handleResetPasswordConfirm(instructor)}
+          className="flex items-center"
+        >
+          <Key className="h-4 w-4 mr-2" />
           Reset Password
-        </span>
+        </div>
       ),
     },
     {
       key: "toggleStatus",
       label: (
-        <span onClick={() => handleToggleStatus(instructor)}>
-          <Power className="h-4 w-4 mr-2 inline" />
+        <div
+          onClick={() => handleToggleStatus(instructor)}
+          className="flex items-center"
+        >
+          <Power className="h-4 w-4 mr-2" />
           {instructor.status === "Active" ? "Deactivate" : "Activate"}
-        </span>
-      ),
-    },
-    {
-      key: "loginAs",
-      label: (
-        <span onClick={() => handleLoginAsInstructor(instructor)}>
-          <UserCheck className="h-4 w-4 mr-2 inline" />
-          Login as Instructor
-        </span>
+        </div>
       ),
     },
     {
@@ -487,14 +474,17 @@ const InstructorsPage = () => {
     {
       key: "delete",
       label: (
-        <span onClick={() => handleDeleteInstructor(instructor)} className="text-red-600">
-          <Trash2 className="h-4 w-4 mr-2 inline" />
+        <div
+          onClick={() => handleDeleteInstructor(instructor)}
+          className="flex items-center text-red-600"
+        >
+          <Trash2 className="h-4 w-4 mr-2" />
           Delete
-        </span>
+        </div>
       ),
       danger: true,
     },
-  ]
+  ];
 
   const columns = [
     {
@@ -791,7 +781,6 @@ const InstructorsPage = () => {
     )
   }
 
-
   if (currentPage === "add") {
     return <AddInstructorPage />
   }
@@ -859,160 +848,158 @@ const InstructorsPage = () => {
         </Row>
       </div>
 
-      {<Card className="mb-4" size="small">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col sm:flex-row gap-2 justify-between">
-            <div className="flex-1 flex gap-2">
-              <Select value={searchScope} onChange={setSearchScope} style={{ width: 120 }} size="small">
-                <Option value="all">All Fields</Option>
-                <Option value="name">Name</Option>
-                <Option value="email">Email</Option>
-                <Option value="phone">Phone</Option>
-                <Option value="department">Department</Option>
-                <Option value="pharmacy">Pharmacy</Option>
-              </Select>
-              <Input
-                placeholder="Search instructors..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                prefix={<Search className="h-4 w-4 text-gray-400" />}
-                allowClear
-                className="flex-1"
-                size="small"
-              />
+      {
+        <Card className="mb-4" size="small">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row gap-2 justify-between">
+              <div className="flex-1 flex gap-2">
+                <Select value={searchScope} onChange={setSearchScope} style={{ width: 120 }} size="small">
+                  <Option value="all">All Fields</Option>
+                  <Option value="name">Name</Option>
+                  <Option value="email">Email</Option>
+                  <Option value="phone">Phone</Option>
+                  <Option value="department">Department</Option>
+                  <Option value="pharmacy">Pharmacy</Option>
+                </Select>
+                <Input
+                  placeholder="Search instructors..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  prefix={<Search className="h-4 w-4 text-gray-400" />}
+                  allowClear
+                  className="flex-1"
+                  size="small"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Radio.Group
+                  value={viewMode}
+                  onChange={(e) => setViewMode(e.target.value)}
+                  size="small"
+                  buttonStyle="solid"
+                >
+                  <Radio.Button value="table">
+                    <div className="flex items-center gap-1">
+                      <span className="">Table</span>
+                    </div>
+                  </Radio.Button>
+                  <Radio.Button value="card">
+                    <div className="flex items-center gap-1">
+                      <span className="">Cards</span>
+                    </div>
+                  </Radio.Button>
+                </Radio.Group>
+                <Button icon={<Filter className="h-4 w-4" />} onClick={() => setShowFilters(!showFilters)} size="small">
+                  Filters
+                </Button>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <Radio.Group
-                value={viewMode}
-                onChange={(e) => setViewMode(e.target.value)}
-                size="small"
-                buttonStyle="solid"
-              >
-                <Radio.Button value="table">
-                  <div className="flex items-center gap-1">
 
-                    <span className="">Table</span>
-                  </div>
-                </Radio.Button>
-                <Radio.Button value="card">
-                  <div className="flex items-center gap-1">
+            {selectedInstructors.length > 0 && (
+              <div className="flex justify-end items-center gap-2 p-3 bg-blue-50 rounded-lg">
+                <Text strong>{selectedInstructors.length} selected</Text>
+                <Divider type="vertical" />
+                <Button size="small" onClick={() => handleBulkActionSelect("activate")}>
+                  Activate
+                </Button>
+                <Button size="small" onClick={() => handleBulkActionSelect("deactivate")}>
+                  Deactivate
+                </Button>
+                <Button size="small" danger onClick={() => handleBulkActionSelect("delete")}>
+                  Delete
+                </Button>
+                <Button size="small" onClick={() => setSelectedInstructors([])}>
+                  Clear Selection
+                </Button>
+              </div>
+            )}
 
-                    <span className="">Cards</span>
-                  </div>
-                </Radio.Button>
-              </Radio.Group>
-              <Button
-                icon={<Filter className="h-4 w-4" />}
-                onClick={() => setShowFilters(!showFilters)}
-                size="small"
-              >
-                Filters
-              </Button>
-            </div>
+            {showFilters && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+                <Select
+                  mode="multiple"
+                  placeholder="Role"
+                  value={filters.designation}
+                  onChange={(value) => setFilters({ ...filters, designation: value })}
+                  style={{ width: "100%" }}
+                  size="small"
+                  allowClear
+                >
+                  {roleOptions.map((option) => (
+                    <Option key={option} value={option}>
+                      {option}
+                    </Option>
+                  ))}
+                </Select>
+
+                <Select
+                  mode="multiple"
+                  placeholder="Status"
+                  value={filters.status}
+                  onChange={(value) => setFilters({ ...filters, status: value })}
+                  style={{ width: "100%" }}
+                  size="small"
+                  allowClear
+                >
+                  {statusOptions.map((option) => (
+                    <Option key={option} value={option}>
+                      {option}
+                    </Option>
+                  ))}
+                </Select>
+
+                <Select
+                  mode="multiple"
+                  placeholder="Department"
+                  value={filters.department}
+                  onChange={(value) => setFilters({ ...filters, department: value })}
+                  style={{ width: "100%" }}
+                  size="small"
+                  allowClear
+                >
+                  {departmentOptions.map((option) => (
+                    <Option key={option} value={option}>
+                      {option}
+                    </Option>
+                  ))}
+                </Select>
+
+                <Select
+                  mode="multiple"
+                  placeholder="Enrollment"
+                  value={filters.enrollmentStatus}
+                  onChange={(value) => setFilters({ ...filters, enrollmentStatus: value })}
+                  style={{ width: "100%" }}
+                  size="small"
+                  allowClear
+                >
+                  {enrollmentStatusOptions.map((option) => (
+                    <Option key={option} value={option}>
+                      {option}
+                    </Option>
+                  ))}
+                </Select>
+
+                <Select
+                  mode="multiple"
+                  placeholder="Pharmacy"
+                  value={filters.pharmacy}
+                  onChange={(value) => setFilters({ ...filters, pharmacy: value })}
+                  style={{ width: "100%" }}
+                  size="small"
+                  allowClear
+                >
+                  {pharmacyOptions.map((option) => (
+                    <Option key={option} value={option}>
+                      {option}
+                    </Option>
+                  ))}
+                </Select>
+              </div>
+            )}
           </div>
-
-          {selectedInstructors.length > 0 && (
-            <div className="flex justify-end items-center gap-2 p-3 bg-blue-50 rounded-lg">
-              <Text strong>{selectedInstructors.length} selected</Text>
-              <Divider type="vertical" />
-              <Button size="small" onClick={() => handleBulkActionSelect("activate")}>
-                Activate
-              </Button>
-              <Button size="small" onClick={() => handleBulkActionSelect("deactivate")}>
-                Deactivate
-              </Button>
-              <Button size="small" danger onClick={() => handleBulkActionSelect("delete")}>
-                Delete
-              </Button>
-              <Button size="small" onClick={() => setSelectedInstructors([])}>
-                Clear Selection
-              </Button>
-            </div>
-          )}
-
-          {showFilters && <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
-            <Select
-              mode="multiple"
-              placeholder="Role"
-              value={filters.designation}
-              onChange={(value) => setFilters({ ...filters, designation: value })}
-              style={{ width: "100%" }}
-              size="small"
-              allowClear
-            >
-              {roleOptions.map((option) => (
-                <Option key={option} value={option}>
-                  {option}
-                </Option>
-              ))}
-            </Select>
-
-            <Select
-              mode="multiple"
-              placeholder="Status"
-              value={filters.status}
-              onChange={(value) => setFilters({ ...filters, status: value })}
-              style={{ width: "100%" }}
-              size="small"
-              allowClear
-            >
-              {statusOptions.map((option) => (
-                <Option key={option} value={option}>
-                  {option}
-                </Option>
-              ))}
-            </Select>
-
-            <Select
-              mode="multiple"
-              placeholder="Department"
-              value={filters.department}
-              onChange={(value) => setFilters({ ...filters, department: value })}
-              style={{ width: "100%" }}
-              size="small"
-              allowClear
-            >
-              {departmentOptions.map((option) => (
-                <Option key={option} value={option}>
-                  {option}
-                </Option>
-              ))}
-            </Select>
-
-            <Select
-              mode="multiple"
-              placeholder="Enrollment"
-              value={filters.enrollmentStatus}
-              onChange={(value) => setFilters({ ...filters, enrollmentStatus: value })}
-              style={{ width: "100%" }}
-              size="small"
-              allowClear
-            >
-              {enrollmentStatusOptions.map((option) => (
-                <Option key={option} value={option}>
-                  {option}
-                </Option>
-              ))}
-            </Select>
-
-            <Select
-              mode="multiple"
-              placeholder="Pharmacy"
-              value={filters.pharmacy}
-              onChange={(value) => setFilters({ ...filters, pharmacy: value })}
-              style={{ width: "100%" }}
-              size="small"
-              allowClear
-            >
-              {pharmacyOptions.map((option) => (
-                <Option key={option} value={option}>
-                  {option}
-                </Option>
-              ))}
-            </Select>
-          </div>}
-        </div>
-      </Card>}
+        </Card>
+      }
 
       <Card style={{ marginTop: 16 }}>
         {filteredInstructors.length === 0 ? (
@@ -1046,7 +1033,144 @@ const InstructorsPage = () => {
                 />
               </div>
             ) : (
-              <div></div>
+              <div>
+              
+                {/* Cards Grid */}
+                <Row gutter={[16, 16]}>
+                  {filteredInstructors.map((instructor) => (
+                    <Col xs={24} sm={12} lg={8} xl={6} key={instructor.id}>
+                      <Card
+
+                        size="small"
+                        className={`h-full cursor-pointer transition-all duration-200 hover:shadow-md ${
+                          selectedInstructors.includes(instructor.id) ? "ring-2 ring-blue-500 bg-blue-50" : ""
+                        }`}
+                        onClick={(e) => {
+                          // Handle card selection on click (but not on action buttons)
+                          if (!e.target.closest(".card-actions")) {
+                            const newSelection = selectedInstructors.includes(instructor.id)
+                              ? selectedInstructors.filter((id) => id !== instructor.id)
+                              : [...selectedInstructors, instructor.id]
+                            setSelectedInstructors(newSelection)
+                          }
+                        }}
+                        
+                        actions={[
+                          <div className="card-actions" key="actions">
+                           <Dropdown
+  menu={{
+    items: getActionItems(instructor),
+    onClick: (e) => {
+      // Prevent the card selection from being triggered
+      e.domEvent.stopPropagation();
+    },
+  }}
+  trigger={["click"]}
+  placement="bottomRight"
+>
+  <Button
+    type="text"
+    size="small"
+    icon={<MoreVertical className="h-4 w-4" />}
+    onClick={(e) => {
+      e.stopPropagation();
+    }}
+  />
+</Dropdown>
+                          </div>,
+                        ]}
+                      >
+                        <div className="text-center">
+                          {/* Avatar */}
+                          <Avatar size={48} className="mb-3 bg-blue-500">
+                            {instructor.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </Avatar>
+
+                          {/* Name and ID */}
+                          <div className="mb-2">
+                            <div className="font-medium text-gray-900 text-sm truncate" title={instructor.name}>
+                              {instructor.name}
+                            </div>
+                            <div className="text-xs text-gray-500">ID: {instructor.employeeId}</div>
+                          </div>
+
+                          {/* Email */}
+                          <div className="mb-2">
+                            <div className="text-xs text-gray-600 truncate" title={instructor.email}>
+                              {instructor.email}
+                            </div>
+                          </div>
+
+                          {/* Department and Role */}
+                          <div className="mb-2">
+                            <div className="text-xs text-gray-600 mb-1">{instructor.department}</div>
+                            <Tag
+                              color={
+                                instructor.designation === "Department Head"
+                                  ? "red"
+                                  : instructor.designation === "Senior Instructor"
+                                    ? "blue"
+                                    : instructor.designation === "Instructor"
+                                      ? "purple"
+                                      : "green"
+                              }
+                              size="small"
+                            >
+                              {instructor.designation}
+                            </Tag>
+                          </div>
+
+                          {/* Status */}
+                          <div className="mb-2">
+                            <Tag
+                              color={
+                                instructor.status === "Active"
+                                  ? "green"
+                                  : instructor.status === "Inactive"
+                                    ? "red"
+                                    : instructor.status === "Pending"
+                                      ? "orange"
+                                      : "gray"
+                              }
+                              size="small"
+                            >
+                              {instructor.status}
+                            </Tag>
+                          </div>
+
+                          {/* Stats */}
+                          <div className="flex justify-between text-xs text-gray-500 mt-3">
+                            <div className="flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              <span>{instructor.studentsCount}</span>
+                            </div>
+                            <div>
+                              {instructor.lastLogin === "Never"
+                                ? "Never"
+                                : new Date(instructor.lastLogin).toLocaleDateString()}
+                            </div>
+                          </div>
+
+                          {/* Phone */}
+                          {instructor.phone && (
+                            <div className="text-xs text-gray-500 mt-1 truncate">{instructor.phone}</div>
+                          )}
+                        </div>
+                      </Card>
+                    </Col>
+                  ))}
+                </Row>
+
+                {/* Pagination for Card View */}
+                <div className="flex justify-center mt-4">
+                  <div className="text-sm text-gray-500">
+                    Showing {filteredInstructors.length} of {instructors.length} instructors
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         )}
@@ -1136,7 +1260,6 @@ const InstructorsPage = () => {
         width={800}
       >
         <div className="space-y-4">
-
           <Timeline
             items={[
               {

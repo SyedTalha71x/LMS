@@ -675,12 +675,12 @@ const StudentsManagement = () => {
       sorter: (a, b) => a.name.localeCompare(b.name),
       render: (text, record) => (
         <div className="flex items-center min-w-0">
-          <Avatar size={32} className="mr-2 flex-shrink-0 bg-gray-200 text-gray-700">
+          {/* <Avatar size={32} className="mr-2 flex-shrink-0 bg-gray-200 text-gray-700">
             {record.name
               .split(" ")
               .map((n) => n[0])
               .join("")}
-          </Avatar>
+          </Avatar> */}
           <div className="min-w-0 flex-1">
             <div className="font-medium text-gray-900 truncate text-sm">{text}</div>
             <div className="text-xs text-gray-500">ID: {record.employeeId}</div>
@@ -2146,6 +2146,7 @@ const StudentsManagement = () => {
                     Edit User
                   </Button>
                   <Button onClick={() => deactivateUser(currentUser.id)}>Deactivate</Button>
+                  <Button onClick={()=> handleImpersonateUser(currentUser) }>Login as Student</Button>
                 </div>
               </div>
             )}

@@ -1,5 +1,6 @@
-// refercen code for design and oevrview
+"use client"
 
+// refercen code for design and oevrview
 
 /* eslint-disable no-unused-vars */
 import { useState } from "react"
@@ -44,7 +45,10 @@ import {
   Collapse,
   InputNumber,
   Radio,
+  Space,
+  Alert,
 } from "antd"
+import { CheckOutlined, InboxOutlined, DeleteOutlined } from "@ant-design/icons"
 
 const { Search: AntSearch } = Input
 const { Option } = Select
@@ -55,7 +59,7 @@ const { Panel } = Collapse
 const { TextArea } = Input
 const { Search } = Input
 
-const CoursesManagement = () => {
+export default function CoursesManagement() {
   const [selectedCourse, setSelectedCourse] = useState(null)
   const [showSidebar, setShowSidebar] = useState(false)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
@@ -96,6 +100,14 @@ const CoursesManagement = () => {
   const [form] = Form.useForm()
   const [courseModules, setCourseModules] = useState([])
   const [selectedModule, setSelectedModule] = useState(null)
+
+  const [confirmModal, setConfirmModal] = useState({
+    visible: false,
+    action: "",
+    title: "",
+    content: "",
+    onConfirm: null,
+  })
 
   const categoryOptions = [
     "Programming",
@@ -354,26 +366,57 @@ const CoursesManagement = () => {
       return
     }
 
+    let title, content, onConfirm
+
     switch (action) {
       case "publish":
-        setCourses(
-          courses.map((course) => (selectedCourses.includes(course.id) ? { ...course, status: "Published" } : course)),
-        )
-        message.success(`${selectedCourses.length} courses published`)
+        title = "Publish Courses"
+        content = `Are you sure you want to publish ${selectedCourses.length} selected course(s)?`
+        onConfirm = () => {
+          setCourses(
+            courses.map((course) =>
+              selectedCourses.includes(course.id) ? { ...course, status: "Published" } : course,
+            ),
+          )
+          message.success(`${selectedCourses.length} courses published`)
+          setSelectedCourses([])
+          setSelectedRowKeys([])
+          setConfirmModal({ visible: false })
+        }
         break
       case "archive":
-        setCourses(
-          courses.map((course) => (selectedCourses.includes(course.id) ? { ...course, status: "Archived" } : course)),
-        )
-        message.success(`${selectedCourses.length} courses archived`)
+        title = "Archive Courses"
+        content = `Are you sure you want to archive ${selectedCourses.length} selected course(s)?`
+        onConfirm = () => {
+          setCourses(
+            courses.map((course) => (selectedCourses.includes(course.id) ? { ...course, status: "Archived" } : course)),
+          )
+          message.success(`${selectedCourses.length} courses archived`)
+          setSelectedCourses([])
+          setSelectedRowKeys([])
+          setConfirmModal({ visible: false })
+        }
         break
       case "delete":
-        setCourses(courses.filter((course) => !selectedCourses.includes(course.id)))
-        message.success(`${selectedCourses.length} courses deleted`)
+        title = "Delete Courses"
+        content = `Are you sure you want to permanently delete ${selectedCourses.length} selected course(s)? This action cannot be undone.`
+        onConfirm = () => {
+          setCourses(courses.filter((course) => !selectedCourses.includes(course.id)))
+          message.success(`${selectedCourses.length} courses deleted`)
+          setSelectedCourses([])
+          setSelectedRowKeys([])
+          setConfirmModal({ visible: false })
+        }
         break
     }
-    setSelectedCourses([])
-    setSelectedRowKeys([])
+
+    setConfirmModal({
+      visible: true,
+      action,
+      title,
+      content,
+      onConfirm,
+    })
   }
 
   // Row selection for table
@@ -702,9 +745,9 @@ const CoursesManagement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="">
       <div className="w-full">
-        <div className="bg-white border-b border-gray-200 px-4 md:px-6 py-4">
+        <div className=" px-4 md:px-6 py-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl md:text-3xl poppins-thin_600 text-gray-900">Manage Courses</h1>
@@ -789,24 +832,25 @@ const CoursesManagement = () => {
                   Filters
                 </Button>
 
-                <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
-                  <button
-                    onClick={() => setViewMode("table")}
-                    className={`px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm transition-colors ${
-                      viewMode === "table" ? "bg-white text-blue-700 shadow-sm" : "text-gray-600"
-                    }`}
+                <Radio.Group
+                    value={viewMode}
+                    onChange={(e) => setViewMode(e.target.value)}
+                    size="medium"
+                    buttonStyle="solid"
                   >
-                    Table
-                  </button>
-                  <button
-                    onClick={() => setViewMode("card")}
-                    className={`px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm transition-colors ${
-                      viewMode === "card" ? "bg-white text-blue-700 shadow-sm" : "text-gray-600"
-                    }`}
-                  >
-                    Cards
-                  </button>
-                </div>
+                    <Radio.Button value="table">
+                      <div className="flex items-center gap-1">
+                      
+                        <span className="">Table</span>
+                      </div>
+                    </Radio.Button>
+                    <Radio.Button value="card">
+                      <div className="flex items-center gap-1">
+                      
+                        <span className="">Cards</span>
+                      </div>
+                    </Radio.Button>
+                  </Radio.Group>
               </div>
             </div>
 
@@ -880,6 +924,37 @@ const CoursesManagement = () => {
             )}
           </Card>
 
+          {selectedCourses.length > 0 && (
+            <Card className="mb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-gray-600">{selectedCourses.length} course(s) selected</span>
+                  <Button
+                    type="text"
+                    size="small"
+                    onClick={() => {
+                      setSelectedCourses([])
+                      setSelectedRowKeys([])
+                    }}
+                  >
+                    Clear selection
+                  </Button>
+                </div>
+                <Space>
+                  <Button type="primary" icon={<CheckOutlined />} onClick={() => handleBulkAction("publish")}>
+                    Publish
+                  </Button>
+                  <Button icon={<InboxOutlined />} onClick={() => handleBulkAction("archive")}>
+                    Archive
+                  </Button>
+                  <Button danger icon={<DeleteOutlined />} onClick={() => handleBulkAction("delete")}>
+                    Delete
+                  </Button>
+                </Space>
+              </div>
+            </Card>
+          )}
+
           {viewMode === "table" ? (
             <Card>
               <div className="overflow-x-auto">
@@ -897,7 +972,10 @@ const CoursesManagement = () => {
                   }}
                   rowSelection={{
                     selectedRowKeys,
-                    onChange: setSelectedRowKeys,
+                    onChange: (selectedRowKeys, selectedRows) => {
+                      setSelectedRowKeys(selectedRowKeys)
+                      setSelectedCourses(selectedRowKeys)
+                    },
                   }}
                   scroll={{ x: 1200 }}
                   size="middle"
@@ -969,6 +1047,29 @@ const CoursesManagement = () => {
       </div>
 
       <Modal
+        title={confirmModal.title}
+        open={confirmModal.visible}
+        onOk={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal({ visible: false })}
+        okText="Confirm"
+        cancelText="Cancel"
+        okButtonProps={{
+          danger: confirmModal.action === "delete",
+        }}
+      >
+        <p>{confirmModal.content}</p>
+        {confirmModal.action === "delete" && (
+          <Alert
+            message="Warning"
+            description="This action is permanent and cannot be undone."
+            type="warning"
+            showIcon
+            className="mt-3"
+          />
+        )}
+      </Modal>
+
+      <Modal
         open={isManageModalOpen}
         onCancel={() => setIsManageModalOpen(false)}
         footer={null}
@@ -1000,7 +1101,7 @@ const CoursesManagement = () => {
               >
                 Export Data
               </Button>
-            
+
               <Button
                 block
                 icon={<Users />}
@@ -1032,7 +1133,6 @@ const CoursesManagement = () => {
               >
                 Bulk Archive
               </Button>
-             
             </div>
           </div>
 
@@ -1615,5 +1715,3 @@ const CoursesManagement = () => {
     </div>
   )
 }
-
-export default CoursesManagement
