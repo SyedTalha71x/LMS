@@ -1,3 +1,5 @@
+"use client"
+
 /* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react"
 import {
@@ -19,6 +21,8 @@ import {
   Divider,
   Progress,
   Badge,
+  Drawer,
+  Tabs,
 } from "antd"
 import {
   PlusOutlined,
@@ -34,6 +38,8 @@ import {
   EyeOutlined,
   LockOutlined,
   UnlockOutlined,
+  BookOutlined,
+  InfoCircleOutlined,
 } from "@ant-design/icons"
 import dayjs from "dayjs"
 
@@ -54,9 +60,15 @@ const Students = () => {
   // Modal states
   const [isAddModalVisible, setIsAddModalVisible] = useState(false)
   const [isEditModalVisible, setIsEditModalVisible] = useState(false)
-  const [isProfileModalVisible, setIsProfileModalVisible] = useState(false)
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false)
-  const [isBulkActionModalVisible, setIsBulkActionModalVisible] = useState(false)
+
+  const [isResetPasswordModalVisible, setIsResetPasswordModalVisible] = useState(false)
+  const [isToggleStatusModalVisible, setIsToggleStatusModalVisible] = useState(false)
+  const [isBulkActivateModalVisible, setIsBulkActivateModalVisible] = useState(false)
+  const [isBulkDeactivateModalVisible, setIsBulkDeactivateModalVisible] = useState(false)
+  const [isBulkDeleteModalVisible, setIsBulkDeleteModalVisible] = useState(false)
+
+  const [isProfileDrawerVisible, setIsProfileDrawerVisible] = useState(false)
 
   // Current user data
   const [currentUser, setCurrentUser] = useState(null)
@@ -345,7 +357,7 @@ const Students = () => {
 
   const handleViewProfile = (user) => {
     setCurrentUser(user)
-    setIsProfileModalVisible(true)
+    setIsProfileDrawerVisible(true)
   }
 
   const handleEditUser = (user) => {
@@ -360,52 +372,73 @@ const Students = () => {
   }
 
   const handleResetPassword = (user) => {
-    Modal.confirm({
-      title: "Reset Password",
-      content: `Are you sure you want to reset password for ${user.name}?`,
-      onOk: () => {
-        message.success(`Password reset email sent to ${user.email}`)
-      },
-    })
+    setCurrentUser(user)
+    setIsResetPasswordModalVisible(true)
   }
 
   const handleToggleStatus = (user) => {
-    const newStatus = user.status === "Active" ? "Inactive" : "Active"
-    Modal.confirm({
-      title: `${newStatus === "Active" ? "Activate" : "Deactivate"} User`,
-      content: `Are you sure you want to ${newStatus === "Active" ? "activate" : "deactivate"} ${user.name}?`,
-      onOk: () => {
-        setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, status: newStatus } : u)))
-        message.success(`User ${newStatus === "Active" ? "activated" : "deactivated"} successfully`)
-      },
-    })
+    setCurrentUser(user)
+    setIsToggleStatusModalVisible(true)
   }
 
-  const handleBulkAction = (action) => {
+  const handleBulkActivate = () => {
     if (selectedRowKeys.length === 0) {
       message.warning("Please select users first")
       return
     }
+    setIsBulkActivateModalVisible(true)
+  }
 
-    Modal.confirm({
-      title: `Bulk ${action}`,
-      content: `Are you sure you want to ${action.toLowerCase()} ${selectedRowKeys.length} selected users?`,
-      onOk: () => {
-        if (action === "Delete") {
-          setUsers((prev) => prev.filter((user) => !selectedRowKeys.includes(user.id)))
-        } else if (action === "Activate") {
-          setUsers((prev) =>
-            prev.map((user) => (selectedRowKeys.includes(user.id) ? { ...user, status: "Active" } : user)),
-          )
-        } else if (action === "Deactivate") {
-          setUsers((prev) =>
-            prev.map((user) => (selectedRowKeys.includes(user.id) ? { ...user, status: "Inactive" } : user)),
-          )
-        }
-        setSelectedRowKeys([])
-        message.success(`Bulk ${action.toLowerCase()} completed successfully`)
-      },
-    })
+  const handleBulkDeactivate = () => {
+    if (selectedRowKeys.length === 0) {
+      message.warning("Please select users first")
+      return
+    }
+    setIsBulkDeactivateModalVisible(true)
+  }
+
+  const handleBulkDelete = () => {
+    if (selectedRowKeys.length === 0) {
+      message.warning("Please select users first")
+      return
+    }
+    setIsBulkDeleteModalVisible(true)
+  }
+
+  const handleResetPasswordConfirm = () => {
+    // Simulate sending reset password email
+    message.success(`Password reset email sent to ${currentUser.email}`)
+    setIsResetPasswordModalVisible(false)
+    setCurrentUser(null)
+  }
+
+  const handleToggleStatusConfirm = () => {
+    const newStatus = currentUser.status === "Active" ? "Inactive" : "Active"
+    setUsers((prev) => prev.map((u) => (u.id === currentUser.id ? { ...u, status: newStatus } : u)))
+    message.success(`User ${newStatus === "Active" ? "activated" : "deactivated"} successfully`)
+    setIsToggleStatusModalVisible(false)
+    setCurrentUser(null)
+  }
+
+  const handleBulkActivateConfirm = () => {
+    setUsers((prev) => prev.map((user) => (selectedRowKeys.includes(user.id) ? { ...user, status: "Active" } : user)))
+    setSelectedRowKeys([])
+    message.success(`${selectedRowKeys.length} users activated successfully`)
+    setIsBulkActivateModalVisible(false)
+  }
+
+  const handleBulkDeactivateConfirm = () => {
+    setUsers((prev) => prev.map((user) => (selectedRowKeys.includes(user.id) ? { ...user, status: "Inactive" } : user)))
+    setSelectedRowKeys([])
+    message.success(`${selectedRowKeys.length} users deactivated successfully`)
+    setIsBulkDeactivateModalVisible(false)
+  }
+
+  const handleBulkDeleteConfirm = () => {
+    setUsers((prev) => prev.filter((user) => !selectedRowKeys.includes(user.id)))
+    setSelectedRowKeys([])
+    message.success(`${selectedRowKeys.length} users deleted successfully`)
+    setIsBulkDeleteModalVisible(false)
   }
 
   const handleAddSubmit = (values) => {
@@ -451,7 +484,7 @@ const Students = () => {
   }
 
   return (
-    <div className="md:p-6 p-3">
+    <div className="p-3">
       {/* Header */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
@@ -462,45 +495,41 @@ const Students = () => {
         </div>
 
         <Row gutter={[16, 16]} align="middle" className="mb-4">
-      {/* Search Bar - Larger on desktop */}
-      <Col xs={24} sm={24} md={12} lg={14} xl={18}>
-        <Search
-          placeholder="Search by name or email..."
-          allowClear
-          onSearch={handleSearch}
-          onChange={(e) => handleSearch(e.target.value)}
-          style={{ width: "100%" }}
-        />
-      </Col>
+          {/* Search Bar - Larger on desktop */}
+          <Col xs={24} sm={24} md={12} lg={14} xl={18}>
+            <Search
+              placeholder="Search by name or email..."
+              allowClear
+              onSearch={handleSearch}
+              onChange={(e) => handleSearch(e.target.value)}
+              style={{ width: "100%" }}
+            />
+          </Col>
 
-      {/* Buttons - Smaller but same row on large screens */}
-      <Col xs={24} sm={12} md={4} lg={3} xl={2}>
-        <Button
-          block
-          icon={<ReloadOutlined />}
-          onClick={() => window.location.reload()}
-        >
-          Refresh
-        </Button>
-      </Col>
+          {/* Buttons - Smaller but same row on large screens */}
+          <Col xs={24} sm={12} md={4} lg={3} xl={2}>
+            <Button block icon={<ReloadOutlined />} onClick={() => window.location.reload()}>
+              Refresh
+            </Button>
+          </Col>
 
-      <Col xs={24} sm={12} md={4} lg={3} xl={2}>
-        <Button block icon={<ExportOutlined />}>
-          Export
-        </Button>
-      </Col>
+          <Col xs={24} sm={12} md={4} lg={3} xl={2}>
+            <Button block icon={<ExportOutlined />}>
+              Export
+            </Button>
+          </Col>
 
-      <Col xs={24} sm={12} md={4} lg={3} xl={2}>
-        <Button
-          block
-          icon={<FilterOutlined />}
-          onClick={() => setShowFilters(!showFilters)}
-          type={showFilters ? "primary" : "default"}
-        >
-          Filters
-        </Button>
-      </Col>
-    </Row>
+          <Col xs={24} sm={12} md={4} lg={3} xl={2}>
+            <Button
+              block
+              icon={<FilterOutlined />}
+              onClick={() => setShowFilters(!showFilters)}
+              type={showFilters ? "primary" : "default"}
+            >
+              Filters
+            </Button>
+          </Col>
+        </Row>
         {/* Advanced Filters */}
         {showFilters && (
           <Card className="mb-4">
@@ -573,9 +602,9 @@ const Students = () => {
             <div className="flex items-center justify-between">
               <span>{selectedRowKeys.length} users selected</span>
               <Space>
-                <Button onClick={() => handleBulkAction("Activate")}>Bulk Activate</Button>
-                <Button onClick={() => handleBulkAction("Deactivate")}>Bulk Deactivate</Button>
-                <Button danger onClick={() => handleBulkAction("Delete")}>
+                <Button onClick={handleBulkActivate}>Bulk Activate</Button>
+                <Button onClick={handleBulkDeactivate}>Bulk Deactivate</Button>
+                <Button danger onClick={handleBulkDelete}>
                   Bulk Delete
                 </Button>
               </Space>
@@ -814,40 +843,33 @@ const Students = () => {
         </Form>
       </Modal>
 
-      {/* User Profile Modal */}
-      <Modal
+      <Drawer
         title="User Profile"
-        open={isProfileModalVisible}
-        onCancel={() => {
-          setIsProfileModalVisible(false)
+        placement="right"
+        width={600}
+        open={isProfileDrawerVisible}
+        onClose={() => {
+          setIsProfileDrawerVisible(false)
           setCurrentUser(null)
         }}
-        footer={[
-          <Button
-            key="edit"
-            type="primary"
-            onClick={() => {
-              setIsProfileModalVisible(false)
-              handleEditUser(currentUser)
-            }}
-          >
-            Edit User
-          </Button>,
-          <Button
-            key="close"
-            onClick={() => {
-              setIsProfileModalVisible(false)
-              setCurrentUser(null)
-            }}
-          >
-            Close
-          </Button>,
-        ]}
-        width={700}
+        extra={
+          <Space>
+            <Button
+              type="primary"
+              onClick={() => {
+                setIsProfileDrawerVisible(false)
+                handleEditUser(currentUser)
+              }}
+            >
+              Edit User
+            </Button>
+          </Space>
+        }
       >
         {currentUser && (
           <div>
-            <div className="flex items-center mb-6">
+            {/* User Header */}
+            <div className="flex items-center mb-6 p-4 bg-gray-50 rounded-lg">
               <Avatar size={80} src={currentUser.avatar} style={{ backgroundColor: "#f56a00" }}>
                 {currentUser.name
                   .split(" ")
@@ -864,79 +886,129 @@ const Students = () => {
               </div>
             </div>
 
-            <Divider />
+            {/* Tabs for different sections */}
+            <Tabs
+              defaultActiveKey="details"
+              items={[
+                {
+                  key: "details",
+                  label: (
+                    <span>
+                      <InfoCircleOutlined />
+                      Details
+                    </span>
+                  ),
+                  children: (
+                    <div>
+                      <Row gutter={[16, 16]}>
+                        <Col span={24}>
+                          <div>
+                            <h4 className="font-medium mb-3">Contact Information</h4>
+                            <div className="space-y-2">
+                              <p>
+                                <strong>Phone:</strong> {currentUser.phone}
+                              </p>
+                              <p>
+                                <strong>Group:</strong> {currentUser.group}
+                              </p>
+                              <p>
+                                <strong>Last Login:</strong>{" "}
+                                {currentUser.lastLogin === "Never"
+                                  ? "Never"
+                                  : dayjs(currentUser.lastLogin).format("MMM DD, YYYY HH:mm")}
+                              </p>
+                              <p>
+                                <strong>Created:</strong> {dayjs(currentUser.createdDate).format("MMM DD, YYYY")}
+                              </p>
+                            </div>
+                          </div>
+                        </Col>
+                      </Row>
 
-            <Row gutter={[16, 16]}>
-              <Col span={12}>
-                <div>
-                  <h4 className="font-medium mb-2">Contact Information</h4>
-                  <p>
-                    <strong>Phone:</strong> {currentUser.phone}
-                  </p>
-                  <p>
-                    <strong>Group:</strong> {currentUser.group}
-                  </p>
-                  <p>
-                    <strong>Last Login:</strong>{" "}
-                    {currentUser.lastLogin === "Never"
-                      ? "Never"
-                      : dayjs(currentUser.lastLogin).format("MMM DD, YYYY HH:mm")}
-                  </p>
-                  <p>
-                    <strong>Created:</strong> {dayjs(currentUser.createdDate).format("MMM DD, YYYY")}
-                  </p>
-                </div>
-              </Col>
-              <Col span={12}>
-                <div>
-                  <h4 className="font-medium mb-2">Progress Overview</h4>
-                  <div className="mb-2">
-                    <span>Overall Progress</span>
-                    <Progress percent={currentUser.progress.overall} size="small" />
-                  </div>
-                  <p>
-                    <strong>Courses Enrolled:</strong> {currentUser.progress.courses}
-                  </p>
-                  <p>
-                    <strong>Courses Completed:</strong> {currentUser.progress.completed}
-                  </p>
-                </div>
-              </Col>
-            </Row>
+                      <Divider />
 
-            <Divider />
+                      <div className="mb-4">
+                        <h4 className="font-medium mb-3">Progress Overview</h4>
+                        <div className="mb-3">
+                          <span className="block mb-1">Overall Progress</span>
+                          <Progress percent={currentUser.progress.overall} />
+                        </div>
+                        <div className="space-y-1">
+                          <p>
+                            <strong>Courses Enrolled:</strong> {currentUser.progress.courses}
+                          </p>
+                          <p>
+                            <strong>Courses Completed:</strong> {currentUser.progress.completed}
+                          </p>
+                        </div>
+                      </div>
 
-            <div className="mb-4">
-              <h4 className="font-medium mb-2">Description</h4>
-              <p className="text-gray-600">{currentUser.description}</p>
-            </div>
+                      <Divider />
 
-            <div className="mb-4">
-              <h4 className="font-medium mb-2">Achievements</h4>
-              <div className="flex flex-wrap gap-1">
-                {currentUser.achievements.map((achievement, index) => (
-                  <Tag key={index} color="green">
-                    {achievement}
-                  </Tag>
-                ))}
-                {currentUser.achievements.length === 0 && <span className="text-gray-400">No achievements yet</span>}
-              </div>
-            </div>
+                      <div className="mb-4">
+                        <h4 className="font-medium mb-2">Description</h4>
+                        <p className="text-gray-600">{currentUser.description}</p>
+                      </div>
 
-            <div>
-              <h4 className="font-medium mb-2">Enrolled Courses</h4>
-              <div className="flex flex-wrap gap-1">
-                {currentUser.courses.map((course, index) => (
-                  <Tag key={index} color="blue">
-                    {course}
-                  </Tag>
-                ))}
-                {currentUser.courses.length === 0 && <span className="text-gray-400">No courses enrolled</span>}
-              </div>
-            </div>
+                      <div className="mb-4">
+                        <h4 className="font-medium mb-2">Achievements</h4>
+                        <div className="flex flex-wrap gap-1">
+                          {currentUser.achievements.map((achievement, index) => (
+                            <Tag key={index} color="green">
+                              {achievement}
+                            </Tag>
+                          ))}
+                          {currentUser.achievements.length === 0 && (
+                            <span className="text-gray-400">No achievements yet</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ),
+                },
+                {
+                  key: "courses",
+                  label: (
+                    <span>
+                      <BookOutlined />
+                      Enrolled Courses
+                    </span>
+                  ),
+                  children: (
+                    <div>
+                      <h4 className="font-medium mb-3">Course Enrollment</h4>
+                      {currentUser.courses.length > 0 ? (
+                        <div className="space-y-3">
+                          {currentUser.courses.map((course, index) => (
+                            <Card key={index} size="small" className="border-l-4 border-l-blue-500">
+                              <div className="flex justify-between items-center">
+                                <div>
+                                  <h5 className="font-medium">{course}</h5>
+                                  <p className="text-sm text-gray-500">
+                                    Status: {index < currentUser.progress.completed ? "Completed" : "In Progress"}
+                                  </p>
+                                </div>
+                                <Tag color={index < currentUser.progress.completed ? "green" : "blue"}>
+                                  {index < currentUser.progress.completed ? "Completed" : "Active"}
+                                </Tag>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <BookOutlined className="text-4xl text-gray-300 mb-2" />
+                          <p className="text-gray-400">No courses enrolled yet</p>
+                        </div>
+                      )}
+                    </div>
+                  ),
+                },
+              ]}
+            />
           </div>
         )}
-      </Modal>
+      </Drawer>
 
       {/* Delete Confirmation Modal */}
       <Modal
@@ -961,6 +1033,109 @@ const Students = () => {
             </p>
           </div>
         )}
+      </Modal>
+
+      <Modal
+        title="Reset Password"
+        open={isResetPasswordModalVisible}
+        onOk={handleResetPasswordConfirm}
+        onCancel={() => {
+          setIsResetPasswordModalVisible(false)
+          setCurrentUser(null)
+        }}
+        okText="Send Reset Email"
+        cancelText="Cancel"
+      >
+        {currentUser && (
+          <div>
+            <p>
+              Are you sure you want to reset the password for <strong>{currentUser.name}</strong>?
+            </p>
+            <p className="text-blue-600 text-sm mt-2">
+              A password reset email will be sent to <strong>{currentUser.email}</strong>
+            </p>
+          </div>
+        )}
+      </Modal>
+
+      <Modal
+        title={`${currentUser?.status === "Active" ? "Deactivate" : "Activate"} User`}
+        open={isToggleStatusModalVisible}
+        onOk={handleToggleStatusConfirm}
+        onCancel={() => {
+          setIsToggleStatusModalVisible(false)
+          setCurrentUser(null)
+        }}
+        okText={currentUser?.status === "Active" ? "Deactivate" : "Activate"}
+        cancelText="Cancel"
+      >
+        {currentUser && (
+          <div>
+            <p>
+              Are you sure you want to {currentUser.status === "Active" ? "deactivate" : "activate"}{" "}
+              <strong>{currentUser.name}</strong>?
+            </p>
+            <p className="text-orange-600 text-sm mt-2">
+              {currentUser.status === "Active"
+                ? "The user will lose access to the system until reactivated."
+                : "The user will regain access to the system."}
+            </p>
+          </div>
+        )}
+      </Modal>
+
+      <Modal
+        title="Bulk Activate Users"
+        open={isBulkActivateModalVisible}
+        onOk={handleBulkActivateConfirm}
+        onCancel={() => setIsBulkActivateModalVisible(false)}
+        okText="Activate Users"
+        cancelText="Cancel"
+      >
+        <div>
+          <p>
+            Are you sure you want to activate <strong>{selectedRowKeys.length}</strong> selected users?
+          </p>
+          <p className="text-green-600 text-sm mt-2">All selected users will be granted access to the system.</p>
+        </div>
+      </Modal>
+
+      <Modal
+        title="Bulk Deactivate Users"
+        open={isBulkDeactivateModalVisible}
+        onOk={handleBulkDeactivateConfirm}
+        onCancel={() => setIsBulkDeactivateModalVisible(false)}
+        okText="Deactivate Users"
+        okType="danger"
+        cancelText="Cancel"
+      >
+        <div>
+          <p>
+            Are you sure you want to deactivate <strong>{selectedRowKeys.length}</strong> selected users?
+          </p>
+          <p className="text-red-600 text-sm mt-2">
+            All selected users will lose access to the system until reactivated.
+          </p>
+        </div>
+      </Modal>
+
+      <Modal
+        title="Bulk Delete Users"
+        open={isBulkDeleteModalVisible}
+        onOk={handleBulkDeleteConfirm}
+        onCancel={() => setIsBulkDeleteModalVisible(false)}
+        okText="Delete Users"
+        okType="danger"
+        cancelText="Cancel"
+      >
+        <div>
+          <p>
+            Are you sure you want to delete <strong>{selectedRowKeys.length}</strong> selected users?
+          </p>
+          <p className="text-red-600 text-sm mt-2">
+            This action cannot be undone. All selected user data will be permanently removed.
+          </p>
+        </div>
       </Modal>
     </div>
   )

@@ -673,11 +673,10 @@ const CoursesManagement = () => {
   }
 
   return (
-    <div className="md:p-6 p-3  min-h-screen">
+    <div className="p-3  min-h-screen">
       {/* Header */}
       <div className="mb-6">
-        <Title level={2}>Course Management</Title>
-        <Text type="secondary">Manage your courses, content, and enrollments</Text>
+        <Title level={3}>Manage Courses</Title>
       </div>
 
       {/* Stats Cards */}
