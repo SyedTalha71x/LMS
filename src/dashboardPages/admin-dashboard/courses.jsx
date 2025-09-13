@@ -750,7 +750,7 @@ export default function CoursesManagement() {
         <div className=" px-4 md:px-6 py-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl poppins-thin_600 text-gray-900">Manage Courses</h1>
+              <h1 className="md:text-2xl text-xl font-semibold">Manage Courses</h1>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Button type="default" icon={<Download />} onClick={exportToCSV} className="flex-1 sm:flex-none">
