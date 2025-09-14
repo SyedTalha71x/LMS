@@ -140,8 +140,7 @@ export default function Overview() {
 
   return (
     <div className="flex flex-col md:flex-row w-full min-h-screen bg-white relative">
-      {/* Main Content */}
-      <div className="flex-1 p-3 md:p-6">
+      <div className="flex-1 p-3">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-black text-2xl poppins-thin_600">Instructor Overview</h1>
           <button
