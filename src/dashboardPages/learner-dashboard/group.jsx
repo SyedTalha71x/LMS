@@ -1,10 +1,28 @@
-import { useState } from "react"
-import { Search, MoreVertical, Bell, X, Menu, Plus } from "lucide-react"
-import Image from '../../../public/image.svg'
-import UserGroups from '../../../public/avatar-group.png'
-import { Link } from "react-router-dom"
+import { useState } from "react";
+import { 
+  Input, 
+  Button, 
+  Card, 
+  Modal, 
+  Form, 
+  Row, 
+  Col, 
+  Avatar, 
+  Typography, 
+  Space,
+  Flex,
+  message
+} from "antd";
+import { SearchOutlined, UserAddOutlined } from "@ant-design/icons";
+import { Navigate, useNavigate } from "react-router-dom";
+
+const { Title, Text, Paragraph } = Typography;
+const { Search } = Input;
 
 const GroupsPage = () => {
+  const navigate = useNavigate();
+  const [form] = Form.useForm();
+  
   const [groups] = useState([
     {
       id: 1,
@@ -14,212 +32,295 @@ const GroupsPage = () => {
       type: "ORGANIZATION",
       description: "When share in work-type spaces, when share completed.",
       members: [1, 2, 3, 4, 5],
+      avatar: "https://via.placeholder.com/64/4CAF50/white?text=G1"
     },
     {
       id: 2,
-      name: "Group 1",
-      subtitle: "Collaborative project",
-      title: "Collaborative work",
+      name: "Group 2",
+      subtitle: "Design Team",
+      title: "Creative Solutions",
       type: "ORGANIZATION",
-      description: "When share in work-type spaces, when share completed.",
-      members: [1, 2, 3, 4, 5],
+      description: "Innovative design solutions for modern challenges.",
+      members: [1, 2, 3, 4, 5, 6],
+      avatar: "https://via.placeholder.com/64/2196F3/white?text=G2"
     },
     {
       id: 3,
-      name: "Group 1",
-      subtitle: "Collaborative project",
-      title: "Collaborative work",
+      name: "Group 3",
+      subtitle: "Development Team",
+      title: "Tech Innovation",
       type: "ORGANIZATION",
-      description: "When share in work-type spaces, when share completed.",
-      members: [1, 2, 3, 4, 5],
+      description: "Building next-generation applications and solutions.",
+      members: [1, 2, 3, 4],
+      avatar: "https://via.placeholder.com/64/FF9800/white?text=G3"
     },
     {
       id: 4,
-      name: "Group 1",
-      subtitle: "Collaborative project",
-      title: "Collaborative work",
+      name: "Group 4",
+      subtitle: "Marketing Team",
+      title: "Brand Strategy",
       type: "ORGANIZATION",
-      description: "When share in work-type spaces, when share completed.",
-      members: [1, 2, 3, 4, 5],
+      description: "Creating compelling brand narratives and strategies.",
+      members: [1, 2, 3, 4, 5, 6, 7],
+      avatar: "https://via.placeholder.com/64/9C27B0/white?text=G4"
     },
-  ])
+  ]);
 
-  // State for sidebar visibility on mobile
-  const [showSidebar, setShowSidebar] = useState(false)
-  
-  // State for modal visibility
-  const [showModal, setShowModal] = useState(false)
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
-  // Toggle functions
-  const toggleSidebar = () => {
-    setShowSidebar(!showSidebar)
-  }
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
 
-  const toggleModal = () => {
-    setShowModal(!showModal)
-  }
+  const handleModalOk = () => {
+    form.validateFields().then((values) => {
+      console.log("Form values:", values);
+      message.success("Successfully joined the group!");
+      form.resetFields();
+      setIsModalVisible(false);
+      // Handle join group logic here
+    }).catch((error) => {
+      console.log("Validation failed:", error);
+    });
+  };
+
+  const handleModalCancel = () => {
+    setIsModalVisible(false);
+    form.resetFields();
+  };
+
+  const handleGroupClick = () => {
+    navigate('/learner-dashboard/messages')
+  };
+
+  const handleSearch = (value) => {
+    setSearchValue(value);
+    // Handle search logic here
+  };
+
+  // Filter groups based on search
+  const filteredGroups = groups.filter(group =>
+    group.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+    group.title.toLowerCase().includes(searchValue.toLowerCase()) ||
+    group.description.toLowerCase().includes(searchValue.toLowerCase())
+  );
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen relative">
-      <div className="flex-1 p-2 md:p-6">
-        <div className="flex justify-between md:items-center items-start flex-col gap-4 w-full md:flex-row mb-6">
-          <h1 className="text-2xl poppins-thin_600">Groups</h1>
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <input
-                type="text"
-                placeholder="Search..."
-                className="pl-10 pr-4 py-2 bg-[#F9F9F9] outline-none rounded-2xl text-sm w-48 md:w-64"
-              />
-            </div>
-            <button 
-              className="p-2 md:hidden bg-[#F9F9F9] rounded-full"
-              onClick={toggleSidebar}
+    <div className="min-h-screen p-3">
+      {/* Header Section */}
+      <div style={{ marginBottom: "24px" }}>
+        <Flex 
+          justify="space-between" 
+          align="center" 
+          wrap="wrap" 
+          gap="16px"
+          style={{ marginBottom: "16px" }}
+        >
+          <Title level={2} style={{ margin: 0, fontWeight: 600 }}>
+            Groups
+          </Title>
+          
+          <Flex gap="12px" align="center" wrap="wrap">
+            <Search
+              placeholder="Search groups..."
+              allowClear
+              enterButton={<SearchOutlined />}
+              size="large"
+              onSearch={handleSearch}
+              onChange={(e) => setSearchValue(e.target.value)}
+              style={{ 
+                width: "280px",
+                minWidth: "200px"
+              }}
+            />
+            <Button
+              type="primary"
+              icon={<UserAddOutlined />}
+              size="large"
+              onClick={showModal}
+             
             >
-              <Menu className="h-5 w-5 text-gray-600" />
-            </button>
-          </div>
-        </div>
-
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {groups.map((group) => (
-            <GroupCard key={group.id} group={group} />
-          ))}
-        </div>
+              Join Group
+            </Button>
+          </Flex>
+        </Flex>
       </div>
 
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-4">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-medium poppins-thin_600">Add Entity</h2>
-              <button onClick={toggleModal} className="text-gray-500 hover:text-gray-700">
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            
-            <form>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1 text-sm">Link</label>
-                <input
-                  type="text"
-                  className="w-full p-3 text-sm bg-gray-100 rounded-md outline-none"
-                  placeholder="link"
-                />
-              </div>
-              
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-1 text-sm">Code</label>
-                <input
-                  type="text"
-                  className="w-full p-3 text-sm bg-gray-100 rounded-md outline-none"
-                  placeholder="Enter code"
-                />
-              </div>
-              
-              <button
-                type="submit"
-                className="w-full py-2 text-sm bg-[#0B5D3A] text-white rounded-md font-medium"
-              >
-                Join code 
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      <Row gutter={[16, 16]}>
+  {filteredGroups.map((group) => (
+    <Col xs={24} sm={12} md={12} lg={8} xl={8} key={group.id}>
+      <GroupCard 
+        group={group} 
+        onClick={() => handleGroupClick()} 
+      />
+    </Col>
+  ))}
+</Row>
 
-      {showSidebar && (
-        <div 
-          className="fixed inset-0 bg-black/50 bg-opacity-50 z-40 md:hidden"
-          onClick={toggleSidebar}
-        ></div>
-      )}
 
-      <div 
-        className={`fixed md:static top-0 right-0 h-full z-40 w-80 bg-white p-4 md:p-6 transform transition-transform duration-500 ease-in-out ${
-          showSidebar ? 'translate-x-0' : 'translate-x-full md:translate-x-0'
-        }`}
+      {/* Join Group Modal */}
+      <Modal
+        title={
+          <Title level={4} style={{ margin: 0, fontWeight: 600 }}>
+            Join Group
+          </Title>
+        }
+        open={isModalVisible}
+        onOk={handleModalOk}
+        onCancel={handleModalCancel}
+        okText="Join Group"
+        cancelText="Cancel"
+        okButtonProps={{
+          style: {
+            background: "#0B5D3A",
+            borderColor: "#0B5D3A",
+            fontWeight: 600
+          }
+        }}
+        width={400}
+        centered
       >
-        <div className="flex justify-end items-center mb-4 md:hidden">
-          {/* <h2 className="font-medium">Notifications</h2> */}
-          <button onClick={toggleSidebar} className="p-1">
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        <div>
-          <h1 className="font-bold mb-4">Add Entity</h1>
-        </div>
-
-        <div className="">
-          {/* <h1 className="poppins-thin_600 text-black mb-6" onClick={toggleModal}>Join Group</h1> */}
-          <button onClick={toggleModal} className="w-full md:w-auto py-2 bg-[#0B5D3A] text-sm px-7 text-white rounded-xl mb-6 font-semibold">Join group</button>
-        </div>
-
-        <div className="mb-4">
-          <h2 className="text-lg font-medium mb-4 poppins-thin_600">Notification</h2>
-          <div className="flex items-start gap-2 text-sm bg-[#F9F9F9] p-3 rounded-xl text-gray-600">
-            <div className="mt-1">
-              <Bell className="h-4 w-4 text-green-500" />
-            </div>
-            <p>
-              You have been invited to collaborate on a new project. Accept the invitation to join the collaborative
-              workspace and start working on the project.
-            </p>
-          </div>
-        </div>
-      </div>
+        <Form
+          form={form}
+          layout="vertical"
+          style={{ marginTop: "16px" }}
+        >
+          <Form.Item
+            label="Group Link"
+            name="link"
+            rules={[
+              { required: true, message: "Please enter the group link" },
+              { type: "url", message: "Please enter a valid URL" }
+            ]}
+          >
+            <Input 
+              placeholder="Enter group invitation link"
+              size="large"
+            />
+          </Form.Item>
+          
+          <Form.Item
+            label="Access Code"
+            name="code"
+            rules={[
+              { required: true, message: "Please enter the access code" }
+            ]}
+          >
+            <Input 
+              placeholder="Enter group access code"
+              size="large"
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
-  )
-}
+  );
+};
 
-function GroupCard({ group }) {
+const GroupCard = ({ group, onClick }) => {
   return (
-    <Link to={"/learner-dashboard/messages"}>
-   
-    <div className="bg-[#F9F9F9] rounded-2xl p-8">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center gap-3">
-          <div className="relative w-16 h-16 rounded-full bg-gray-200 overflow-hidden">
-            <img
-              src={Image}
-              alt={group.name}
-              className="object-cover h-full w-full"
-            />
-          </div>
+    <Card
+      hoverable
+      onClick={onClick}
+      style={{
+        borderRadius: "16px",
+        border: "none",
+        background: "#f9f9f9",
+        height: "280px",
+        cursor: "pointer",
+        transition: "all 0.3s ease"
+      }}
+      bodyStyle={{ padding: "20px", height: "100%" }}
+      styles={{
+        body: {
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between"
+        }
+      }}
+    >
+      <div>
+        {/* Group Header */}
+        <Flex align="center" gap="12px" style={{ marginBottom: "16px" }}>
+          <Avatar
+            size={48}
+            src={group.avatar}
+            style={{
+              backgroundColor: "#0B5D3A",
+              fontSize: "18px",
+              fontWeight: "bold"
+            }}
+          >
+            {group.name.charAt(0)}
+          </Avatar>
           <div>
-            <h3 className="poppins-thin_600">{group.name}</h3>
-            <p className="text-sm text-gray-500 poppins-thin">{group.subtitle}</p>
+            <Title level={5} style={{ margin: 0, fontWeight: 600 }}>
+              {group.name}
+            </Title>
+            <Text type="secondary" style={{ fontSize: "12px" }}>
+              {group.subtitle}
+            </Text>
           </div>
+        </Flex>
+
+        {/* Group Content */}
+        <div style={{ marginBottom: "16px" }}>
+          <Title level={4} style={{ margin: "0 0 8px 0", fontWeight: 500 }}>
+            {group.title}
+          </Title>
+          <Text 
+            type="secondary" 
+            style={{ 
+              fontSize: "10px", 
+              textTransform: "uppercase", 
+              letterSpacing: "0.5px",
+              display: "block",
+              marginBottom: "8px"
+            }}
+          >
+            {group.type}
+          </Text>
+          <Paragraph
+            ellipsis={{ rows: 2 }}
+            style={{ 
+              fontSize: "13px", 
+              color: "#666",
+              margin: 0
+            }}
+          >
+            {group.description}
+          </Paragraph>
         </div>
-        {/* <button className="text-gray-400">
-          <MoreVertical className="h-5 w-5" />
-        </button> */}
       </div>
 
-      <div className="mb-4">
-        <h2 className="text-xl font-bold mb-1 poppins-thin">{group.title}</h2>
-        <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 mt-2 poppins-thin">{group.type}</p>
-        <p className="text-sm text-gray-800 poppins-thin mt-5">{group.description}</p>
-      </div>
+      {/* Members Avatars */}
+      <Flex justify="center" align="center">
+        <Avatar.Group 
+          maxCount={5}
+          maxStyle={{ 
+            color: "#0B5D3A", 
+            backgroundColor: "#e6f3ed",
+            fontSize: "12px"
+          }}
+        >
+          {group.members.map((member, index) => (
+            <Avatar
+              key={member}
+              size={32}
+              style={{
+                backgroundColor: `hsl(${(index * 137.5) % 360}, 50%, 50%)`,
+                fontSize: "12px",
+                fontWeight: "bold"
+              }}
+            >
+              {`U${member}`}
+            </Avatar>
+          ))}
+        </Avatar.Group>
+      </Flex>
+    </Card>
+  );
+};
 
-      <div className="flex -space-x-2 justify-center items-center">
-        {group.members.map((member) => (
-          <div key={member} className="relative w-10 h-10 rounded-full bg-gray-200 border-2 border-white overflow-hidden">
-            <img 
-              src={UserGroups}
-              width={32}
-              height={32}
-              className="object-cover w-full h-full"
-            />
-          </div>
-        ))}
-      </div>
-    </div>
-    </Link>
-  )
-}
-
-export default GroupsPage
+export default GroupsPage;

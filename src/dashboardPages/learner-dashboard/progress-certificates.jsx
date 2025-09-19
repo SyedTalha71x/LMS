@@ -1,357 +1,336 @@
 import { useState } from "react"
-import { X, FileText } from "lucide-react"
-import PhotoImage from "../../../public/image 50.svg"
+import { 
+  Card, 
+  Drawer, 
+  Tag, 
+  Button, 
+  Row, 
+  Col, 
+  Typography, 
+  Space, 
+  Descriptions,
+} from 'antd'
+import { FileTextOutlined, CloseOutlined } from '@ant-design/icons'
+import certificates from "../../utils/certificatesData"
+
+const { Title, Text, Paragraph } = Typography
 
 const CertificateProgress = () => {
   const [selectedCertificate, setSelectedCertificate] = useState(null)
+  const [isDrawerVisible, setIsDrawerVisible] = useState(false)
 
-  const certificates = [
-    {
-      id: 1,
-      title: "Basic of Pharma",
-      percentage: 100,
-      stage: "Stage 1-5",
-      completedStages: 5,
-      trainer: "Dr. Sarah Johnson",
-      date: "15 Apr 2025 Thursday",
-      time: "09:00 AM",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-      tags: ["Integrity", "Pharmacy", "Research"],
-      details: {
-        studentsEnrolled: 45,
-        AssignTeacher: "Dr. Sarah Johnson",
-        category: "Pharmacy",
-        location: "Himmel",
-        timing: "09:00 AM - 11:00 AM",
-        titles: "Details",
-      },
-      materials: {
-        studentsEnrolled: 45,
-        AssignTeacher: "Dr. Sarah Johnson",
-        category: "Pharmacy",
-        location: "Himmel",
-        timing: "09:00 AM - 11:00 AM",
-        titles: "Details",
-      },
-      image: PhotoImage,
-    },
-    {
-      id: 2,
-      title: "Pharmaceutical Chemistry",
-      percentage: 65,
-      stage: "Stage 1-5",
-      completedStages: 2,
-      trainer: "Dr. Michael Chen",
-      date: "20 Apr 2025 Tuesday",
-      time: "10:00 AM",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-      tags: ["Chemistry", "Analysis", "Research"],
-      details: {
-        studentsEnrolled: 38,
-        AssignTeacher: "Dr. Michael Chen",
-        category: "Chemistry",
-        location: "Himmel",
-        timing: "10:00 AM - 12:00 PM",
-        titles: "Details",
-      },
-      materials: {
-        studentsEnrolled: 38,
-        AssignTeacher: "Dr. Michael Chen",
-        category: "Chemistry",
-        location: "Himmel",
-        timing: "10:00 AM - 12:00 PM",
-        titles: "Details",
-      },
-      image: PhotoImage,
-    },
-    {
-      id: 3,
-      title: "Clinical Pharmacy",
-      percentage: 92,
-      stage: "Stage 1-5",
-      completedStages: 4,
-      trainer: "Dr. Emily Roberts",
-      date: "22 Apr 2025 Thursday",
-      time: "01:00 PM",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-      tags: ["Clinical", "Patient Care", "Ethics"],
-      details: {
-        studentsEnrolled: 32,
-        AssignTeacher: "Dr. Emily Roberts",
-        category: "Clinical",
-        location: "Himmel",
-        timing: "01:00 PM - 03:00 PM",
-        titles: "Details",
-      },
-      materials: {
-        studentsEnrolled: 32,
-        AssignTeacher: "Dr. Emily Roberts",
-        category: "Clinical",
-        location: "Himmel",
-        timing: "01:00 PM - 03:00 PM",
-        titles: "Details",
-      },
-      image: PhotoImage,
-    },
-    {
-      id: 4,
-      title: "Pharmaceutical Regulations",
-      percentage: 42,
-      stage: "Stage 1-5",
-      completedStages: 2,
-      trainer: "Prof. David Wilson",
-      date: "25 Apr 2025 Monday",
-      time: "09:00 AM",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-      tags: ["Regulations", "Compliance", "Guidelines"],
-      details: {
-        studentsEnrolled: 40,
-        AssignTeacher: "Prof. David Wilson",
-        category: "Regulations",
-        location: "Himmel",
-        timing: "09:00 AM - 11:00 AM",
-        titles: "Details",
-      },
-      materials: {
-        studentsEnrolled: 40,
-        AssignTeacher: "Prof. David Wilson",
-        category: "Regulations",
-        location: "Himmel",
-        timing: "09:00 AM - 11:00 AM",
-        titles: "Details",
-      },
-      image: PhotoImage,
-    },
-    {
-      id: 5,
-      title: "Pharmacology Advanced",
-      percentage: 75,
-      stage: "Stage 1-5",
-      completedStages: 3,
-      trainer: "Dr. Lisa Thompson",
-      date: "28 Apr 2025 Thursday",
-      time: "02:00 PM",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-      tags: ["Pharmacology", "Research", "Advanced"],
-      details: {
-        studentsEnrolled: 35,
-        AssignTeacher: "Dr. Lisa Thompson",
-        category: "Pharmacology",
-        location: "Himmel",
-        timing: "02:00 PM - 04:00 PM",
-        titles: "Details",
-      },
-      materials: {
-        studentsEnrolled: 35,
-        AssignTeacher: "Dr. Lisa Thompson",
-        category: "Pharmacology",
-        location: "Himmel",
-        timing: "02:00 PM - 04:00 PM",
-        titles: "Details",
-      },
-      image: PhotoImage,
-    },
-    {
-      id: 6,
-      title: "Pharmaceutical Manufacturing",
-      percentage: 50,
-      stage: "Stage 1-5",
-      completedStages: 2,
-      trainer: "Prof. Robert Adams",
-      date: "30 Apr 2025 Monday",
-      time: "10:00 AM",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-      tags: ["Manufacturing", "Quality", "GMP"],
-      details: {
-        studentsEnrolled: 42,
-        AssignTeacher: "Prof. Robert Adams",
-        category: "Manufacturing",
-        location: "Himmel",
-        timing: "10:00 AM - 12:00 PM",
-        titles: "Details",
-      },
-      materials: {
-        studentsEnrolled: 42,
-        AssignTeacher: "Prof. Robert Adams",
-        category: "Manufacturing",
-        location: "Himmel",
-        timing: "10:00 AM - 12:00 PM",
-        titles: "Details",
-      },
-      image: PhotoImage,
-    },
-  ]
+ 
 
-  const openModal = (certificate) => {
+  const openDrawer = (certificate) => {
     setSelectedCertificate(certificate)
-    document.body.style.overflow = "hidden"
+    setIsDrawerVisible(true)
   }
 
-  const closeModal = () => {
+  const closeDrawer = () => {
     setSelectedCertificate(null)
-    document.body.style.overflow = "auto"
+    setIsDrawerVisible(false)
   }
 
-  return (
-    <div className="p-4 md:p-6">
-      <h1 className="text-2xl mb-6 poppins-thin_600">Certificate progress</h1>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {certificates.map((certificate) => (
+  const renderProgressStages = (completedStages) => {
+    return (
+      <div style={{ display: 'flex', gap: '4px', marginTop: '8px' }}>
+        {[1, 2, 3, 4, 5].map((stage) => (
           <div
-            key={certificate.id}
-            className="bg-[#F2F2F2] p-5 rounded-xl cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => openModal(certificate)}
-          >
-            <h3 className="text-sm poppins-thin_600 mb-1">{certificate.title}</h3>
-            <div className="text-4xl font-bold mb-1">{certificate.percentage}%</div>
-            <p className="text-sm text-gray-600 mb-4">of customers recommend this product</p>
-
-            <div className="space-y-2">
-              <div className="text-sm font-medium">Progress</div>
-
-              <div className="flex space-x-1">
-                {[1, 2, 3, 4, 5].map((stage) => (
-                  <div
-                    key={stage}
-                    className={`h-2 flex-1 ${
-                      stage <= certificate.completedStages ? "bg-[#0B5D3A]" : "bg-gray-200"
-                    } ${stage === 1 ? "rounded-l-full" : ""} ${stage === 5 ? "rounded-r-full" : ""}`}
-                  ></div>
-                ))}
-              </div>
-
-              <div className="text-xs text-gray-700">{certificate.stage}</div>
-            </div>
-          </div>
+            key={stage}
+            style={{
+              height: '8px',
+              flex: 1,
+              backgroundColor: stage <= completedStages ? '#0B5D3A' : '#d9d9d9',
+              borderRadius: stage === 1 ? '4px 0 0 4px' : stage === 5 ? '0 4px 4px 0' : '0',
+            }}
+          />
         ))}
       </div>
+    )
+  }
 
-      {selectedCertificate && (
-        <div className="fixed inset-0 bg-black/50 bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg w-full max-w-lg p-4 max-h-[90vh] overflow-y-auto custom-scrollbar relative">
-            <button
-              onClick={closeModal}
-              className="absolute top-3 right-3 cursor-pointer bg-black p-1 text-sm rounded-md text-white z-10"
-            >
-              <X size={15} />
-            </button>
-
-            <div className="flex items-center justify-between p-2">
-              <div className="flex items-center gap-3">
-                <h2 className="text-lg font-semibold">{selectedCertificate.title}</h2>
-              </div>
-            </div>
-
-            <div className="p-2 ">
-              <p className="text-sm text-[#505050]">{selectedCertificate.description}</p>
-            </div>
-
-            {/* <div className="p-3 mt-2">
-              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-                {selectedCertificate.percentage === 100 ? "Completed" : "Completion"}
-              </h3>
-              <button className="flex items-center justify-center w-auto text-white poppins-thin_bold py-2 bg-[#1E1E1F] rounded-xl text-xs px-6 cursor-pointer transition-colors">
-                {selectedCertificate.percentage === 100 ? "Completed" : "Continue"}
-              </button>
-            </div> */}
-
-            <div className="p-3 mt-2">
-              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Tags</h3>
-              <div className="flex flex-wrap gap-2">
-                {selectedCertificate.tags.map((tag, index) => (
-                  <span key={index} className="px-3 py-2 bg-gray-100 text-gray-700 text-xs rounded-xl poppins-thin">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="p-3 mt-2">
-              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Details</h3>
-              <div className="space-y-2">
-                <div className="grid grid-cols-3 gap-4 text-sm">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">Students Enrolled:</span>
-                  <span className="col-span-2 md:text-sm text-xs text-gray-700">
-                    {selectedCertificate.details.studentsEnrolled}
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-4 text-sm">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">Assign Teacher:</span>
-                  <span className="col-span-2 md:text-sm text-xs text-gray-700">
-                    {selectedCertificate.details.AssignTeacher}
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-4 text-sm">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">Category:</span>
-                  <span className="col-span-2 md:text-sm text-xs text-gray-700">
-                    {selectedCertificate.details.category}
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-4 text-sm">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">Location:</span>
-                  <span className="col-span-2 md:text-sm text-xs text-gray-700">
-                    {selectedCertificate.details.location}
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-4 md:text-sm text-xs">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">Timing:</span>
-                  <span className="col-span-2 md:text-sm text-xs text-gray-700">
-                    {selectedCertificate.details.timing}
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-4 md:text-sm text-xs">
-                  <span className="text-gray-500 md:text-sm text-xs font-bold">Titles:</span>
-                  <span className="col-span-2 md:text-sm text-xs text-gray-700">
-                    {selectedCertificate.details.titles}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-3 mt-2">
-              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Progress</h3>
-              <div className="space-y-2">
-                <div className="mt-2">
-                  <div className="flex space-x-1">
-                    {[1, 2, 3, 4, 5].map((stage) => (
-                      <div
-                        key={stage}
-                        className={`h-2 flex-1 ${
-                          stage <= selectedCertificate.completedStages ? "bg-[#0B5D3A]" : "bg-gray-200"
-                        } ${stage === 1 ? "rounded-l-full" : ""} ${stage === 5 ? "rounded-r-full" : ""}`}
-                      ></div>
-                    ))}
-                  </div>
-                  <div className="text-xs text-gray-700 mt-1">{selectedCertificate.stage}</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-3 mt-2">
-              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">Certificate</h3>
-              <button
-                className={`flex items-center justify-center w-auto text-white poppins-thin_bold py-2 rounded-xl text-xs px-6 cursor-pointer transition-colors ${
-                  selectedCertificate.percentage === 100 ? "bg-[#1E1E1F]" : "bg-[#1E1E1F] opacity-50 cursor-not-allowed"
-                }`}
-                disabled={selectedCertificate.percentage !== 100}
-              >
-                <FileText size={16} className="mr-2" />
-                {selectedCertificate.percentage === 100 ? "Download Certificate" : "Certificate Locked"}
-              </button>
-              {selectedCertificate.percentage !== 100 && (
-                <p className="text-xs text-gray-500 mt-1">Complete the course to unlock your certificate</p>
-              )}
-            </div>
-          </div>
+  const CertificateImage = ({ title, percentage }) => (
+    <div
+      style={{
+        width: '100%',
+        height: '120px',
+        background: '#357ABD',
+        borderRadius: '8px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: '16px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          top: '-20px',
+          right: '-20px',
+          width: '60px',
+          height: '60px',
+          background: 'rgba(255, 255, 255, 0.1)',
+          borderRadius: '50%',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '-30px',
+          left: '-30px',
+          width: '80px',
+          height: '80px',
+          background: 'rgba(255, 255, 255, 0.05)',
+          borderRadius: '50%',
+        }}
+      />
+      <FileTextOutlined style={{ fontSize: '28px', color: 'white', marginBottom: '8px' }} />
+      <Text style={{ 
+        color: 'white', 
+        fontSize: '14px', 
+        fontWeight: 600, 
+        textAlign: 'center',
+        padding: '0 10px',
+        lineHeight: '1.2'
+      }}>
+        {title}
+      </Text>
+      {percentage === 100 && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '8px',
+            right: '8px',
+            background: '#52c41a',
+            color: 'white',
+            fontSize: '10px',
+            padding: '2px 6px',
+            borderRadius: '10px',
+            fontWeight: 'bold',
+          }}
+        >
+          ✓ Complete
         </div>
       )}
+    </div>
+  )
+
+  return (
+    <div className="min-h-screen p-3">
+       <Title level={2} style={{ marginBottom: 32, color: "#262626", fontSize: "28px" }}>
+          Certificates Progress
+        </Title>
+
+      <Row gutter={[16, 16]}>
+        {certificates.map((certificate) => (
+          <Col xs={24} sm={12} md={8} key={certificate.id}>
+            <Card
+              hoverable
+              onClick={() => openDrawer(certificate)}
+              style={{
+                backgroundColor: '#F2F2F2',
+                borderRadius: '12px',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              <CertificateImage title={certificate.title} percentage={certificate.percentage} />
+              
+              <Title level={5} style={{ marginBottom: '8px', fontWeight: 600 }}>
+                {certificate.title}
+              </Title>
+              
+              <div style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '4px' }}>
+                {certificate.percentage}%
+              </div>
+              
+              <Text type="secondary" style={{ fontSize: '12px', display: 'block', marginBottom: '16px' }}>
+                of customers recommend this product
+              </Text>
+
+              <div>
+                <Text strong style={{ fontSize: '14px', display: 'block', marginBottom: '8px' }}>
+                  Progress
+                </Text>
+                
+                {renderProgressStages(certificate.completedStages)}
+                
+                <Text type="secondary" style={{ fontSize: '11px', display: 'block', marginTop: '4px' }}>
+                  {certificate.stage}
+                </Text>
+              </div>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+
+      <Drawer
+        title={null}
+        placement="right"
+        onClose={closeDrawer}
+        open={isDrawerVisible}
+        width={450}
+        closeIcon={<CloseOutlined style={{ 
+          color: 'white', 
+          backgroundColor: '#000', 
+          padding: '6px', 
+          borderRadius: '4px',
+          fontSize: '14px'
+        }} />}
+        styles={{
+          body: { padding: '0' }
+        }}
+      >
+        {selectedCertificate && (
+          <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            {/* Header with Certificate Image */}
+            <div style={{ padding: '24px', borderBottom: '1px solid #f0f0f0' }}>
+              <CertificateImage 
+                title={selectedCertificate.title} 
+                percentage={selectedCertificate.percentage} 
+              />
+              <Title level={4} style={{ margin: '0 0 12px 0' }}>
+                {selectedCertificate.title}
+              </Title>
+              <Paragraph style={{ color: '#505050', fontSize: '14px', margin: 0 }}>
+                {selectedCertificate.description}
+              </Paragraph>
+            </div>
+
+            {/* Scrollable Content */}
+            <div style={{ 
+              flex: 1, 
+              overflowY: 'auto', 
+              padding: '24px',
+            }}>
+              <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                <div>
+                  <Title level={5} style={{ color: '#666', fontWeight: 800, marginBottom: '12px' }}>
+                    Tags
+                  </Title>
+                  <Space wrap>
+                    {selectedCertificate.tags.map((tag, index) => (
+                      <Tag
+                        key={index}
+                        style={{
+                          backgroundColor: '#f5f5f5',
+                          color: '#666',
+                          fontSize: '12px',
+                          padding: '4px 12px',
+                          borderRadius: '12px',
+                          border: 'none',
+                        }}
+                      >
+                        {tag}
+                      </Tag>
+                    ))}
+                  </Space>
+                </div>
+
+                <div>
+                  <Title level={5} style={{ color: '#666', fontWeight: 800, marginBottom: '12px' }}>
+                    Details
+                  </Title>
+                  <Descriptions column={1} size="small" colon={false}>
+                    <Descriptions.Item
+                      label={<Text strong style={{ fontSize: '12px', color: '#999' }}>Students Enrolled:</Text>}
+                      labelStyle={{ width: '130px' }}
+                    >
+                      <Text style={{ fontSize: '12px', color: '#666' }}>
+                        {selectedCertificate.details.studentsEnrolled}
+                      </Text>
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      label={<Text strong style={{ fontSize: '12px', color: '#999' }}>Assign Teacher:</Text>}
+                      labelStyle={{ width: '130px' }}
+                    >
+                      <Text style={{ fontSize: '12px', color: '#666' }}>
+                        {selectedCertificate.details.AssignTeacher}
+                      </Text>
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      label={<Text strong style={{ fontSize: '12px', color: '#999' }}>Category:</Text>}
+                      labelStyle={{ width: '130px' }}
+                    >
+                      <Text style={{ fontSize: '12px', color: '#666' }}>
+                        {selectedCertificate.details.category}
+                      </Text>
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      label={<Text strong style={{ fontSize: '12px', color: '#999' }}>Location:</Text>}
+                      labelStyle={{ width: '130px' }}
+                    >
+                      <Text style={{ fontSize: '12px', color: '#666' }}>
+                        {selectedCertificate.details.location}
+                      </Text>
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      label={<Text strong style={{ fontSize: '12px', color: '#999' }}>Timing:</Text>}
+                      labelStyle={{ width: '130px' }}
+                    >
+                      <Text style={{ fontSize: '12px', color: '#666' }}>
+                        {selectedCertificate.details.timing}
+                      </Text>
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      label={<Text strong style={{ fontSize: '12px', color: '#999' }}>Titles:</Text>}
+                      labelStyle={{ width: '130px' }}
+                    >
+                      <Text style={{ fontSize: '12px', color: '#666' }}>
+                        {selectedCertificate.details.titles}
+                      </Text>
+                    </Descriptions.Item>
+                  </Descriptions>
+                </div>
+
+                <div>
+                  <Title level={5} style={{ color: '#666', fontWeight: 800, marginBottom: '12px' }}>
+                    Progress
+                  </Title>
+                  <div>
+                    {renderProgressStages(selectedCertificate.completedStages)}
+                    <Text type="secondary" style={{ fontSize: '11px', display: 'block', marginTop: '8px' }}>
+                      {selectedCertificate.stage} • {selectedCertificate.completedStages}/5 Completed
+                    </Text>
+                  </div>
+                </div>
+
+                <div>
+                  <Title level={5} style={{ color: '#666', fontWeight: 800, marginBottom: '12px' }}>
+                    Certificate
+                  </Title>
+                  <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                    <Button
+                      type="primary"
+                      icon={<FileTextOutlined />}
+                      disabled={selectedCertificate.percentage !== 100}
+                      block
+                      style={{
+                        backgroundColor: selectedCertificate.percentage === 100 ? '#1E1E1F' : '#1E1E1F',
+                        borderColor: '#1E1E1F',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        opacity: selectedCertificate.percentage !== 100 ? 0.5 : 1,
+                        height: '40px',
+                      }}
+                    >
+                      {selectedCertificate.percentage === 100 ? "Download Certificate" : "Certificate Locked"}
+                    </Button>
+                    {selectedCertificate.percentage !== 100 && (
+                      <Text type="secondary" style={{ fontSize: '11px', textAlign: 'center', display: 'block' }}>
+                        Complete the course to unlock your certificate
+                      </Text>
+                    )}
+                  </Space>
+                </div>
+              </Space>
+            </div>
+          </div>
+        )}
+      </Drawer>
     </div>
   )
 }

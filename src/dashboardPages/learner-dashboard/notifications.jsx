@@ -1,144 +1,226 @@
-"use client"
-
 /* eslint-disable no-unused-vars */
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import Notifcation from "../../../public/notfication.svg"
-import { HiDotsHorizontal } from "react-icons/hi"
+import React, { useState } from "react";
+import { 
+  Card, 
+  Typography, 
+  Button, 
+  Row,
+  Col,
+  Progress
+} from "antd";
+import { 
+  BookOutlined,
+  FileTextOutlined,
+  QuestionCircleOutlined,
+  BellOutlined
+} from "@ant-design/icons";
+import { notificationsData } from "../../utils/notificationsData";
+import { useNavigate } from "react-router-dom";
+
+const { Title, Text } = Typography;
 
 const NotificationPage = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const [notifications, setNotifications] = useState(notificationsData);
 
-  const [notifications, setNotifications] = useState([
-    {
-      id: 2,
-      title: "Course",
-      description: "Phase 1",
-      date: "Progress",
-      progress: 45,
-      type: "course",
-      phase: 1,
-      image: Notifcation,
-      link: "/learner-dashboard/courses",
-    },
-    {
-      id: 3,
-      title: "Course",
-      description: "Phase 1",
-      date: "Progress",
-      progress: 60,
-      type: "course",
-      phase: 2,
-      image: Notifcation,
-      link: "/learner-dashboard/courses",
-    },
-    {
-      id: 4,
-      title: "Course Assignment Due",
-      description: "Complete your assignment for Phase 3",
-      date: "Progress",
-      progress: 75,
-      type: "course",
-      phase: 3,
-      image: Notifcation,
-      link: "/learner-dashboard/assignments",
-      isAssignment: true,
-    },
-    {
-      id: 5,
-      title: "Course Quiz Available",
-      description: "Take your quiz for Phase 4",
-      date: "Progress",
-      progress: 90,
-      type: "course",
-      phase: 4,
-      image: Notifcation,
-      link: "/learner-dashboard/assignments",
-      isQuiz: true,
-    },
-  ])
 
   const handleNotificationClick = (notification) => {
-    // Navigate to the appropriate section based on notification type
-    if (notification.link) {
-      navigate(notification.link)
+    console.log(notification.type);
+  
+    if (notification.type === "course") {
+      navigate("/learner-dashboard/courses");
+    } else if (notification.type === "assignments") {
+      navigate("/learner-dashboard/assignments");
+    } else if (notification.type === "discussion") {
+      navigate("/learner-dashboard/messages");
     }
-  }
+  };
+  
 
   const getButtonText = (notification) => {
-    if (notification.type === "document") return "Documents"
-    if (notification.isAssignment) return "Go to Assignment"
-    if (notification.isQuiz) return "Take Quiz"
-    return "Continue Course"
-  }
+    if (notification.type === "document") return "Documents";
+    if (notification.isAssignment) return "Go to Assignment";
+    if (notification.isQuiz) return "Take Quiz";
+    if (notification.type === "discussion") return "Join Discussion";
+    return "Continue Course";
+  };
+
+  const getNotificationIcon = (notification) => {
+    if (notification.isAssignment) return <FileTextOutlined />;
+    if (notification.isQuiz) return <QuestionCircleOutlined />;
+    if (notification.type === "discussion") return <BellOutlined />;
+    return <BookOutlined />;
+  };
+
+  const NotificationImage = ({ title, type, isAssignment, isQuiz }) => (
+    <div
+      style={{
+        width: '100%',
+        height: '100px',
+        background: '#357ABD',
+        borderRadius: '8px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: '16px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          top: '-15px',
+          right: '-15px',
+          width: '50px',
+          height: '50px',
+          background: 'rgba(255, 255, 255, 0.1)',
+          borderRadius: '50%',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '-20px',
+          left: '-20px',
+          width: '60px',
+          height: '60px',
+          background: 'rgba(255, 255, 255, 0.05)',
+          borderRadius: '50%',
+        }}
+      />
+      {getNotificationIcon({ type, isAssignment, isQuiz })}
+      <Text style={{ 
+        color: 'white', 
+        fontSize: '12px', 
+        fontWeight: 600, 
+        textAlign: 'center',
+        padding: '0 8px',
+        lineHeight: '1.2',
+        marginTop: '4px'
+      }}>
+        {title.length > 20 ? title.substring(0, 20) + '...' : title}
+      </Text>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen">
-      <div className="w-full max-w-5xl mr-auto p-2">
-        <h1 className="text-2xl poppins-thin_600 mb-6">Notification</h1>
-
-        <div className="space-y-4">
+    <div className="min-h-screen p-3">
+      <div >
+        <Title level={2} style={{ marginBottom: '32px', color: "#262626", fontSize: "28px" }}>
+          Notifications
+        </Title>
+        
+        <Row gutter={[16, 16]}>
           {notifications.map((notification) => (
-            <div
-              key={notification.id}
-              className="flex flex-col md:flex-row md:items-center p-4 rounded-xl bg-[#F9F9F9]"
-            >
-              <div className="flex items-start md:items-center flex-1">
-                <div className="rounded overflow-hidden flex-shrink-0">
-                  <img src={notification.image || "/placeholder.svg"} alt="" className="object-cover h-full w-full" />
-                </div>
-
-                <div className="ml-4 flex-1">
-                  {notification.subtitle && (
-                    <p className="text-md poppins-thin_600 text-gray-500">{notification.subtitle}</p>
+            <Col xs={24} sm={12} lg={8} key={notification.id}>
+              <Card
+                hoverable
+                style={{
+                  backgroundColor: '#F9F9F9',
+                  borderRadius: '12px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  height: '100%',
+                }}
+                styles={{
+                  body: { 
+                    padding: '20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%'
+                  }
+                }}
+              >
+                <div style={{ flex: 1 }}>
+                  <NotificationImage 
+                    title={notification.title}
+                    type={notification.type}
+                    isAssignment={notification.isAssignment}
+                    isQuiz={notification.isQuiz}
+                  />
+                  
+                  <Title level={5} style={{ 
+                    marginBottom: '8px', 
+                    fontWeight: 600,
+                    fontSize: '16px',
+                    lineHeight: '1.4'
+                  }}>
+                    {notification.title}
+                  </Title>
+                  
+                  {notification.description && (
+                    <Text type="secondary" style={{ 
+                      fontSize: '13px', 
+                      display: 'block', 
+                      marginBottom: '12px',
+                      lineHeight: '1.4'
+                    }}>
+                      {notification.description}
+                    </Text>
                   )}
-                  <p className="font-medium text-black">{notification.title}</p>
 
-                  {notification.description && <p className="text-sm text-gray-500">{notification.description}</p>}
+                  {notification.date && (
+                    <Text type="secondary" style={{ 
+                      fontSize: '12px', 
+                      display: 'block', 
+                      marginBottom: '16px' 
+                    }}>
+                      {notification.date}
+                    </Text>
+                  )}
 
-                  {notification.date && <p className="text-sm text-gray-500 mt-1">Deadline : {notification.date}</p>}
-
-                  {notification.type === "course" && (
-                    <div className="mt-2">
-                      <p className="text-xs text-gray-500 mb-1">Progress</p>
-                      <div className="flex items-center">
-                        <div className="relative w-full md:w-42 bg-gray-200 rounded-full h-1">
-                          <div
-                            className="bg-[#0B5D3A] h-1 rounded-full"
-                            style={{ width: `${notification.progress}%` }}
-                          ></div>
-                          <div
-                            className="absolute top-1/2 transform -translate-y-1/2 w-3 h-3 bg-[#0B5D3A] rounded-full border-2 border-white"
-                            style={{ left: `calc(${notification.progress}% - 6px)` }}
-                          ></div>
-                        </div>
-                        <span className="text-xs text-gray-400 ml-2">{notification.progress}%</span>
+                  {notification.type === "course" && notification.progress !== null && (
+                    <div style={{ marginBottom: '20px' }}>
+                      <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        marginBottom: '8px'
+                      }}>
+                        <Text strong style={{ fontSize: '12px', color: '#666' }}>
+                          Progress
+                        </Text>
+                        <Text style={{ fontSize: '12px', color: '#666' }}>
+                          {notification.progress}%
+                        </Text>
                       </div>
+                      <Progress 
+                        percent={notification.progress} 
+                        showInfo={false}
+                        strokeColor="#0B5D3A"
+                        trailColor="#e5e5e5"
+                        size="small"
+                      />
                     </div>
                   )}
                 </div>
-              </div>
 
-              <div className="flex justify-between items-center md:flex-col md:items-end md:space-y-8 mt-4 md:mt-0">
-                <button className="md:ml-4 md:block hidden">
-                  <HiDotsHorizontal className="" size={25} />
-                </button>
-                <button
+                <Button
+                  type="primary"
                   onClick={() => handleNotificationClick(notification)}
-                  className="bg-[#1E1E1F] poppins-thin text-white text-sm cursor-pointer px-4 py-1.5 rounded-xl w-56 md:w-auto"
+                  block
+                  style={{
+                    backgroundColor: '#1E1E1F',
+                    borderColor: '#1E1E1F',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    height: '38px',
+                    borderRadius: '8px',
+                    marginTop: 'auto'
+                  }}
                 >
                   {getButtonText(notification)}
-                </button>
-                <button className="md:ml-4 md:hidden block">
-                  <HiDotsHorizontal className="" size={25} />
-                </button>
-              </div>
-            </div>
+                </Button>
+              </Card>
+            </Col>
           ))}
-        </div>
+        </Row>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default NotificationPage
+export default NotificationPage;

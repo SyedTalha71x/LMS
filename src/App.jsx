@@ -18,6 +18,7 @@ import Notifications from "./dashboardPages/learner-dashboard/notifications";
 import Courses from "./dashboardPages/learner-dashboard/courses";
 import Assignments from "./dashboardPages/learner-dashboard/assignments";
 import Calender from "./dashboardPages/learner-dashboard/calender";
+import CourseDetail from './dashboardPages/learner-dashboard/courses-details/course-detail'
 
 //Instructor Dashboard Routes
 import InstructorDashboardlayout from "./layouts/instructor-dashboard";
@@ -86,6 +87,7 @@ function App() {
           <Route path="all-courses" element={<Courses />} />
           <Route path="assignments" element={<Assignments />} />
           <Route path="calender" element={<Calender />} />
+          <Route path="course-details/:id" element={<CourseDetail />} />
         </Route>
 
         <Route

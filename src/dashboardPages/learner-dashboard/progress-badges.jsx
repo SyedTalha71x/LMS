@@ -1,253 +1,479 @@
-import { useState } from "react";
-import { X, FileText, MoreVertical } from "lucide-react";
-import Badge from "../../../public/Badge.svg";
+import React, { useState } from "react";
+import { 
+  Card, 
+  Drawer, 
+  Typography, 
+  Tag, 
+  Button, 
+  Space,
+  Row,
+  Col,
+  Descriptions
+} from "antd";
+import { 
+  FileTextOutlined,
+  CloseOutlined,
+  TrophyOutlined
+} from "@ant-design/icons";
+
+const { Title, Text, Paragraph } = Typography;
 
 const BadgesProgress = () => {
   const [selectedBadge, setSelectedBadge] = useState(null);
+  const [isDrawerVisible, setIsDrawerVisible] = useState(false);
 
   const badges = [
     {
       id: 1,
-      title: "Badge 1",
-      subtitle: "#12345",
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-      progress: 40,
+      title: "Professional Integrity Badge",
+      description: "Demonstrates mastery of pharmaceutical integrity principles, ethical decision-making, and professional research standards. This badge validates your commitment to maintaining the highest standards in pharmaceutical practice.",
+      percentage: 40,
+      completedStages: 2,
+      stage: "In Progress - Module 3",
       tags: ["Integrity", "Pharmacy", "Research"],
       details: {
-        dateEarned: "Not yet earned",
-        issuer: "Himmel Academy",
+        studentsEnrolled: "1,247",
+        assignTeacher: "Dr. Sarah Johnson", // Fixed capitalization
         category: "Professional Development",
-        validity: "Lifetime",
-        requirements: "Complete all related courses",
-        type: "Achievement"
+        location: "Online/Hybrid",
+        timing: "Self-paced",
+        titles: "Ethics in Pharmaceutical Practice"
       },
-      documentation: "badge1_requirements.pdf"
+      documentation: "integrity_badge_requirements.pdf"
     },
     {
       id: 2,
-      title: "Badge 2",
-      subtitle: "#67890",
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-      progress: 65,
+      title: "Chemical Analysis Expert",
+      description: "Advanced certification in pharmaceutical chemical analysis techniques, including spectroscopy, chromatography, and quality control methodologies for drug development and manufacturing.",
+      percentage: 65,
+      completedStages: 3,
+      stage: "In Progress - Module 4",
       tags: ["Chemistry", "Analysis", "Research"],
       details: {
-        dateEarned: "Not yet earned",
-        issuer: "Himmel Academy",
+        studentsEnrolled: "856",
+        assignTeacher: "Prof. Michael Chen", // Fixed capitalization
         category: "Technical Skills",
-        validity: "3 years",
-        requirements: "Pass certification exam",
-        type: "Certification"
+        location: "Laboratory + Online",
+        timing: "16 weeks",
+        titles: "Advanced Analytical Chemistry"
       },
-      documentation: "badge2_requirements.pdf"
+      documentation: "chemistry_badge_requirements.pdf"
     },
     {
       id: 3,
-      title: "Badge 3",
-      subtitle: "#24680",
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-      progress: 90,
+      title: "Clinical Excellence Badge",
+      description: "Recognition for outstanding clinical pharmacy practice, patient care excellence, and ethical healthcare delivery. Validates expertise in clinical decision-making and patient interaction.",
+      percentage: 100, // Changed to 100 to demonstrate earned badge
+      completedStages: 5, // Changed to 5 for complete
+      stage: "Completed",
       tags: ["Clinical", "Patient Care", "Ethics"],
       details: {
-        dateEarned: "Not yet earned",
-        issuer: "Himmel Academy",
+        studentsEnrolled: "692",
+        assignTeacher: "Dr. Emily Rodriguez", // Fixed capitalization
         category: "Clinical Practice",
-        validity: "2 years",
-        requirements: "Complete practical assessment",
-        type: "Qualification"
+        location: "Hospital-based",
+        timing: "12 weeks",
+        titles: "Clinical Pharmacy Excellence"
       },
-      documentation: "badge3_requirements.pdf"
+      documentation: "clinical_badge_requirements.pdf"
     },
     {
       id: 4,
-      title: "Badge 4",
-      subtitle: "#13579",
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-      progress: 20,
+      title: "Regulatory Compliance Specialist",
+      description: "Comprehensive understanding of pharmaceutical regulations, FDA guidelines, and international compliance standards. Essential for careers in regulatory affairs and quality assurance.",
+      percentage: 20,
+      completedStages: 1,
+      stage: "Getting Started - Module 2",
       tags: ["Regulations", "Compliance", "Guidelines"],
       details: {
-        dateEarned: "Not yet earned",
-        issuer: "Himmel Academy",
+        studentsEnrolled: "1,125",
+        assignTeacher: "Dr. Robert Kim", // Fixed capitalization
         category: "Regulatory Affairs",
-        validity: "1 year",
-        requirements: "Complete regulatory courses",
-        type: "Compliance"
+        location: "Online",
+        timing: "8 weeks",
+        titles: "Pharmaceutical Regulations & Compliance"
       },
-      documentation: "badge4_requirements.pdf"
+      documentation: "regulatory_badge_requirements.pdf"
     },
     {
       id: 5,
-      title: "Badge 5",
-      subtitle: "#97531",
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-      progress: 75,
+      title: "Advanced Pharmacology Research",
+      description: "Distinguished recognition for advanced pharmacological research capabilities, drug discovery methodologies, and contribution to pharmaceutical science literature.",
+      percentage: 75,
+      completedStages: 4,
+      stage: "Research Project Phase",
       tags: ["Pharmacology", "Research", "Advanced"],
       details: {
-        dateEarned: "Not yet earned",
-        issuer: "Himmel Academy",
+        studentsEnrolled: "324",
+        assignTeacher: "Dr. Lisa Zhang", // Fixed capitalization
         category: "Research",
-        validity: "Lifetime",
-        requirements: "Publish research paper",
-        type: "Academic"
+        location: "Research Lab + Online",
+        timing: "20 weeks",
+        titles: "Advanced Pharmacological Research"
       },
-      documentation: "badge5_requirements.pdf"
+      documentation: "research_badge_requirements.pdf"
     },
     {
       id: 6,
-      title: "Badge 6",
-      subtitle: "#08642",
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-      progress: 50,
+      title: "Manufacturing Excellence GMP",
+      description: "Expertise in Good Manufacturing Practices (GMP), quality systems, and pharmaceutical manufacturing processes. Critical for careers in pharmaceutical production and quality control.",
+      percentage: 50,
+      completedStages: 2,
+      stage: "In Progress - Module 3",
       tags: ["Manufacturing", "Quality", "GMP"],
       details: {
-        dateEarned: "Not yet earned",
-        issuer: "Himmel Academy",
+        studentsEnrolled: "978",
+        assignTeacher: "Dr. James Wilson", // Fixed capitalization
         category: "Manufacturing",
-        validity: "5 years",
-        requirements: "Complete GMP certification",
-        type: "Industrial"
+        location: "Manufacturing Facility + Online",
+        timing: "14 weeks",
+        titles: "GMP and Manufacturing Excellence"
       },
-      documentation: "badge6_requirements.pdf"
+      documentation: "gmp_badge_requirements.pdf"
     },
   ];
 
-  const openModal = (badge) => {
+  const openDrawer = (badge) => {
     setSelectedBadge(badge);
-    document.body.style.overflow = "hidden";
+    setIsDrawerVisible(true);
   };
 
-  const closeModal = () => {
+  const closeDrawer = () => {
+    setIsDrawerVisible(false);
     setSelectedBadge(null);
-    document.body.style.overflow = "auto";
+  };
+
+  const renderProgressStages = (completedStages) => {
+    return (
+      <div style={{ display: 'flex', gap: '4px', marginTop: '8px' }}>
+        {[1, 2, 3, 4, 5].map((stage) => (
+          <div
+            key={stage}
+            style={{
+              height: '8px',
+              flex: 1,
+              backgroundColor: stage <= completedStages ? '#0B5D3A' : '#d9d9d9',
+              borderRadius: stage === 1 ? '4px 0 0 4px' : stage === 5 ? '0 4px 4px 0' : '0',
+            }}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  const BadgeImage = ({ title, percentage }) => (
+    <div
+      style={{
+        width: '100%',
+        height: '120px',
+        background: '#357ABD',
+        borderRadius: '8px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: '16px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          top: '-20px',
+          right: '-20px',
+          width: '60px',
+          height: '60px',
+          background: 'rgba(255, 255, 255, 0.1)',
+          borderRadius: '50%',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '-30px',
+          left: '-30px',
+          width: '80px',
+          height: '80px',
+          background: 'rgba(255, 255, 255, 0.05)',
+          borderRadius: '50%',
+        }}
+      />
+      <TrophyOutlined style={{ fontSize: '28px', color: 'white', marginBottom: '8px' }} />
+      <Text style={{ 
+        color: 'white', 
+        fontSize: '14px', 
+        fontWeight: 600, 
+        textAlign: 'center',
+        padding: '0 10px',
+        lineHeight: '1.2'
+      }}>
+        {title.length > 25 ? title.substring(0, 25) + '...' : title}
+      </Text>
+      {percentage === 100 && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '8px',
+            right: '8px',
+            background: '#52c41a',
+            color: 'white',
+            fontSize: '10px',
+            padding: '2px 6px',
+            borderRadius: '10px',
+            fontWeight: 'bold',
+          }}
+        >
+          ✓ Earned
+        </div>
+      )}
+    </div>
+  );
+
+  const handleViewRequirements = (documentation) => {
+    // Simulate file viewing - in real app, this would open a PDF or navigate to requirements page
+    alert(`Opening ${documentation}...`);
+  };
+
+  const handleClaimBadge = (badgeTitle) => {
+    // Simulate badge claiming - in real app, this would trigger badge earning process
+    alert(`Congratulations! You've claimed the ${badgeTitle}!`);
   };
 
   return (
-    <div className="max-w-4xl w-full mr-auto p-4 md:p-6">
-      <h1 className="text-2xl poppins-thin_600 mb-6">Badges progress</h1>
-      <div className="space-y-3">
+    <div style={{ minHeight: '100vh', padding: '12px' }}>
+      <Title level={2} style={{ marginBottom: '32px', color: "#262626", fontSize: "28px" }}>
+        Badges Progress
+      </Title>
+      
+      <Row gutter={[16, 16]}>
         {badges.map((badge) => (
-          <div
-            key={badge.id}
-            className="bg-[#F2F2F2] rounded-xl md:p-6 p-3 flex flex-col md:flex-row items-center cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => openModal(badge)}
-          >
-            <div className="relative w-12 h-12 flex-shrink-0">
-              <img src={Badge} alt="Badge icon" className="object-contain" />
-            </div>
-            <div className="md:ml-4 ml-0 flex-grow text-center md:text-left">
-              <h3 className="text-md poppins-thin_600">{badge.title}</h3>
-              <p className="text-sm text-gray-500">{badge.subtitle}</p>
-            </div>
-            <div className="flex sm:flex-row items-center gap-3 sm:ml-4 w-full sm:w-auto mt-3 sm:mt-0">
-              <div className="hidden sm:block text-sm font-medium">
-                Progress
-              </div>
-              <div className="w-full sm:w-32 relative">
-                <div className="bg-gray-200 h-2 rounded-full w-full">
-                  <div
-                    className="bg-[#0B5D3A] h-2 rounded-full relative"
-                    style={{ width: `${badge.progress}%` }}
-                  >
-                    <div className="absolute -right-1.5 -top-1 w-4 h-4 bg-[#0B5D3A] rounded-full border-2 border-white"></div>
-                  </div>
-                </div>
-              </div>
-              <div className="text-sm text-gray-400">{badge.progress}%</div>
-              <button 
-                className="ml-auto sm:ml-2 p-1 hover:bg-gray-100 rounded-full"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // Add additional action if needed
-                }}
-              >
-                <MoreVertical className="w-5 h-5 text-gray-400" />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {selectedBadge && (
-        <div className="fixed inset-0 bg-black/50 bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg w-full max-w-lg p-4  overflow-y-auto custom-scrollbar relative">
-            <button
-              onClick={closeModal}
-              className="absolute top-3 right-3 cursor-pointer bg-black p-1 text-sm rounded-md text-white z-10"
+          <Col xs={24} sm={12} md={8} key={badge.id}>
+            <Card
+              hoverable
+              onClick={() => openDrawer(badge)}
+              style={{
+                backgroundColor: '#F2F2F2',
+                borderRadius: '12px',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+              }}
+              styles={{
+                body: { padding: '20px' }
+              }}
             >
-              <X size={15} />
-            </button>
-
-            <div className="flex items-center justify-between p-2">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10">
-                  <img src={Badge} alt="Badge icon" className="object-contain" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold">
-                    {selectedBadge.title}
-                  </h2>
-                  <p className="text-xs text-gray-500">{selectedBadge.subtitle}</p>
-                </div>
+              <BadgeImage title={badge.title} percentage={badge.percentage} />
+              
+              <Title level={5} style={{ marginBottom: '8px', fontWeight: 600 }}>
+                {badge.title}
+              </Title>
+              
+              <div style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '4px' }}>
+                {badge.percentage}%
               </div>
-            </div>
+              
+              <Text type="secondary" style={{ fontSize: '12px', display: 'block', marginBottom: '16px' }}>
+                completion progress towards badge
+              </Text>
 
-            <div className="p-2">
-              <p className="text-sm text-[#505050]">
+              <div>
+                <Text strong style={{ fontSize: '14px', display: 'block', marginBottom: '8px' }}>
+                  Progress
+                </Text>
+                
+                {renderProgressStages(badge.completedStages)}
+                
+                <Text type="secondary" style={{ fontSize: '11px', display: 'block', marginTop: '4px' }}>
+                  {badge.stage}
+                </Text>
+              </div>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+
+      <Drawer
+        title={null}
+        placement="right"
+        onClose={closeDrawer}
+        open={isDrawerVisible}
+        width={450}
+        closeIcon={<CloseOutlined style={{ 
+          color: 'white', 
+          backgroundColor: '#000', 
+          padding: '6px', 
+          borderRadius: '4px',
+          fontSize: '14px'
+        }} />}
+        styles={{
+          body: { padding: '0' }
+        }}
+      >
+        {selectedBadge && (
+          <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            {/* Header with Badge Image */}
+            <div style={{ padding: '24px', borderBottom: '1px solid #f0f0f0' }}>
+              <BadgeImage 
+                title={selectedBadge.title} 
+                percentage={selectedBadge.percentage} 
+              />
+              <Title level={4} style={{ margin: '0 0 12px 0' }}>
+                {selectedBadge.title}
+              </Title>
+              <Paragraph style={{ color: '#505050', fontSize: '14px', margin: 0 }}>
                 {selectedBadge.description}
-              </p>
+              </Paragraph>
             </div>
 
-            <div className="p-3 mt-2">
-              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-                Tags
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {selectedBadge.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-2 bg-gray-100 text-gray-700 text-xs rounded-xl poppins-thin"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
+            {/* Scrollable Content */}
+            <div style={{ 
+              flex: 1, 
+              overflowY: 'auto', 
+              padding: '24px',
+            }}>
+              <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                <div>
+                  <Title level={5} style={{ color: '#666', fontWeight: 800, marginBottom: '12px' }}>
+                    Tags
+                  </Title>
+                  <Space wrap>
+                    {selectedBadge.tags.map((tag, index) => (
+                      <Tag
+                        key={index}
+                        style={{
+                          backgroundColor: '#f5f5f5',
+                          color: '#666',
+                          fontSize: '12px',
+                          padding: '4px 12px',
+                          borderRadius: '12px',
+                          border: 'none',
+                        }}
+                      >
+                        {tag}
+                      </Tag>
+                    ))}
+                  </Space>
+                </div>
 
-            <div className="p-3 mt-2">
-              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-                Progress
-              </h3>
-              <div className="space-y-2">
-                <div className="mt-2">
-                  <div className="flex items-center gap-3">
-                    <div className="w-full relative">
-                    <span className="text-gray-800 md:text-md text-xs mb-5">Group activity</span>
-                      <div className="bg-gray-200 h-2 rounded-full w-full">
-                        <div
-                          className="bg-[#0B5D3A] h-2 rounded-full relative"
-                          style={{ width: `${selectedBadge.progress}%` }}
-                        >
-                          <div className="absolute -right-1.5 -top-1 w-4 h-4 bg-[#0B5D3A] rounded-full border-2 border-white"></div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-sm text-gray-700">{selectedBadge.progress}%</div>
+                <div>
+                  <Title level={5} style={{ color: '#666', fontWeight: 800, marginBottom: '12px' }}>
+                    Details
+                  </Title>
+                  <Descriptions column={1} size="small" colon={false}>
+                    <Descriptions.Item
+                      label={<Text strong style={{ fontSize: '12px', color: '#999' }}>Students Enrolled:</Text>}
+                      labelStyle={{ width: '130px' }}
+                    >
+                      <Text style={{ fontSize: '12px', color: '#666' }}>
+                        {selectedBadge.details.studentsEnrolled}
+                      </Text>
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      label={<Text strong style={{ fontSize: '12px', color: '#999' }}>Assign Teacher:</Text>}
+                      labelStyle={{ width: '130px' }}
+                    >
+                      <Text style={{ fontSize: '12px', color: '#666' }}>
+                        {selectedBadge.details.assignTeacher}
+                      </Text>
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      label={<Text strong style={{ fontSize: '12px', color: '#999' }}>Category:</Text>}
+                      labelStyle={{ width: '130px' }}
+                    >
+                      <Text style={{ fontSize: '12px', color: '#666' }}>
+                        {selectedBadge.details.category}
+                      </Text>
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      label={<Text strong style={{ fontSize: '12px', color: '#999' }}>Location:</Text>}
+                      labelStyle={{ width: '130px' }}
+                    >
+                      <Text style={{ fontSize: '12px', color: '#666' }}>
+                        {selectedBadge.details.location}
+                      </Text>
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      label={<Text strong style={{ fontSize: '12px', color: '#999' }}>Timing:</Text>}
+                      labelStyle={{ width: '130px' }}
+                    >
+                      <Text style={{ fontSize: '12px', color: '#666' }}>
+                        {selectedBadge.details.timing}
+                      </Text>
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      label={<Text strong style={{ fontSize: '12px', color: '#999' }}>Titles:</Text>}
+                      labelStyle={{ width: '130px' }}
+                    >
+                      <Text style={{ fontSize: '12px', color: '#666' }}>
+                        {selectedBadge.details.titles}
+                      </Text>
+                    </Descriptions.Item>
+                  </Descriptions>
+                </div>
+
+                <div>
+                  <Title level={5} style={{ color: '#666', fontWeight: 800, marginBottom: '12px' }}>
+                    Progress
+                  </Title>
+                  <div>
+                    {renderProgressStages(selectedBadge.completedStages)}
+                    <Text type="secondary" style={{ fontSize: '11px', display: 'block', marginTop: '8px' }}>
+                      {selectedBadge.stage} • {selectedBadge.completedStages}/5 Completed
+                    </Text>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="p-3 mt-2">
-              <h3 className="text-lg text-gray-700 poppins-thin_800 mb-2">
-                Documentation
-              </h3>
-              <button className="flex items-center justify-center w-auto text-white poppins-thin_bold py-2 bg-[#1E1E1F] rounded-xl text-xs px-6 cursor-pointer transition-colors">
-                <FileText size={16} className="mr-2" />
-                View Requirements
-              </button>
+                <div>
+                  <Title level={5} style={{ color: '#666', fontWeight: 800, marginBottom: '12px' }}>
+                    Badge Requirements
+                  </Title>
+                  <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                    <Button
+                      type="primary"
+                      icon={<FileTextOutlined />}
+                      block
+                      style={{
+                        backgroundColor: '#1E1E1F',
+                        borderColor: '#1E1E1F',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        height: '40px',
+                      }}
+                      onClick={() => handleViewRequirements(selectedBadge.documentation)}
+                    >
+                      View Requirements
+                    </Button>
+                    
+                    <Button
+                      type="default"
+                      icon={<TrophyOutlined />}
+                      disabled={selectedBadge.percentage !== 100}
+                      block
+                      style={{
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        height: '40px',
+                        marginTop: '8px',
+                        opacity: selectedBadge.percentage !== 100 ? 0.5 : 1,
+                      }}
+                      onClick={() => handleClaimBadge(selectedBadge.title)}
+                    >
+                      {selectedBadge.percentage === 100 ? "Claim Badge" : "Badge Locked"}
+                    </Button>
+                    
+                    {selectedBadge.percentage !== 100 && (
+                      <Text type="secondary" style={{ fontSize: '11px', textAlign: 'center', display: 'block' }}>
+                        Complete all requirements to earn your badge
+                      </Text>
+                    )}
+                  </Space>
+                </div>
+              </Space>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </Drawer>
     </div>
   );
 };
