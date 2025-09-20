@@ -59,5 +59,34 @@ html{
 
 
 
+.video-player .ant-typography,
+.video-player .ant-btn,
+.video-player .ant-progress-text,
+.video-player .anticon {
+  color: white !important;
+}
+
+.video-player .ant-btn:hover,
+.video-player .anticon:hover {
+  color: #60a5fa !important; /* Tailwind's blue-400 */
+}
+
+
+
+.course-header .ant-typography,
+.course-header .ant-btn,
+.course-header .anticon,
+.course-header .ant-rate-star,
+.course-header .ant-rate-star-full {
+  color: white !important;
+}
+
+/* Button hover color */
+.course-header .ant-btn:hover,
+.course-header .anticon:hover {
+  color: #60a5fa !important; /* Tailwind blue-400 */
+}
+
+
 
 

@@ -56,7 +56,7 @@ const CoursesProgress = () => {
 
 
   const handleCourseClick = (course) => {
-    // navigate(`/learner-dashboard/course-details/${course.id}`);
+    navigate(`/learner-dashboard/course-details/${course.id}`);
   }
 
 
