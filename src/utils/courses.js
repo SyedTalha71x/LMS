@@ -86,7 +86,6 @@ export const courses = [
         { name: "Discussion Forums", type: "Interactive", count: "8 discussions" },
       ],
     },
-   
   ]
   
   

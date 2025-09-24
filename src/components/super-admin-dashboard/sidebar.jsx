@@ -44,7 +44,7 @@ const Sidebar = () => {
   const navLinks = [
     { icon: FaTachometerAlt, label: "Overview", to: "/super-admin-dashboard/overview" },
     { icon: FaUserCircle, label: "My Profile", to: "/super-admin-dashboard/my-profile" },
-    { icon: FaChalkboardTeacher, label: "Instructors", to: "/super-admin-dashboard/instructors" },
+    { icon: FaChalkboardTeacher, label: "Pharmacies", to: "/super-admin-dashboard/pharmacies" },
     { icon: FaFileVideo, label: "Video & Docs", to: "/super-admin-dashboard/video&docs" },
     { icon: FaBook, label: "Courses", to: "/super-admin-dashboard/courses" },
     { icon: FaComments, label: "Discussion", to: "/super-admin-dashboard/discussion" },

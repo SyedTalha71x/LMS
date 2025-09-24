@@ -1,3 +1,4 @@
+// this data is for learner dashboard notifications
 export const notificationsData = [
     {
       id: 2,

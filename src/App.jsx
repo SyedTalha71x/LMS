@@ -135,7 +135,7 @@ function App() {
           <Route path="assignments" element={<SuperAdminAssignments />} />
           <Route path="notifications" element={<SuperAdminNotifications />} />
           <Route path="payments" element={<SuperAdminPayments />} />
-          <Route path="instructors" element={<SuperAdminInstructors />} />
+          <Route path="pharmacies" element={<SuperAdminInstructors />} />
           <Route path="video&docs" element={<SuperAdminVideoDocs />} />
 
 

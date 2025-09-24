@@ -1,0 +1,357 @@
+.payment-management {
+    min-height: 100vh;
+    background-color: #f5f5f5;
+  }
+  
+  .main-content {
+    padding: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  
+  .content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  
+  .manage-cards-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .main-tabs {
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Overview Tab Styles */
+  .overview-container {
+    padding: 0;
+  }
+  
+  .stats-row {
+    margin-bottom: 24px;
+  }
+  
+  .stat-card {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+  }
+  
+  .stat-card:hover {
+    transform: translateY(-2px);
+  }
+  
+  .trend-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #52c41a;
+  }
+  
+  .charts-row {
+    margin-bottom: 24px;
+  }
+  
+  .chart-card {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .chart-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    gap: 16px;
+  }
+  
+  .recent-transactions {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Transactions Tab Styles */
+  .transactions-container {
+    padding: 0;
+  }
+  
+  .filters-card {
+    margin-bottom: 24px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .transactions-table {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Subscriptions Tab Styles */
+  .subscriptions-container {
+    padding: 0;
+  }
+  
+  .subscriptions-header {
+    margin-bottom: 24px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .subscription-card {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+  }
+  
+  .subscription-card:hover {
+    transform: translateY(-2px);
+  }
+  
+  .subscription-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  
+  .subscription-info {
+    flex: 1;
+  }
+  
+  .subscription-details {
+    margin-top: 8px;
+  }
+  
+  /* Analytics Tab Styles */
+  .analytics-container {
+    padding: 0;
+  }
+  
+  .analytics-card {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 24px;
+  }
+  
+  .progress-container {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 24px 0;
+  }
+  
+  .progress-details {
+    flex: 1;
+  }
+  
+  .metric-container {
+    padding: 24px 0;
+    text-align: center;
+  }
+  
+  .metric-value {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  
+  .trend-indicator.positive {
+    color: #52c41a;
+  }
+  
+  .method-stat {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    background: #fafafa;
+  }
+  
+  /* Payment Methods Drawer Styles */
+  .manage-cards-drawer .ant-drawer-body {
+    padding: 0;
+  }
+  
+  .payment-methods-content {
+    padding: 24px;
+  }
+  
+  .methods-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  
+  .cards-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  
+  .payment-card {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .card-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+  }
+  
+  .card-details {
+    flex: 1;
+  }
+  
+  .card-actions {
+    display: flex;
+    align-items: center;
+  }
+  
+  .gateways-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .gateway-card {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .gateway-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .gateway-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  
+  /* Form Styles */
+  .add-card-form,
+  .edit-card-form {
+    margin-top: 24px;
+  }
+  
+  .form-actions {
+    margin-bottom: 0;
+    text-align: right;
+  }
+  
+  /* Invoice Styles */
+  .invoice-content {
+    padding: 16px 0;
+  }
+  
+  .invoice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .main-content {
+      padding: 16px;
+    }
+  
+    .content-header {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .manage-cards-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  
+    .main-tabs {
+      padding: 16px;
+    }
+  
+    .progress-container {
+      flex-direction: column;
+      text-align: center;
+    }
+  
+    .card-content {
+      flex-direction: column;
+      gap: 16px;
+      align-items: stretch;
+    }
+  
+    .card-actions {
+      justify-content: center;
+    }
+  
+    .gateway-content {
+      flex-direction: column;
+      gap: 16px;
+      align-items: stretch;
+    }
+  
+    .methods-header {
+      flex-direction: column;
+      gap: 16px;
+      align-items: stretch;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .subscription-header {
+      flex-direction: column;
+      gap: 12px;
+    }
+  
+    .metric-value {
+      flex-direction: column;
+      gap: 8px;
+    }
+  
+    .method-stat {
+      flex-direction: column;
+      text-align: center;
+      gap: 12px;
+    }
+  }
+  
+  /* Dark mode support */
+  @media (prefers-color-scheme: dark) {
+    .payment-management {
+      background-color: #141414;
+    }
+  
+    .method-stat {
+      background: #262626;
+      border-color: #434343;
+    }
+  }
+  

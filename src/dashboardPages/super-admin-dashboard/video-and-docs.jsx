@@ -1,739 +1,1435 @@
 /* eslint-disable no-unused-vars */
-import { useState, useEffect } from "react"
-import { Search, Bell, ChevronRight, X, Users, Edit, FileText, Video, Trash2, Eye } from "lucide-react"
-import VideoImage from '../../../public/4e133b3f4d79273195437a1b3deb8ab3a39da29c.png'
+import { useState } from "react"
+import {
+  Button,
+  Card,
+  Input,
+  Modal,
+  Form,
+  Select,
+  Upload,
+  message,
+  Dropdown,
+  Space,
+  Switch,
+  Divider,
+  Typography,
+  Tabs,
+  Tag,
+  Progress,
+  Statistic,
+  Avatar,
+  List,
+  Badge,
+  Tooltip,
+  Row,
+  Col,
+} from "antd"
+import {
+  SearchOutlined,
+  UploadOutlined,
+  EditOutlined,
+  EyeOutlined,
+  DeleteOutlined,
+  FileTextOutlined,
+  VideoCameraOutlined,
+  PlusOutlined,
+  DragOutlined,
+  SaveOutlined,
+  SendOutlined,
+  BookOutlined,
+  QuestionCircleOutlined,
+  FileOutlined,
+  LinkOutlined,
+  ArrowLeftOutlined,
+  UserOutlined,
+  PlayCircleOutlined,
+  DownloadOutlined,
+  CopyOutlined,
+  SettingOutlined,
+  FolderOutlined,
+  RightOutlined,
+  DownOutlined,
+  MenuOutlined,
+} from "@ant-design/icons"
+import { newDocsData, newVideosData } from "../../utils/videosData"
+
+const { Search } = Input
+const { Option } = Select
+const { TextArea } = Input
+const { Title, Text } = Typography
+const { TabPane } = Tabs
 
 export default function VideosAndDocs() {
-    const [isNotificationOpen, setIsNotificationOpen] = useState(false)
-    const [selectedVideo, setSelectedVideo] = useState(null)
-    const [selectedDoc, setSelectedDoc] = useState(null)
-    const [isMobile, setIsMobile] = useState(false)
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-    const [editItemType, setEditItemType] = useState(null) // 'video' or 'doc'
-    const [editItemId, setEditItemId] = useState(null)
-    const [formData, setFormData] = useState({
-        title: "",
-        description: "",
-        tags: "",
-        category: "",
-        file: null,
-    })
+  const [selectedVideo, setSelectedVideo] = useState(null)
+  const [selectedDoc, setSelectedDoc] = useState(null)
+  const [selectedContent, setSelectedContent] = useState(null)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isContentDetailOpen, setIsContentDetailOpen] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [editItemType, setEditItemType] = useState(null)
+  const [editItemId, setEditItemId] = useState(null)
+  const [editContentItem, setEditContentItem] = useState(null)
+  const [deleteItemData, setDeleteItemData] = useState(null)
+  const [previewMode, setPreviewMode] = useState(false)
+  const [draggedItem, setDraggedItem] = useState(null)
+  const [dragOverIndex, setDragOverIndex] = useState(null)
+  const [currentView, setCurrentView] = useState('main') // 'main' or 'detail'
+  const [selectedContentForDetail, setSelectedContentForDetail] = useState(null)
+  const [expandedModules, setExpandedModules] = useState(new Set())
+  const [playingVideoId, setPlayingVideoId] = useState(null)
+  const [form] = Form.useForm()
+  const [contentItemForm] = Form.useForm()
+  const [editContentItemForm] = Form.useForm()
 
-    // Check if screen is mobile
-    useEffect(() => {
-        const checkIfMobile = () => {
-            setIsMobile(window.innerWidth < 768)
+  const [searchQuery, setSearchQuery] = useState('')
+
+
+  // Add these state variables near your existing state declarations (around line 40)
+  const [isAddContentItemModalOpen, setIsAddContentItemModalOpen] = useState(false)
+  const [isEditContentItemModalOpen, setIsEditContentItemModalOpen] = useState(false)
+  const [isDetailAddContentItemModalOpen, setIsDetailAddContentItemModalOpen] = useState(false)
+  const [isDetailEditContentItemModalOpen, setIsDetailEditContentItemModalOpen] = useState(false)
+
+  const [videos, setVideos] = useState(newVideosData)
+  const [docs, setDocs] = useState(newDocsData)
+
+  const [contentStructure, setContentStructure] = useState([
+    {
+      id: "1",
+      type: "module",
+      title: "Getting Started",
+      order: 1,
+      expanded: true,
+      description: "Introduction and basic concepts",
+      children: [
+        { id: "1-1", type: "video", title: "Introduction Video", order: 1, parentId: "1", description: "Course overview video" },
+        { id: "1-2", type: "document", title: "Course Materials", order: 2, parentId: "1", description: "Downloadable resources" },
+      ]
+    },
+    {
+      id: "2",
+      type: "module",
+      title: "Advanced Topics",
+      order: 2,
+      expanded: false,
+      description: "Deep dive into advanced concepts",
+      children: [
+        { id: "2-1", type: "text", title: "Text Lesson", order: 1, parentId: "2", description: "Written content lesson" },
+        { id: "2-2", type: "quiz", title: "Knowledge Check", order: 2, parentId: "2", description: "Quiz with 5 questions" },
+      ]
+    },
+  ])
+
+  const categories = ["Tutorial", "Lecture", "Reference", "Guide"]
+
+  const contentTypes = [
+    { key: "module", label: "Module/Folder", icon: <FolderOutlined /> },
+    { key: "video", label: "Video", icon: <VideoCameraOutlined /> },
+    { key: "document", label: "Document", icon: <FileTextOutlined /> },
+    { key: "text", label: "Text Lesson", icon: <BookOutlined /> },
+    { key: "quiz", label: "Quiz", icon: <QuestionCircleOutlined /> },
+    { key: "assignment", label: "Assignment", icon: <FileOutlined /> },
+    { key: "link", label: "External Link", icon: <LinkOutlined /> },
+  ]
+
+  const handleSearch = (value) => {
+    setSearchQuery(value)
+  }
+
+  const handleAddVideo = () => {
+    setIsAddModalOpen(true)
+    form.setFieldsValue({ type: "video" })
+  }
+
+  const handleAddDoc = () => {
+    setIsAddModalOpen(true)
+    form.setFieldsValue({ type: "document" })
+  }
+
+  const filteredVideos = videos.filter(video =>
+    video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    video.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    video.tags.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    video.category.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  const filteredDocs = docs.filter(doc =>
+    doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    doc.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    doc.tags.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    doc.category.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  const handleSubmit = (values) => {
+    if (isEditModalOpen && editItemType) {
+      // Handle edit submission
+      if (editItemType === "video") {
+        const updatedVideos = videos.map((item) =>
+          item.id === editItemId ? { ...item, ...values, id: editItemId } : item,
+        )
+        setVideos(updatedVideos)
+      } else if (editItemType === "document") {
+        const updatedDocs = docs.map((item) => (item.id === editItemId ? { ...item, ...values, id: editItemId } : item))
+        setDocs(updatedDocs)
+      }
+      setIsEditModalOpen(false)
+      message.success("Item updated successfully!")
+    } else {
+      // Handle new item submission
+      const newItem = {
+        id: values.type === "video" ? videos.length + 1 : docs.length + 1,
+        ...values,
+        date: new Date().toISOString().split("T")[0],
+        usageStats: {
+          totalViews: 0,
+          activeUsers: 0,
+          completionRate: 0,
+          lastAccessed: new Date().toISOString().split("T")[0]
         }
+      }
 
-        // Initial check
-        checkIfMobile()
+      if (values.type === "video") {
+        setVideos([...videos, newItem])
+      } else if (values.type === "document") {
+        setDocs([...docs, newItem])
+      }
+      setIsAddModalOpen(false)
+      message.success("Item added successfully!")
+    }
+    form.resetFields()
+  }
 
-        // Add event listener for window resize
-        window.addEventListener("resize", checkIfMobile)
+  const openEditModal = (item, type) => {
+    setEditItemType(type)
+    setEditItemId(item.id)
+    form.setFieldsValue(item)
+    setIsEditModalOpen(true)
+  }
 
-        // Clean up
-        return () => window.removeEventListener("resize", checkIfMobile)
-    }, [])
+  const showDeleteModal = (id, type, title) => {
+    setDeleteItemData({ id, type, title })
+    setIsDeleteModalOpen(true)
+  }
 
-    const [videos, setVideos] = useState([
-        {
-            id: 1,
-            title: "Introduction to React",
-            description: "Learn the basics of React framework",
-            tags: "react, frontend",
-            category: "Tutorial",
-            date: "2025-05-15",
-            image: VideoImage
-        },
-        {
-            id: 2,
-            title: "Advanced CSS Techniques",
-            description: "Master modern CSS layouts and animations",
-            tags: "css, design",
-            category: "Tutorial",
-            date: "2025-05-10",
-            image: VideoImage
-        },
-    ])
+  const handleDeleteConfirm = () => {
+    const { id, type } = deleteItemData
+    if (type === "video") {
+      setVideos(videos.filter((item) => item.id !== id))
+      setSelectedVideo(null)
+    } else if (type === "document") {
+      setDocs(docs.filter((item) => item.id !== id))
+      setSelectedDoc(null)
+    }
+    setIsDeleteModalOpen(false)
+    setDeleteItemData(null)
+    message.success("Item deleted successfully!")
+  }
 
-    const [docs, setDocs] = useState([
-        {
-            id: 1,
-            title: "Project Documentation",
-            description: "Complete guide to project setup and architecture",
-            tags: "documentation, guide",
-            category: "Reference",
-            date: "2025-05-20",
-        },
-        {
-            id: 2,
-            title: "API Specifications",
-            description: "Detailed API endpoints and usage examples",
-            tags: "api, backend",
-            category: "Reference",
-            date: "2025-05-18",
-        },
-    ])
+  const openContentDetail = (item, type) => {
+    setSelectedContent({ ...item, type })
+    setIsContentDetailOpen(true)
+  }
 
-    const notifications = [
-        {
-            id: 1,
-            title: "New Video Uploaded",
-            time: "now",
-            message: "A new tutorial video has been added to the platform",
-        },
-    ]
+  const openDetailPage = (item, type) => {
+    setSelectedContentForDetail({ ...item, type })
+    setCurrentView('detail')
+  }
 
-    const categories = ["Tutorial", "Lecture", "Reference", "Guide"]
+  const toggleModule = (moduleId) => {
+    const newExpanded = new Set(expandedModules)
+    if (newExpanded.has(moduleId)) {
+      newExpanded.delete(moduleId)
+    } else {
+      newExpanded.add(moduleId)
+    }
+    setExpandedModules(newExpanded)
+  }
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target
-        setFormData({
-            ...formData,
-            [name]: value,
-        })
+  const handleDragStart = (item, index) => {
+    setDraggedItem({ item, index })
+  }
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault()
+    setDragOverIndex(index)
+  }
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null)
+  }
+
+  const handleDrop = (e, dropIndex) => {
+    e.preventDefault()
+
+    if (!draggedItem || draggedItem.index === dropIndex) {
+      setDraggedItem(null)
+      setDragOverIndex(null)
+      return
     }
 
-    const handleFileChange = (e) => {
-        setFormData({
-            ...formData,
-            file: e.target.files[0],
-        })
+    const items = [...contentStructure]
+    const draggedContent = items[draggedItem.index]
+
+    // Remove the dragged item
+    items.splice(draggedItem.index, 1)
+
+    // Insert at new position
+    items.splice(dropIndex, 0, draggedContent)
+
+    // Update order numbers
+    const updatedItems = items.map((item, index) => ({
+      ...item,
+      order: index + 1,
+    }))
+
+    setContentStructure(updatedItems)
+    setDraggedItem(null)
+    setDragOverIndex(null)
+    message.success("Content reordered successfully!")
+  }
+
+  const addContentToStructure = (type) => {
+    setIsAddContentItemModalOpen(true)
+    contentItemForm.setFieldsValue({ type })
+  }
+
+  const handleAddContentItem = (values) => {
+    const newContent = {
+      id: Date.now().toString(),
+      ...values,
+      order: contentStructure.length + 1,
     }
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        console.log("Form submitted:", formData)
-
-        if (isEditModalOpen && editItemType) {
-            // Handle edit submission
-            if (editItemType === "video") {
-                const updatedVideos = videos.map((item) =>
-                    item.id === editItemId
-                        ? {
-                            ...item,
-                            title: formData.title || item.title,
-                            description: formData.description || item.description,
-                            tags: formData.tags || item.tags,
-                            category: formData.category || item.category,
-                        }
-                        : item,
-                )
-                setVideos(updatedVideos)
-            } else if (editItemType === "doc") {
-                const updatedDocs = docs.map((item) =>
-                    item.id === editItemId
-                        ? {
-                            ...item,
-                            title: formData.title || item.title,
-                            description: formData.description || item.description,
-                            tags: formData.tags || item.tags,
-                            category: formData.category || item.category,
-                        }
-                        : item,
-                )
-                setDocs(updatedDocs)
-            }
-            setIsEditModalOpen(false)
-        } else {
-            // Handle new item submission
-            const newItem = {
-                id: formData.category === "video" ? videos.length + 1 : docs.length + 1,
-                title: formData.title,
-                description: formData.description,
-                tags: formData.tags,
-                category: formData.category,
-                date: new Date().toISOString().split("T")[0], // Today's date
-            }
-
-            if (formData.category === "video") {
-                setVideos([...videos, newItem])
-            } else if (formData.category === "doc") {
-                setDocs([...docs, newItem])
-            }
-            setIsAddModalOpen(false)
-        }
-
-        // Reset form
-        setFormData({
-            title: "",
-            description: "",
-            tags: "",
-            category: "",
-            file: null,
-        })
+    if (values.type === 'module') {
+      newContent.expanded = false
+      newContent.children = []
     }
 
-    const openEditModal = (item, type) => {
-        setEditItemType(type)
-        setEditItemId(item.id)
-        setFormData({
-            title: item.title,
-            description: item.description,
-            tags: item.tags,
-            category: item.category,
-            file: null,
-        })
-        setIsEditModalOpen(true)
-    }
+    setContentStructure([...contentStructure, newContent])
+    setIsAddContentItemModalOpen(false)
+    contentItemForm.resetFields()
+    message.success("Content item added successfully!")
+  }
 
-    const deleteItem = (id, type) => {
-        if (type === "video") {
-            setVideos(videos.filter((item) => item.id !== id))
-            setSelectedVideo(null)
-        } else if (type === "doc") {
-            setDocs(docs.filter((item) => item.id !== id))
-            setSelectedDoc(null)
-        }
-    }
+  const editContentItemHandler = (item) => {
+    setEditContentItem(item)
+    editContentItemForm.setFieldsValue(item)
+    setIsEditContentItemModalOpen(true)
+  }
 
-    return (
-        <div className="flex flex-col min-h-screen">
-            {isNotificationOpen && isMobile && (
-                <div className="fixed inset-0 bg-black/50 z-20" onClick={() => setIsNotificationOpen(false)} />
-            )}
-
-            <div className="md:p-4 p-2">
-                <div className="max-w-4xl mr-auto flex flex-col gap-4 md:flex-row md:items-center items-start justify-between">
-                    <h1 className="text-2xl poppins-thin_600">Videos & Docs</h1>
-
-                    <div className="flex items-center gap-2 w-full md:w-auto">
-                        <div className="relative flex-1 max-w-md">
-                            <input
-                                type="text"
-                                placeholder="Search"
-                                className="pl-10 pr-4 py-2 rounded-xl text-sm bg-gray-100 w-full focus:outline-none"
-                            />
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                        </div>
-
-                        {isMobile && (
-                            <button
-                                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                                className="relative p-2 rounded-full bg-gray-100 hover:bg-gray-200"
-                            >
-                                <Bell className="h-5 w-5 text-gray-600" />
-                                <span className="absolute top-0 right-0 h-2 w-2 bg-green-500 rounded-full"></span>
-                            </button>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            <div className="flex flex-1 overflow-hidden">
-                <main
-                    className={`flex-1 md:p-6 p-3 overflow-y-auto ${isMobile && isNotificationOpen ? "hidden md:block" : ""}`}
-                >
-                    <div className="container mx-auto">
-                        <section className="mb-10">
-                            <div className="flex justify-between items-center mb-4">
-                                <h1 className="text-xl poppins-thin_600">Videos</h1>
-                                <button
-                                    onClick={() => {
-                                        setFormData({
-                                            ...formData,
-                                            category: "video",
-                                        })
-                                        setIsAddModalOpen(true)
-                                    }}
-                                    className="text-sm bg-[#0B5D3A] text-white px-4 py-1.5 rounded-lg hover:bg-opacity-90"
-                                >
-                                    Upload Video
-                                </button>
-                            </div>
-                            <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
-                                {videos.map((video) => (
-                                    <div key={video.id} className="bg-[#f8f3f3] p-6 rounded-lg flex flex-col">
-                                        <div className="mb-4 w-full overflow-hidden rounded-md">
-                                            <img
-                                                src={video.image}
-                                                alt={video.title}
-                                                className="w-full object-cover aspect-video rounded-md"
-                                            />
-                                        </div>
-                                        <div className="flex items-center justify-between gap-2 ">
-                                            {/* <Video className="h-5 w-5 text-gray-600" /> */}
-                                            <h3 className="poppins-thin_500 text-lg">{video.title}</h3>
-                                            <div className="flex space-x-2 ">
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    openEditModal(video, "video")
-                                                }}
-                                                className="p-1.5 bg-gray-200 rounded-full hover:bg-gray-300"
-                                            >
-                                                <Edit className="h-3.5 w-3.5 text-gray-700" />
-                                            </button>
-                                        </div>
-                                        </div>
-                                       
-                                        <p className="text-gray-800 poppins-thin text-sm mb-4">{video.description}</p>
-                                        <div className="flex justify-between items-center mt-auto">
-                                            <span className="text-xs text-gray-500">{video.date}</span>
-                                            <button
-                                                className="flex items-center bg-[#272829] text-white cursor-pointer py-2 px-4 rounded-xl text-xs poppins-thin_bold"
-                                                onClick={() => setSelectedVideo(video)}
-                                            >
-                                                View details 
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                        </section>
-
-                        <section className="mt-[6%]">
-                            <div className="flex justify-between items-center mb-4">
-                                <h1 className="text-xl poppins-thin_600">Documents</h1>
-                                <button
-                                    onClick={() => {
-                                        setFormData({
-                                            ...formData,
-                                            category: "doc",
-                                        })
-                                        setIsAddModalOpen(true)
-                                    }}
-                                    className="text-sm bg-[#0B5D3A] text-white px-4 py-1.5 rounded-lg hover:bg-opacity-90"
-                                >
-                                    Upload Docs
-                                </button>
-                            </div>
-                            <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
-                                {docs.map((doc) => (
-                                    <div key={doc.id} className="bg-[#f8f3f3] p-4 rounded-lg">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <div className="flex items-center gap-2">
-                                                <FileText className="h-5 w-5 text-gray-600" />
-                                                <h3 className="poppins-thin_500 text-lg">{doc.title}</h3>
-                                            </div>
-                                            <div className="flex space-x-2">
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation()
-                                                        openEditModal(doc, "doc")
-                                                    }}
-                                                    className="p-1.5 bg-gray-200 rounded-full hover:bg-gray-300"
-                                                >
-                                                    <Edit className="h-3.5 w-3.5 text-gray-700" />
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <p className="text-gray-800 text-sm poppins-thin mb-2">{doc.description}</p>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-xs text-gray-500">{doc.date}</span>
-                                            <button
-                                                className="flex items-center bg-[#272829] text-white cursor-pointer py-2 px-4 rounded-xl text-xs poppins-thin_bold"
-                                                onClick={() => setSelectedDoc(doc)}
-                                            >
-                                                View details   
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-                    </div>
-                </main>
-
-                <aside
-                    className={`
-            ${isMobile
-                            ? "fixed inset-y-0 right-0 z-50 w-80 transform transition-transform duration-500 ease-in-out shadow-lg"
-                            : "w-90 "
-                        }
-            ${isNotificationOpen || !isMobile ? "translate-x-0" : "translate-x-full"}
-            bg-white overflow-y-auto
-          `}
-                >
-                    <div className="flex justify-end items-end p-3">
-                        {isMobile && (
-                            <button
-                                onClick={() => setIsNotificationOpen(false)}
-                                className="p-1 flex justify-end items-end rounded-full hover:bg-gray-100"
-                            >
-                                <X className="h-5 w-5 text-gray-600" />
-                            </button>
-                        )}
-                    </div>
-                    <div className="p-6 ">
-                        <h1 className="text-xl poppins-thin_600">Create Entity</h1>
-                        <div className="mt-4">
-                            <button
-                                onClick={() => setIsAddModalOpen(true)}
-                                className="w-full py-2 bg-[#0B5D3A] text-sm px-7 text-white rounded-xl font-semibold hover:bg-opacity-90 transition-colors"
-                            >
-                                Upload video/docs
-                            </button>
-                        </div>
-                    </div>
-                    <div className="p-6">
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-xl poppins-thin_600">Notification</h2>
-                        </div>
-
-                        <div className="space-y-4">
-                            {notifications.map((notification) => (
-                                <div key={notification.id} className="bg-[#EDEDEDE0] p-4 rounded-md">
-                                    <div className="flex items-start mb-2">
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-2">
-                                                <span className="h-2 w-2 bg-green-500 rounded-full"></span>
-                                                <span className="font-medium">{notification.title}</span>
-                                                <span className="text-xs text-gray-500">{notification.time}</span>
-                                            </div>
-                                        </div>
-                                        <button className="text-gray-400 hover:text-gray-600">
-                                            <ChevronRight className="h-5 w-5" />
-                                        </button>
-                                    </div>
-                                    <p className="text-sm text-gray-600">{notification.message}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </aside>
-            </div>
-
-            {/* Video Details Modal */}
-            {selectedVideo && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg w-full max-w-md m-4 relative">
-                        <button
-                            onClick={() => setSelectedVideo(null)}
-                            className="absolute top-4 right-4 text-white rounded-md cursor-pointer p-1 bg-black hover:bg-gray-800"
-                        >
-                            <X className="h-4 w-4" />
-                        </button>
-
-                        <div className="p-6">
-                            <div className="flex justify-between items-center">
-                                <h2 className="text-md text-[#161736] mb-2 poppins-thin_bold flex items-center gap-2">
-                                    <Video className="h-5 w-5" /> {selectedVideo.title}
-                                </h2>
-                                <div className="flex space-x-2">
-                                    <button
-                                        onClick={() => {
-                                            setSelectedVideo(null)
-                                            openEditModal(selectedVideo, "video")
-                                        }}
-                                        className="p-1.5 bg-gray-200 rounded-full hover:bg-gray-300"
-                                        title="Edit Video"
-                                    >
-                                        <Edit className="h-4 w-4 text-gray-700" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            <h3 className="text-md mt-4 text-gray-600 poppins-thin_800 mb-2">Description</h3>
-                            <p className="text-sm mt-3 text-gray-600 mb-4">{selectedVideo.description}</p>
-
-                            <div className="grid grid-cols-1 gap-2 mb-4 text-sm">
-                                <div className="flex gap-4">
-                                    <p className="text-gray-600 font-semibold w-20">Date</p>
-                                    <p className="text-gray-700 text-sm">{new Date(selectedVideo.date).toLocaleDateString()}</p>
-                                </div>
-                                <div className="flex gap-4">
-                                    <p className="text-gray-600 font-semibold w-20">Category</p>
-                                    <p className="text-gray-700 text-sm">{selectedVideo.category}</p>
-                                </div>
-                                <div className="flex gap-4">
-                                    <p className="text-gray-600 font-semibold w-20">Tags</p>
-                                    <p className="text-gray-700 text-sm">{selectedVideo.tags}</p>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col justify-start items-start gap-3">
-                                <button className="bg-[#1E1E1F] poppins-thin_600 text-white text-xs py-2 cursor-pointer px-6 rounded-lg hover:bg-opacity-90 transition-colors w-full md:w-auto flex items-center gap-2">
-                                    <Eye className="h-4 w-4" /> View Video
-                                </button>
-
-                                <button
-                                    onClick={() => deleteItem(selectedVideo.id, "video")}
-                                    className="bg-[#C77373] poppins-thin_600 text-white text-xs py-2 cursor-pointer px-6 rounded-lg hover:bg-opacity-90 transition-colors w-full md:w-auto flex items-center gap-2"
-                                >
-                                    <Trash2 className="h-4 w-4" /> Delete
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Doc Details Modal */}
-            {selectedDoc && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg w-full max-w-md m-4 relative">
-                        <button
-                            onClick={() => setSelectedDoc(null)}
-                            className="absolute top-4 right-4 text-white rounded-md cursor-pointer p-1 bg-black hover:bg-gray-800"
-                        >
-                            <X className="h-4 w-4" />
-                        </button>
-
-                        <div className="p-6">
-                            <div className="flex justify-between items-center">
-                                <h2 className="text-md text-[#161736] mb-2 poppins-thin_bold flex items-center gap-2">
-                                    <FileText className="h-5 w-5" /> {selectedDoc.title}
-                                </h2>
-                                <div className="flex space-x-2">
-                                    <button
-                                        onClick={() => {
-                                            setSelectedDoc(null)
-                                            openEditModal(selectedDoc, "doc")
-                                        }}
-                                        className="p-1.5 bg-gray-200 rounded-full hover:bg-gray-300"
-                                        title="Edit Document"
-                                    >
-                                        <Edit className="h-4 w-4 text-gray-700" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            <h3 className="text-md mt-4 text-gray-600 poppins-thin_800 mb-2">Description</h3>
-                            <p className="text-sm mt-3 text-gray-600 mb-4">{selectedDoc.description}</p>
-
-                            <div className="grid grid-cols-1 gap-2 mb-4 text-sm">
-                                <div className="flex gap-4">
-                                    <p className="text-gray-600 font-semibold w-20">Date</p>
-                                    <p className="text-gray-700 text-sm">{new Date(selectedDoc.date).toLocaleDateString()}</p>
-                                </div>
-                                <div className="flex gap-4">
-                                    <p className="text-gray-600 font-semibold w-20">Category</p>
-                                    <p className="text-gray-700 text-sm">{selectedDoc.category}</p>
-                                </div>
-                                <div className="flex gap-4">
-                                    <p className="text-gray-600 font-semibold w-20">Tags</p>
-                                    <p className="text-gray-700 text-sm">{selectedDoc.tags}</p>
-                                </div>
-                            </div>
-
-                            <h3 className="text-md mt-10 text-gray-600 poppins-thin_800 mb-2">Documentation</h3>
-                            <div className="flex flex-col justify-start items-start gap-3">
-                                <button className="bg-[#1E1E1F] poppins-thin_600 text-white text-xs py-2 cursor-pointer px-6 rounded-lg hover:bg-opacity-90 transition-colors w-full md:w-auto flex items-center gap-2">
-                                    <Eye className="h-4 w-4" /> View PDF
-                                </button>
-
-                                <button
-                                    onClick={() => deleteItem(selectedDoc.id, "doc")}
-                                    className="bg-[#C77373] poppins-thin_600 text-white text-xs py-2 cursor-pointer px-6 rounded-lg hover:bg-opacity-90 transition-colors w-full md:w-auto flex items-center gap-2"
-                                >
-                                    <Trash2 className="h-4 w-4" /> Delete
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Add Modal */}
-            {isAddModalOpen && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg w-full max-w-md m-4 relative p-8">
-                        <button
-                            onClick={() => setIsAddModalOpen(false)}
-                            className="absolute top-4 right-4 text-white rounded-md cursor-pointer p-1 bg-black hover:bg-gray-800"
-                        >
-                            <X className="h-4 w-4" />
-                        </button>
-
-                        <h2 className="text-xl font-semibold mb-4 text-center">
-                            {formData.category === "video" ? "Upload New Video" : "Upload New Document"}
-                        </h2>
-
-                        <form onSubmit={handleSubmit}>
-                            <div className="mb-4 mt-6">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Title:</label>
-                                <input
-                                    type="text"
-                                    name="title"
-                                    value={formData.title}
-                                    onChange={handleInputChange}
-                                    placeholder="Title"
-                                    className="w-full p-2 bg-[#F1F1F1] text-sm outline-none rounded-md"
-                                    required
-                                />
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                <textarea
-                                    name="description"
-                                    value={formData.description}
-                                    onChange={handleInputChange}
-                                    placeholder="Description"
-                                    className="w-full p-2 bg-[#F1F1F1] text-sm outline-none rounded-md"
-                                    rows={3}
-                                    required
-                                />
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
-                                <input
-                                    type="text"
-                                    name="tags"
-                                    value={formData.tags}
-                                    onChange={handleInputChange}
-                                    placeholder="Tags (comma separated)"
-                                    className="w-full p-2 bg-[#F1F1F1] text-sm outline-none rounded-md"
-                                />
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                                <select
-                                    name="category"
-                                    value={formData.category}
-                                    onChange={handleInputChange}
-                                    className="w-full p-2 bg-[#F1F1F1] text-sm outline-none rounded-md"
-                                    required
-                                >
-                                    <option value="" disabled>
-                                        Select category
-                                    </option>
-                                    {categories.map((category) => (
-                                        <option key={category} value={category}>
-                                            {category}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="mb-6">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    {formData.category === "video" ? "Upload video" : "Upload document"}
-                                </label>
-                                <input
-                                    type="file"
-                                    onChange={handleFileChange}
-                                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
-                                    required
-                                />
-                            </div>
-
-                            <div className="flex justify-center items-center gap-4 flex-col sm:flex-row">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsAddModalOpen(false)}
-                                    className="px-6 py-2 text-sm bg-gray-200 text-gray-800 rounded-xl w-full sm:w-auto hover:bg-gray-300 transition-colors"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-6 py-2 text-sm bg-[#0B5D3A] text-white rounded-xl w-full sm:w-auto hover:bg-opacity-90 transition-colors"
-                                >
-                                    {formData.category === "video" ? "Upload Video" : "Upload Document"}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {/* Edit Modal */}
-            {isEditModalOpen && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg w-full max-w-md m-4 relative p-8">
-                        <button
-                            onClick={() => setIsEditModalOpen(false)}
-                            className="absolute top-4 right-4 text-white rounded-md cursor-pointer p-1 bg-black hover:bg-gray-800"
-                        >
-                            <X className="h-4 w-4" />
-                        </button>
-
-                        <h2 className="text-xl font-semibold mb-4 text-center">
-                            {editItemType === "video" ? "Edit Video" : "Edit Document"}
-                        </h2>
-
-                        <form onSubmit={handleSubmit}>
-                            <div className="mb-4 mt-6">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Title:</label>
-                                <input
-                                    type="text"
-                                    name="title"
-                                    value={formData.title}
-                                    onChange={handleInputChange}
-                                    placeholder="Title"
-                                    className="w-full p-2 bg-[#F1F1F1] text-sm outline-none rounded-md"
-                                    required
-                                />
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                <textarea
-                                    name="description"
-                                    value={formData.description}
-                                    onChange={handleInputChange}
-                                    placeholder="Description"
-                                    className="w-full p-2 bg-[#F1F1F1] text-sm outline-none rounded-md"
-                                    rows={3}
-                                    required
-                                />
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
-                                <input
-                                    type="text"
-                                    name="tags"
-                                    value={formData.tags}
-                                    onChange={handleInputChange}
-                                    placeholder="Tags (comma separated)"
-                                    className="w-full p-2 bg-[#F1F1F1] text-sm outline-none rounded-md"
-                                />
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                                <select
-                                    name="category"
-                                    value={formData.category}
-                                    onChange={handleInputChange}
-                                    className="w-full p-2 bg-[#F1F1F1] text-sm outline-none rounded-md"
-                                    required
-                                >
-                                    {categories.map((category) => (
-                                        <option key={category} value={category}>
-                                            {category}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="mb-6">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Replace {editItemType === "video" ? "video" : "document"} (optional)
-                                </label>
-                                <input
-                                    type="file"
-                                    onChange={handleFileChange}
-                                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
-                                />
-                            </div>
-
-                            <div className="flex justify-center items-center gap-4 flex-col sm:flex-row">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsEditModalOpen(false)}
-                                    className="px-6 py-2 text-sm bg-gray-200 text-gray-800 rounded-xl w-full sm:w-auto hover:bg-gray-300 transition-colors"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-6 py-2 text-sm bg-[#0B5D3A] text-white rounded-xl w-full sm:w-auto hover:bg-opacity-90 transition-colors"
-                                >
-                                    Save Changes
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-        </div>
+  const handleEditContentItem = (values) => {
+    const updatedItems = contentStructure.map((item) =>
+      item.id === editContentItem.id ? { ...item, ...values } : item
     )
+    setContentStructure(updatedItems)
+    setIsEditContentItemModalOpen(false)
+    setEditContentItem(null)
+    editContentItemForm.resetFields()
+    message.success("Content item updated successfully!")
+  }
+
+  const removeContentFromStructure = (id) => {
+    const updatedItems = contentStructure
+      .filter(item => item.id !== id)
+      .map((item, index) => ({
+        ...item,
+        order: index + 1,
+      }))
+    setContentStructure(updatedItems)
+    message.success("Content removed from structure!")
+  }
+
+  const duplicateContentItem = (item) => {
+    const duplicatedItem = {
+      ...item,
+      id: Date.now().toString(),
+      title: `${item.title} (Copy)`,
+      order: contentStructure.length + 1,
+    }
+    if (item.children) {
+      duplicatedItem.children = item.children.map(child => ({
+        ...child,
+        id: `${Date.now()}-${Math.random()}`,
+        parentId: duplicatedItem.id
+      }))
+    }
+    setContentStructure([...contentStructure, duplicatedItem])
+    message.success("Content item duplicated successfully!")
+  }
+
+  const playVideo = (videoId) => {
+    setPlayingVideoId(videoId)
+  }
+
+  const addContentToStructureDetail = (type) => {
+    setIsDetailAddContentItemModalOpen(true)
+    contentItemForm.setFieldsValue({ type })
+  }
+
+  const handleAddContentItemDetail = (values) => {
+    const newContent = {
+      id: Date.now().toString(),
+      ...values,
+      order: contentStructure.length + 1,
+    }
+
+    if (values.type === 'module') {
+      newContent.expanded = false
+      newContent.children = []
+    }
+
+    setContentStructure([...contentStructure, newContent])
+    setIsDetailAddContentItemModalOpen(false)
+    contentItemForm.resetFields()
+    message.success("Content item added successfully!")
+  }
+
+  const editContentItemHandlerDetail = (item) => {
+    setEditContentItem(item)
+    editContentItemForm.setFieldsValue(item)
+    setIsDetailEditContentItemModalOpen(true)
+  }
+
+  const handleEditContentItemDetail = (values) => {
+    const updatedItems = contentStructure.map((item) =>
+      item.id === editContentItem.id ? { ...item, ...values } : item
+    )
+    setContentStructure(updatedItems)
+    setIsDetailEditContentItemModalOpen(false)
+    setEditContentItem(null)
+    editContentItemForm.resetFields()
+    message.success("Content item updated successfully!")
+  }
+
+  const addContentMenu = {
+    items: contentTypes.map((type) => ({
+      key: type.key,
+      label: type.label,
+      icon: type.icon,
+      onClick: () => addContentToStructure(type.key),
+    })),
+  }
+
+  const detailAddContentMenu = {
+    items: contentTypes.map((type) => ({
+      key: type.key,
+      label: type.label,
+      icon: type.icon,
+      onClick: () => addContentToStructureDetail(type.key),
+    })),
+  }
+
+  const renderContentStructureItem = (item, index) => (
+    <div key={item.id} className="mb-2">
+      <div
+        draggable
+        onDragStart={() => handleDragStart(item, index)}
+        onDragOver={(e) => handleDragOver(e, index)}
+        onDragLeave={handleDragLeave}
+        onDrop={(e) => handleDrop(e, index)}
+        className={`
+          p-3 bg-white border rounded-lg flex flex-col sm:flex-row sm:items-center justify-between cursor-move transition-all
+          ${draggedItem?.index === index ? 'opacity-50' : ''}
+          ${dragOverIndex === index ? 'border-blue-500 border-2 bg-blue-50' : 'shadow-sm hover:shadow-md'}
+        `}
+      >
+        <div className="flex items-center gap-3 mb-2 sm:mb-0">
+          <DragOutlined className="text-gray-400" />
+          {item.type === 'module' && (
+            <Button
+              type="text"
+              size="small"
+              icon={expandedModules.has(item.id) ? <DownOutlined /> : <RightOutlined />}
+              onClick={() => toggleModule(item.id)}
+            />
+          )}
+          {contentTypes.find((type) => type.key === item.type)?.icon}
+          <div className="flex flex-col">
+            <Text strong>{item.title}</Text>
+            {item.description && (
+              <Text type="secondary" className="text-xs">{item.description}</Text>
+            )}
+          </div>
+          <Tag color={item.type === 'module' ? 'blue' : item.type === 'video' ? 'red' : 'green'}>
+            {item.type}
+          </Tag>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Text type="secondary" className="hidden sm:block">Order: {item.order}</Text>
+          <Button
+            size="small"
+            icon={<EditOutlined />}
+            onClick={() => editContentItemHandlerDetail(item)}
+          />
+          <Button
+            size="small"
+            icon={<CopyOutlined />}
+            onClick={() => duplicateContentItem(item)}
+          />
+          <Button
+            size="small"
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => removeContentFromStructure(item.id)}
+          />
+        </div>
+      </div>
+
+      {/* Render children if it's a module and expanded */}
+      {item.type === 'module' && expandedModules.has(item.id) && item.children && (
+        <div className="ml-4 sm:ml-8 mt-2 space-y-2">
+          {item.children.map((child, childIndex) => (
+            <div
+              key={child.id}
+              className="p-2 bg-gray-50 border rounded-lg flex flex-col sm:flex-row sm:items-center justify-between"
+            >
+              <div className="flex items-center gap-3 mb-2 sm:mb-0">
+                <DragOutlined className="text-gray-400" />
+                {contentTypes.find((type) => type.key === child.type)?.icon}
+                <div className="flex flex-col">
+                  <Text>{child.title}</Text>
+                  {child.description && (
+                    <Text type="secondary" className="text-xs">{child.description}</Text>
+                  )}
+                </div>
+                <Tag size="small">{child.type}</Tag>
+              </div>
+              <div className="flex items-center gap-1">
+                <Button size="small" icon={<EditOutlined />} />
+                <Button size="small" icon={<CopyOutlined />} />
+                <Button size="small" danger icon={<DeleteOutlined />} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+
+  if (currentView === 'detail' && selectedContentForDetail) {
+    return (
+      <>
+
+        <div className="min-h-screen p-3">
+          <div className="mb-6">
+            <Button
+              icon={<ArrowLeftOutlined />}
+              onClick={() => setCurrentView('main')}
+              className="mb-4"
+            >
+              Back to Videos & Docs
+            </Button>
+
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <Title level={2} className="!mb-0">
+                {selectedContentForDetail.title}
+              </Title>
+              {/* <div className="flex items-center gap-2">
+              <Text>Preview Mode</Text>
+              <Switch checked={previewMode} onChange={setPreviewMode} size="small" />
+            </div> */}
+            </div>
+          </div>
+
+          <Row gutter={[24, 24]}>
+            <Col xs={24} lg={16}>
+              <Tabs defaultActiveKey="structure">
+                <TabPane tab="Content Structure" key="structure">
+                  <Card
+                    title="Learning Units"
+                    extra={
+                      <Space wrap>
+                        <Dropdown menu={detailAddContentMenu} trigger={["click"]}>
+                          <Button type="primary" icon={<PlusOutlined />}>
+                            Add Content
+                          </Button>
+                        </Dropdown>
+                        <Button icon={<SaveOutlined />} className="hidden sm:inline-flex">Save Draft</Button>
+                        <Button type="primary" icon={<SendOutlined />} className="hidden sm:inline-flex">
+                          Publish Update
+                        </Button>
+
+                      </Space>
+                    }
+                  >
+                    <div className="space-y-2">
+                      {contentStructure.map((item, index) => renderContentStructureItem(item, index))}
+                      {contentStructure.length === 0 && (
+                        <div className="text-center py-8 text-gray-400">
+                          No content items yet. Add some content to get started.
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                </TabPane>
+                <TabPane tab="Settings" key="settings">
+                  <Card title="Content Settings">
+                    <Form layout="vertical">
+                      <Form.Item label="Title" initialValue={selectedContentForDetail.title}>
+                        <Input />
+                      </Form.Item>
+                      <Form.Item label="Description" initialValue={selectedContentForDetail.description}>
+                        <TextArea rows={3} />
+                      </Form.Item>
+                      <Form.Item label="Tags" initialValue={selectedContentForDetail.tags}>
+                        <Input />
+                      </Form.Item>
+                      <Form.Item label="Category" initialValue={selectedContentForDetail.category}>
+                        <Select>
+                          {categories.map((category) => (
+                            <Option key={category} value={category}>
+                              {category}
+                            </Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    </Form>
+                  </Card>
+                </TabPane>
+              </Tabs>
+            </Col>
+
+            <Col xs={24} lg={8}>
+              <div className="space-y-4">
+                {/* Preview/Thumbnail */}
+                <Card title="Preview">
+                  {selectedContentForDetail.type === 'video' && (
+                    <div className="text-center">
+                      {playingVideoId === selectedContentForDetail.id ? (
+                        <video
+                          src={selectedContentForDetail.videoUrl}
+                          controls
+                          className="w-full h-auto rounded-lg mb-3"
+                          autoPlay
+                        >
+                          Your browser does not support the video tag.
+                        </video>
+                      ) : (
+                        <>
+                          <img
+                            src={selectedContentForDetail.thumbnail || "https://via.placeholder.com/400x300"}
+                            alt="Thumbnail"
+                            className="w-full h-auto rounded-lg mb-3"
+                          />
+                          <Button
+                            type="primary"
+                            icon={<PlayCircleOutlined />}
+                            size="large"
+                            onClick={() => playVideo(selectedContentForDetail.id)}
+                          >
+                            Play Video
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                  {selectedContentForDetail.type === 'document' && (
+                    <div className="text-center p-8 bg-gray-50 rounded-lg">
+                      <FileTextOutlined className="text-6xl text-gray-400 mb-3" />
+                      <div className="space-y-2">
+                        <Button type="primary" icon={<EyeOutlined />}>
+                          View Document
+                        </Button>
+                        <br />
+                        <Button icon={<DownloadOutlined />}>
+                          Download
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </Card>
+
+                {/* Usage Statistics */}
+                <Card title="Usage Statistics">
+                  <div className="space-y-4">
+                    <Statistic
+                      title="Total Views"
+                      value={selectedContentForDetail.usageStats?.totalViews || 0}
+                      prefix={<EyeOutlined />}
+                    />
+                    <Statistic
+                      title="Active Users"
+                      value={selectedContentForDetail.usageStats?.activeUsers || 0}
+                      prefix={<UserOutlined />}
+                    />
+                    <div>
+                      <Text strong>Completion Rate</Text>
+                      <Progress
+                        percent={selectedContentForDetail.usageStats?.completionRate || 0}
+                        size="small"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Text type="secondary">Last Accessed: </Text>
+                      <Text>{selectedContentForDetail.usageStats?.lastAccessed || 'Never'}</Text>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Active Users */}
+                <Card title="Recent Users" size="small">
+                  <List
+                    size="small"
+                    dataSource={[
+                      { name: 'John Doe', progress: 75, lastSeen: '2h ago' },
+                      { name: 'Jane Smith', progress: 100, lastSeen: '1d ago' },
+                      { name: 'Mike Johnson', progress: 45, lastSeen: '3h ago' },
+                    ]}
+                    renderItem={(item) => (
+                      <List.Item>
+                        <List.Item.Meta
+                          avatar={<Avatar icon={<UserOutlined />} size="small" />}
+                          title={<Text className="text-sm">{item.name}</Text>}
+                          description={
+                            <div>
+                              <Progress percent={item.progress} size="small" />
+                              <Text type="secondary" className="text-xs">{item.lastSeen}</Text>
+                            </div>
+                          }
+                        />
+                      </List.Item>
+                    )}
+                  />
+                </Card>
+              </div>
+            </Col>
+          </Row>
+        </div>
+        {/* Detail Page Add Content Item Modal */}
+        <Modal
+          title="Add Content Item"
+          open={isDetailAddContentItemModalOpen}
+          onCancel={() => {
+            setIsDetailAddContentItemModalOpen(false)
+            contentItemForm.resetFields()
+          }}
+          footer={null}
+          width="90%"
+          style={{ maxWidth: 500 }}
+        >
+          <Form form={contentItemForm} layout="vertical" onFinish={handleAddContentItemDetail} className="mt-4">
+            <Form.Item
+              name="type"
+              label="Content Type"
+              rules={[{ required: true, message: "Please select content type!" }]}
+            >
+              <Select placeholder="Select content type">
+                {contentTypes.map((type) => (
+                  <Option key={type.key} value={type.key}>
+                    <Space>
+                      {type.icon}
+                      {type.label}
+                    </Space>
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item name="title" label="Title" rules={[{ required: true, message: "Please enter title!" }]}>
+              <Input placeholder="Enter title" />
+            </Form.Item>
+
+            <Form.Item name="description" label="Description">
+              <TextArea rows={2} placeholder="Enter description (optional)" />
+            </Form.Item>
+
+            <Form.Item shouldUpdate={(prevValues, curValues) => prevValues.type !== curValues.type}>
+              {({ getFieldValue }) => {
+                const selectedType = getFieldValue('type')
+
+                if (selectedType === 'link') {
+                  return (
+                    <Form.Item name="url" label="URL" rules={[{ required: true, message: "Please enter URL!" }]}>
+                      <Input placeholder="https://example.com" />
+                    </Form.Item>
+                  )
+                }
+
+                if (selectedType === 'text') {
+                  return (
+                    <Form.Item name="content" label="Text Content">
+                      <TextArea rows={4} placeholder="Enter text content" />
+                    </Form.Item>
+                  )
+                }
+
+                if (selectedType === 'quiz') {
+                  return (
+                    <Form.Item name="questions" label="Number of Questions">
+                      <Input type="number" placeholder="5" />
+                    </Form.Item>
+                  )
+                }
+
+                return null
+              }}
+            </Form.Item>
+
+            <Form.Item className="mb-0 flex justify-end">
+              <Space>
+                <Button
+                  onClick={() => {
+                    setIsDetailAddContentItemModalOpen(false)
+                    contentItemForm.resetFields()
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button type="primary" htmlType="submit">
+                  Add Item
+                </Button>
+              </Space>
+            </Form.Item>
+          </Form>
+        </Modal>
+
+        {/* Detail Page Edit Content Item Modal */}
+        <Modal
+          title="Edit Content Item"
+          open={isDetailEditContentItemModalOpen}
+          onCancel={() => {
+            setIsDetailEditContentItemModalOpen(false)
+            setEditContentItem(null)
+            editContentItemForm.resetFields()
+          }}
+          footer={null}
+          width="90%"
+          style={{ maxWidth: 500 }}
+        >
+          <Form form={editContentItemForm} layout="vertical" onFinish={handleEditContentItemDetail} className="mt-4">
+            <Form.Item name="title" label="Title" rules={[{ required: true, message: "Please enter title!" }]}>
+              <Input placeholder="Enter title" />
+            </Form.Item>
+
+            <Form.Item name="description" label="Description">
+              <TextArea rows={2} placeholder="Enter description (optional)" />
+            </Form.Item>
+
+            <Form.Item className="mb-0 flex justify-end">
+              <Space>
+                <Button
+                  onClick={() => {
+                    setIsDetailEditContentItemModalOpen(false)
+                    setEditContentItem(null)
+                    editContentItemForm.resetFields()
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button type="primary" htmlType="submit">
+                  Save Changes
+                </Button>
+              </Space>
+            </Form.Item>
+          </Form>
+        </Modal>
+      </>
+    )
+  }
+
+  return (
+    <div className="min-h-screen p-3">
+      <div className="">
+        <div className="">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6 gap-4">
+            <Title level={2} className="!mb-0">
+              Videos & Docs
+            </Title>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+              <Search
+                placeholder="Search videos and docs..."
+                allowClear
+                style={{ width: '100%', maxWidth: 300 }}
+                prefix={<SearchOutlined />}
+                onChange={(e) => handleSearch(e.target.value)}
+                onSearch={handleSearch}
+              />
+              {/* <div className="flex items-center gap-2">
+                <Text>Preview Mode</Text>
+                <Switch checked={previewMode} onChange={setPreviewMode} size="small" />
+              </div> */}
+            </div>
+          </div>
+
+          <Card
+            className="mb-6"
+            title="Content Structure"
+            extra={
+              <Space wrap>
+                <Dropdown menu={addContentMenu} trigger={["click"]}>
+                  <Button type="primary" icon={<PlusOutlined />}>
+                    Add Content
+                  </Button>
+                </Dropdown>
+                <Button icon={<SaveOutlined />} className="hidden sm:inline-flex">Save Draft</Button>
+                <Button type="primary" icon={<SendOutlined />} className="hidden sm:inline-flex">
+                  Publish Update
+                </Button>
+
+              </Space>
+            }
+          >
+            <div className="space-y-2">
+              {contentStructure.map((item, index) => renderContentStructureItem(item, index))}
+              {contentStructure.length === 0 && (
+                <div className="text-center py-8 text-gray-400">
+                  No content items yet. Add some content to get started.
+                </div>
+              )}
+            </div>
+          </Card>
+
+          <div className="mt-5">
+            <Card
+              className="mb-6"
+              title="Videos"
+              extra={
+                <Button type="primary" icon={<UploadOutlined />} onClick={handleAddVideo}>
+                  Upload Video
+                </Button>
+              }
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredVideos.map((video) => (
+                  <Card
+                    key={video.id}
+                    hoverable
+                    className="overflow-hidden"
+                    cover={
+                      <div className="h-48 bg-gray-200 flex items-center justify-center relative">
+                        <img
+                          src={video.thumbnail}
+                          className="w-full h-full object-cover"
+                        />
+                        <Button
+                          type="primary"
+                          shape="circle"
+                          size="large"
+                          icon={<PlayCircleOutlined />}
+                          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            playVideo(video.id);
+                            openDetailPage(video, "video");
+                          }}
+                        />
+                      </div>
+                    }
+                    actions={[
+                      <Button
+                        key="view-details"
+                        type="text"
+                        icon={<EyeOutlined />}
+                        onClick={() => openContentDetail(video, "video")}
+                        className="text-xs sm:text-sm"
+                      >
+                        <span className="hidden sm:inline">Quick View</span>
+                      </Button>,
+                      <Button
+                        key="detail-page"
+                        type="text"
+                        icon={<SettingOutlined />}
+                        onClick={() => openDetailPage(video, "video")}
+                        className="text-xs sm:text-sm"
+                      >
+                        <span className="hidden sm:inline">Detail Page</span>
+                      </Button>,
+                      <Button
+                        key="edit-video"
+                        type="text"
+                        icon={<EditOutlined />}
+                        onClick={() => openEditModal(video, "video")}
+                        className="text-xs sm:text-sm"
+                      />,
+                    ]}
+                  >
+                    <Card.Meta
+                      avatar={<VideoCameraOutlined className="text-blue-500" />}
+                      title={<span className="text-sm sm:text-base">{video.title}</span>}
+                      description={
+                        <div>
+                          <Text type="secondary" className="block mb-2 text-xs sm:text-sm">
+                            {video.description}
+                          </Text>
+                          <div className="flex justify-between items-center">
+                            <Text type="secondary" className="text-xs">
+                              {video.date}
+                            </Text>
+                            <Badge count={video.usageStats.activeUsers} showZero color="blue">
+                              <UserOutlined className="text-gray-400" />
+                            </Badge>
+                          </div>
+                        </div>
+                      }
+                    />
+                  </Card>
+                ))}
+              </div>
+            </Card>
+          </div>
+
+          <div className="mt-5">
+            <Card
+              title="Documents"
+              extra={
+                <Button type="primary" icon={<UploadOutlined />} onClick={handleAddDoc}>
+                  Upload Docs
+                </Button>
+              }
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredDocs.map((doc) => (
+                  <Card
+                    key={doc.id}
+                    hoverable
+                    actions={[
+                      <Button
+                        key="view-details"
+                        type="text"
+                        icon={<EyeOutlined />}
+                        onClick={() => openContentDetail(doc, "document")}
+                        className="text-xs sm:text-sm"
+                      >
+                        <span className="hidden sm:inline">Quick View</span>
+                      </Button>,
+                      <Button
+                        key="detail-page"
+                        type="text"
+                        icon={<SettingOutlined />}
+                        onClick={() => openDetailPage(doc, "document")}
+                        className="text-xs sm:text-sm"
+                      >
+                        <span className="hidden sm:inline">Detail Page</span>
+                      </Button>,
+                      <Button
+                        key="edit-doc"
+                        type="text"
+                        icon={<EditOutlined />}
+                        onClick={() => openEditModal(doc, "document")}
+                        className="text-xs sm:text-sm"
+                      />,
+                    ]}
+                  >
+                    <Card.Meta
+                      avatar={<FileTextOutlined className="text-green-500" />}
+                      title={<span className="text-sm sm:text-base">{doc.title}</span>}
+                      description={
+                        <div>
+                          <Text type="secondary" className="block mb-2 text-xs sm:text-sm">
+                            {doc.description}
+                          </Text>
+                          <div className="flex justify-between items-center">
+                            <Text type="secondary" className="text-xs">
+                              {doc.date}
+                            </Text>
+                            <Badge count={doc.usageStats.activeUsers} showZero color="green">
+                              <UserOutlined className="text-gray-400" />
+                            </Badge>
+                          </div>
+                        </div>
+                      }
+                    />
+                  </Card>
+                ))}
+              </div>
+            </Card>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick View Modal */}
+      <Modal
+        title={
+          <div className="flex items-center gap-2">
+            {selectedContent?.type === "video" ? <VideoCameraOutlined /> : <FileTextOutlined />}
+            Content Quick View
+          </div>
+        }
+        open={isContentDetailOpen}
+        onCancel={() => setIsContentDetailOpen(false)}
+        width="90%"
+        style={{ maxWidth: 800 }}
+        footer={[
+          <Button
+            key="detail"
+            icon={<SettingOutlined />}
+            onClick={() => {
+              setIsContentDetailOpen(false)
+              openDetailPage(selectedContent, selectedContent?.type)
+            }}
+          >
+            <span className="hidden sm:inline">Open Detail Page</span>
+            <span className="sm:hidden">Detail</span>
+          </Button>,
+          <Button
+            key="edit"
+            icon={<EditOutlined />}
+            onClick={() => {
+              setIsContentDetailOpen(false)
+              openEditModal(selectedContent, selectedContent?.type)
+            }}
+          >
+            Edit
+          </Button>,
+          <Button
+            key="delete"
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => {
+              setIsContentDetailOpen(false)
+              showDeleteModal(selectedContent?.id, selectedContent?.type, selectedContent?.title)
+            }}
+          >
+            Delete
+          </Button>,
+          <Button
+            key="view"
+            type="primary"
+            icon={<EyeOutlined />}
+            onClick={() => {
+              if (selectedContent?.type === "video") {
+                playVideo(selectedContent.id)
+              }
+            }}
+          >
+            {selectedContent?.type === "video" ? "Watch Video" : "View Document"}
+          </Button>,
+        ]}
+      >
+        {selectedContent && (
+          <div className="space-y-4">
+            <div>
+              <Title level={4}>{selectedContent.title}</Title>
+              <Text type="secondary">{selectedContent.description}</Text>
+            </div>
+
+            <Divider />
+
+            <Row gutter={[16, 16]}>
+              <Col xs={24} sm={12}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Text strong>Date:</Text>
+                    <br />
+                    <Text>{new Date(selectedContent.date).toLocaleDateString()}</Text>
+                  </div>
+                  <div>
+                    <Text strong>Category:</Text>
+                    <br />
+                    <Text>{selectedContent.category}</Text>
+                  </div>
+                  <div>
+                    <Text strong>Tags:</Text>
+                    <br />
+                    <Text>{selectedContent.tags}</Text>
+                  </div>
+                  <div>
+                    <Text strong>Type:</Text>
+                    <br />
+                    <Text className="capitalize">{selectedContent.type}</Text>
+                  </div>
+                </div>
+              </Col>
+              <Col xs={24} sm={12}>
+                <div className="space-y-3">
+                  <Statistic
+                    title="Total Views"
+                    value={selectedContent.usageStats?.totalViews || 0}
+                    prefix={<EyeOutlined />}
+                  />
+                  <Statistic
+                    title="Active Users"
+                    value={selectedContent.usageStats?.activeUsers || 0}
+                    prefix={<UserOutlined />}
+                  />
+                  <div>
+                    <Text strong>Completion Rate</Text>
+                    <Progress
+                      percent={selectedContent.usageStats?.completionRate || 0}
+                      size="small"
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+              </Col>
+            </Row>
+
+            {selectedContent.type === "video" && (
+              <div>
+                <Text strong>Video Preview:</Text>
+                <div className="mt-2">
+                  {playingVideoId === selectedContent.id ? (
+                    <video
+                      src={selectedContent.videoUrl}
+                      controls
+                      className="w-full max-w-md h-auto rounded-lg"
+                      autoPlay
+                    >
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : (
+                    <div className="relative">
+                      <img
+                        src={selectedContent.thumbnail || "https://via.placeholder.com/400x300"}
+                        alt="Thumbnail"
+                        className="w-full max-w-md h-auto rounded-lg"
+                      />
+                      <Button
+                        type="primary"
+                        shape="circle"
+                        size="large"
+                        icon={<PlayCircleOutlined />}
+                        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                        onClick={() => playVideo(selectedContent.id)}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
+
+      {/* Add/Upload Modal */}
+      <Modal
+        title={isEditModalOpen ? "Edit Content" : "Upload New Content"}
+        open={isAddModalOpen || isEditModalOpen}
+        onCancel={() => {
+          setIsAddModalOpen(false)
+          setIsEditModalOpen(false)
+          form.resetFields()
+        }}
+        footer={null}
+        width="90%"
+        style={{ maxWidth: 600 }}
+      >
+        <Form form={form} layout="vertical" onFinish={handleSubmit} className="mt-4">
+          {!isEditModalOpen && (
+            <Form.Item
+              name="type"
+              label="Content Type"
+              rules={[{ required: true, message: "Please select content type!" }]}
+            >
+              <Select placeholder="Select content type">
+                <Option value="video">Video</Option>
+                <Option value="document">Document</Option>
+              </Select>
+            </Form.Item>
+          )}
+
+          <Form.Item name="title" label="Title" rules={[{ required: true, message: "Please enter title!" }]}>
+            <Input placeholder="Enter title" />
+          </Form.Item>
+
+          <Form.Item
+            name="description"
+            label="Description"
+            rules={[{ required: true, message: "Please enter description!" }]}
+          >
+            <TextArea rows={3} placeholder="Enter description" />
+          </Form.Item>
+
+          <Form.Item name="tags" label="Tags">
+            <Input placeholder="Enter tags (comma separated)" />
+          </Form.Item>
+
+          <Form.Item name="category" label="Category" rules={[{ required: true, message: "Please select category!" }]}>
+            <Select placeholder="Select category">
+              {categories.map((category) => (
+                <Option key={category} value={category}>
+                  {category}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="file"
+            label="Upload File"
+            rules={!isEditModalOpen ? [{ required: true, message: "Please upload a file!" }] : []}
+          >
+            <Upload.Dragger name="file" multiple={false} beforeUpload={() => false} className="!bg-gray-50">
+              <p className="ant-upload-drag-icon">
+                <UploadOutlined />
+              </p>
+              <p className="ant-upload-text">Click or drag file to this area to upload</p>
+              <p className="ant-upload-hint">
+                Support for single file upload. {isEditModalOpen && "(Optional - leave empty to keep current file)"}
+              </p>
+            </Upload.Dragger>
+          </Form.Item>
+
+          <Form.Item className="mb-0 flex justify-end">
+            <Space>
+              <Button
+                onClick={() => {
+                  setIsAddModalOpen(false)
+                  setIsEditModalOpen(false)
+                  form.resetFields()
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="primary" htmlType="submit">
+                {isEditModalOpen ? "Save Changes" : "Upload"}
+              </Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        title="Confirm Delete"
+        open={isDeleteModalOpen}
+        onOk={handleDeleteConfirm}
+        onCancel={() => {
+          setIsDeleteModalOpen(false)
+          setDeleteItemData(null)
+        }}
+        okText="Delete"
+        okType="danger"
+        cancelText="Cancel"
+        width="90%"
+        style={{ maxWidth: 400 }}
+      >
+        <p>Are you sure you want to delete <strong>"{deleteItemData?.title}"</strong>?</p>
+        <p className="text-gray-500">This action cannot be undone.</p>
+      </Modal>
+
+      {/* Add Content Item Modal */}
+      <Modal
+        title="Add Content Item"
+        open={isAddContentItemModalOpen}
+        onCancel={() => {
+          setIsAddContentItemModalOpen(false)
+          contentItemForm.resetFields()
+        }}
+        footer={null}
+        width="90%"
+        style={{ maxWidth: 500 }}
+      >
+        <Form form={contentItemForm} layout="vertical" onFinish={handleAddContentItem} className="mt-4">
+          <Form.Item
+            name="type"
+            label="Content Type"
+            rules={[{ required: true, message: "Please select content type!" }]}
+          >
+            <Select placeholder="Select content type">
+              {contentTypes.map((type) => (
+                <Option key={type.key} value={type.key}>
+                  <Space>
+                    {type.icon}
+                    {type.label}
+                  </Space>
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item name="title" label="Title" rules={[{ required: true, message: "Please enter title!" }]}>
+            <Input placeholder="Enter title" />
+          </Form.Item>
+
+          <Form.Item name="description" label="Description">
+            <TextArea rows={2} placeholder="Enter description (optional)" />
+          </Form.Item>
+
+          {/* Show additional fields based on content type */}
+          <Form.Item shouldUpdate={(prevValues, curValues) => prevValues.type !== curValues.type}>
+            {({ getFieldValue }) => {
+              const selectedType = getFieldValue('type')
+
+              if (selectedType === 'link') {
+                return (
+                  <Form.Item name="url" label="URL" rules={[{ required: true, message: "Please enter URL!" }]}>
+                    <Input placeholder="https://example.com" />
+                  </Form.Item>
+                )
+              }
+
+              if (selectedType === 'text') {
+                return (
+                  <Form.Item name="content" label="Text Content">
+                    <TextArea rows={4} placeholder="Enter text content" />
+                  </Form.Item>
+                )
+              }
+
+              if (selectedType === 'quiz') {
+                return (
+                  <Form.Item name="questions" label="Number of Questions">
+                    <Input type="number" placeholder="5" />
+                  </Form.Item>
+                )
+              }
+
+              return null
+            }}
+          </Form.Item>
+
+          <Form.Item className="mb-0 flex justify-end">
+            <Space>
+              <Button
+                onClick={() => {
+                  setIsAddContentItemModalOpen(false)
+                  contentItemForm.resetFields()
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="primary" htmlType="submit">
+                Add Item
+              </Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Edit Content Item Modal */}
+      <Modal
+        title="Edit Content Item"
+        open={isEditContentItemModalOpen}
+        onCancel={() => {
+          setIsEditContentItemModalOpen(false)
+          setEditContentItem(null)
+          editContentItemForm.resetFields()
+        }}
+        footer={null}
+        width="90%"
+        style={{ maxWidth: 500 }}
+      >
+        <Form form={editContentItemForm} layout="vertical" onFinish={handleEditContentItem} className="mt-4">
+          <Form.Item name="title" label="Title" rules={[{ required: true, message: "Please enter title!" }]}>
+            <Input placeholder="Enter title" />
+          </Form.Item>
+
+          <Form.Item name="description" label="Description">
+            <TextArea rows={2} placeholder="Enter description (optional)" />
+          </Form.Item>
+
+          <Form.Item className="mb-0 flex justify-end">
+            <Space>
+              <Button
+                onClick={() => {
+                  setIsEditContentItemModalOpen(false)
+                  setEditContentItem(null)
+                  editContentItemForm.resetFields()
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="primary" htmlType="submit">
+                Save Changes
+              </Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
+    </div>
+  )
 }
