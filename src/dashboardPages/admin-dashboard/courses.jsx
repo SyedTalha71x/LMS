@@ -109,6 +109,8 @@ export default function CoursesManagement() {
     onConfirm: null,
   })
 
+  const [isSuperImportModalOpen, setIsSuperImportModalOpen] = useState(false)
+
   const categoryOptions = [
     "Programming",
     "Data Science",
@@ -231,6 +233,70 @@ export default function CoursesManagement() {
       modules: [],
     },
   ])
+
+  // demo Super Admin courses catalog for importing
+  const superAdminCourses = [
+    {
+      id: "sa-1",
+      name: "JavaScript Essentials (Super Admin)",
+      code: "SA-JS101",
+      category: "Programming",
+      instructor: "Super Admin",
+      lastUpdated: "2024-12-01",
+      status: "Draft",
+      enrollmentCount: 0,
+      enrollmentType: "Free",
+      price: 0,
+      duration: "4 weeks",
+      level: "Beginner",
+      description: "Core JavaScript fundamentals curated by Super Admin.",
+      thumbnail: "https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png",
+      modules: [
+        { id: 1, title: "Variables & Types", lessons: 5, duration: "1 hour" },
+        { id: 2, title: "Functions & Scope", lessons: 6, duration: "1.5 hours" },
+      ],
+    },
+    {
+      id: "sa-2",
+      name: "Intro to SQL (Super Admin)",
+      code: "SA-SQL100",
+      category: "Data Science",
+      instructor: "Super Admin",
+      lastUpdated: "2024-11-20",
+      status: "Draft",
+      enrollmentCount: 0,
+      enrollmentType: "Free",
+      price: 0,
+      duration: "3 weeks",
+      level: "Beginner",
+      description: "Learn SQL basics: SELECTs, JOINs, and aggregations.",
+      thumbnail: "https://upload.wikimedia.org/wikipedia/commons/8/87/Sql_data_base_with_logo.png",
+      modules: [
+        { id: 1, title: "SELECT Basics", lessons: 4, duration: "50 mins" },
+        { id: 2, title: "JOINs", lessons: 5, duration: "1 hour" },
+      ],
+    },
+    {
+      id: "sa-3",
+      name: "Git & GitHub Crash Course (Super Admin)",
+      code: "SA-GIT101",
+      category: "Programming",
+      instructor: "Super Admin",
+      lastUpdated: "2024-10-10",
+      status: "Draft",
+      enrollmentCount: 0,
+      enrollmentType: "Free",
+      price: 0,
+      duration: "2 weeks",
+      level: "Beginner",
+      description: "Version control essentials with Git and collaboration on GitHub.",
+      thumbnail: "https://upload.wikimedia.org/wikipedia/commons/3/3f/Git_icon.svg",
+      modules: [
+        { id: 1, title: "Git Basics", lessons: 3, duration: "40 mins" },
+        { id: 2, title: "Branches & Merges", lessons: 4, duration: "55 mins" },
+      ],
+    },
+  ]
 
   const [notifications, setNotifications] = useState([
     {
@@ -523,7 +589,14 @@ export default function CoursesManagement() {
             className="w-12 h-12 rounded-lg object-cover mr-3"
           />
           <div>
-            <div className="font-medium text-gray-900">{text}</div>
+            <div className="font-medium text-gray-900">
+              {text}{" "}
+              {record.importedFromSuperAdmin ? (
+                <Tag color="purple" className="ml-1">
+                  Super Admin
+                </Tag>
+              ) : null}
+            </div>
             <div className="text-sm text-gray-500">{record.code}</div>
           </div>
         </div>
@@ -744,6 +817,44 @@ export default function CoursesManagement() {
     handleDeleteCourse(course)
   }
 
+  const importOneSuperCourse = (course) => {
+    const alreadyImported = courses.some((c) => c.code === course.code)
+    if (alreadyImported) {
+      message.info(`${course.name} already imported`)
+      return
+    }
+    const newCourse = {
+      ...course,
+      id: Date.now().toString() + Math.random().toString(36).slice(2),
+      importedFromSuperAdmin: true,
+      lastUpdated: new Date().toISOString().split("T")[0],
+      enrollmentCount: course.enrollmentCount || 0,
+      modules: course.modules || [],
+    }
+    setCourses([...courses, newCourse])
+    message.success(`Imported ${course.name}`)
+  }
+
+  const importAllSuperCourses = () => {
+    const existingCodes = new Set(courses.map((c) => c.code))
+    const toImport = superAdminCourses.filter((c) => !existingCodes.has(c.code))
+    if (toImport.length === 0) {
+      message.info("All Super Admin courses are already imported")
+      return
+    }
+    const mapped = toImport.map((c) => ({
+      ...c,
+      id: Date.now().toString() + Math.random().toString(36).slice(2),
+      importedFromSuperAdmin: true,
+      lastUpdated: new Date().toISOString().split("T")[0],
+      enrollmentCount: c.enrollmentCount || 0,
+      modules: c.modules || [],
+    }))
+    setCourses([...courses, ...mapped])
+    message.success(`Imported ${mapped.length} Super Admin course(s)`)
+    setIsSuperImportModalOpen(false)
+  }
+
   return (
     <div className="">
       <div className="w-full">
@@ -763,6 +874,15 @@ export default function CoursesManagement() {
                 className="flex-1 sm:flex-none"
               >
                 Import Courses
+              </Button>
+              {/* CHANGE: add 'Import Super Admin' button in header actions */}
+              <Button
+                type="default"
+                icon={<Download />}
+                onClick={() => setIsSuperImportModalOpen(true)}
+                className="flex-1 sm:flex-none"
+              >
+                Import Super Admin
               </Button>
               <Button
                 type="default"
@@ -833,24 +953,22 @@ export default function CoursesManagement() {
                 </Button>
 
                 <Radio.Group
-                    value={viewMode}
-                    onChange={(e) => setViewMode(e.target.value)}
-                    size="medium"
-                    buttonStyle="solid"
-                  >
-                    <Radio.Button value="table">
-                      <div className="flex items-center gap-1">
-                      
-                        <span className="">Table</span>
-                      </div>
-                    </Radio.Button>
-                    <Radio.Button value="card">
-                      <div className="flex items-center gap-1">
-                      
-                        <span className="">Cards</span>
-                      </div>
-                    </Radio.Button>
-                  </Radio.Group>
+                  value={viewMode}
+                  onChange={(e) => setViewMode(e.target.value)}
+                  size="medium"
+                  buttonStyle="solid"
+                >
+                  <Radio.Button value="table">
+                    <div className="flex items-center gap-1">
+                      <span className="">Table</span>
+                    </div>
+                  </Radio.Button>
+                  <Radio.Button value="card">
+                    <div className="flex items-center gap-1">
+                      <span className="">Cards</span>
+                    </div>
+                  </Radio.Button>
+                </Radio.Group>
               </div>
             </div>
 
@@ -1067,127 +1185,6 @@ export default function CoursesManagement() {
             className="mt-3"
           />
         )}
-      </Modal>
-
-      <Modal
-        open={isManageModalOpen}
-        onCancel={() => setIsManageModalOpen(false)}
-        footer={null}
-        width={600}
-        className="manage-modal"
-      >
-        <div className="space-y-6">
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Button
-                type="primary"
-                block
-                icon={<Plus />}
-                onClick={() => {
-                  setIsAddModalOpen(true)
-                  setIsManageModalOpen(false)
-                }}
-              >
-                Add New Course
-              </Button>
-              <Button
-                block
-                icon={<Download />}
-                onClick={() => {
-                  exportToCSV()
-                  setIsManageModalOpen(false)
-                }}
-              >
-                Export Data
-              </Button>
-
-              <Button
-                block
-                icon={<Users />}
-                onClick={() => {
-                  // Show enrollment management for first published course or show message
-                  const publishedCourse = courses.find((c) => c.status === "Published")
-                  if (publishedCourse) {
-                    setCourseToEnroll(publishedCourse)
-                    setIsEnrollmentModalOpen(true)
-                    setIsManageModalOpen(false)
-                  } else {
-                    message.info("No published courses available for enrollment management")
-                  }
-                }}
-              >
-                Manage Enrollments
-              </Button>
-              <Button
-                block
-                icon={<Archive />}
-                onClick={() => {
-                  if (selectedCourses.length > 0) {
-                    handleBulkAction("archive")
-                    setIsManageModalOpen(false)
-                  } else {
-                    message.warning("Please select courses from the table first")
-                  }
-                }}
-              >
-                Bulk Archive
-              </Button>
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Stats</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-blue-50 p-4 rounded-lg text-center">
-                <div className="text-2xl font-bold text-blue-600">{courses.length}</div>
-                <div className="text-sm text-gray-600">Total Courses</div>
-              </div>
-              <div className="bg-green-50 p-4 rounded-lg text-center">
-                <div className="text-2xl font-bold text-green-600">
-                  {courses.filter((c) => c.status === "Published").length}
-                </div>
-                <div className="text-sm text-gray-600">Published</div>
-              </div>
-              <div className="bg-orange-50 p-4 rounded-lg text-center">
-                <div className="text-2xl font-bold text-orange-600">
-                  {courses.filter((c) => c.status === "Draft").length}
-                </div>
-                <div className="text-sm text-gray-600">Draft</div>
-              </div>
-              <div className="bg-purple-50 p-4 rounded-lg text-center">
-                <div className="text-2xl font-bold text-purple-600">
-                  {courses.reduce((sum, course) => sum + course.enrollmentCount, 0)}
-                </div>
-                <div className="text-sm text-gray-600">Total Enrollments</div>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
-            <div className="space-y-3 max-h-60 overflow-y-auto">
-              {notifications.map((notification) => (
-                <div key={notification.id} className="bg-gray-50 p-3 rounded-lg">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span
-                          className={`h-2 w-2 rounded-full ${
-                            notification.type === "success" ? "bg-green-500" : "bg-blue-500"
-                          }`}
-                        />
-                        <span className="font-medium text-sm">{notification.title}</span>
-                        <span className="text-xs text-gray-500">{notification.time}</span>
-                      </div>
-                      <p className="text-sm text-gray-600">{notification.message}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
       </Modal>
 
       <Modal
@@ -1712,6 +1709,63 @@ export default function CoursesManagement() {
           </Tabs>
         </Modal>
       )}
+      {/* Super Admin Import Modal */}
+      <Modal
+        title="Import Super Admin Courses"
+        open={isSuperImportModalOpen}
+        onCancel={() => setIsSuperImportModalOpen(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setIsSuperImportModalOpen(false)}>
+            Cancel
+          </Button>,
+          <Button key="importAll" type="primary" onClick={importAllSuperCourses}>
+            Import All
+          </Button>,
+        ]}
+        width={700}
+      >
+        <div className="space-y-6">
+          <div className="text-center">
+            <Upload className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium mb-2">Import Courses from Super Admin Catalog</h3>
+            <p className="text-gray-500 mb-4">
+              Select courses from the Super Admin catalog to import into your system.
+            </p>
+          </div>
+          <List
+            size="small"
+            bordered
+            dataSource={superAdminCourses}
+            renderItem={(course) => (
+              <List.Item
+                actions={[
+                  <Button
+                    key="import"
+                    size="small"
+                    type="primary"
+                    onClick={() => importOneSuperCourse(course)}
+                    disabled={courses.some((c) => c.code === course.code)}
+                  >
+                    {courses.some((c) => c.code === course.code) ? "Imported" : "Import"}
+                  </Button>,
+                ]}
+              >
+                <List.Item.Meta
+                  avatar={
+                    <img
+                      src={course.thumbnail || "/placeholder.svg"}
+                      alt={course.name}
+                      className="w-10 h-10 rounded-md object-cover"
+                    />
+                  }
+                  title={course.name}
+                  description={`${course.category} - ${course.instructor}`}
+                />
+              </List.Item>
+            )}
+          />
+        </div>
+      </Modal>
     </div>
   )
 }

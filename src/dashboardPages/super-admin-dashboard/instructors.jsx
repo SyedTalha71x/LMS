@@ -24,6 +24,7 @@ import {
   Badge,
   Drawer,
   message,
+  Alert,
 } from "antd"
 import {
   SearchOutlined,
@@ -40,6 +41,7 @@ import {
   StopOutlined,
   CloseOutlined,
   ExclamationCircleOutlined,
+  CopyOutlined,
 } from "@ant-design/icons"
 
 const { Option } = Select
@@ -60,6 +62,13 @@ export default function ClientsPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showDeactivateModal, setShowDeactivateModal] = useState(false)
   const [form] = Form.useForm()
+
+  const [showCredentialsModal, setShowCredentialsModal] = useState(false)
+  const [generatedCredentials, setGeneratedCredentials] = useState(null)
+  const [uploadedLogo, setUploadedLogo] = useState(null)
+
+
+
 
   const clients = [
     {
@@ -168,7 +177,6 @@ export default function ClientsPage() {
     return matchesSearch && matchesStatus && matchesPlan
   })
 
-  // Handle Edit Client
   const handleEditClient = (client) => {
     setSelectedClient(client)
     // Pre-fill form with client data
@@ -185,19 +193,16 @@ export default function ClientsPage() {
     setShowEditDrawer(true)
   }
 
-  // Handle View Details
   const handleViewDetails = (client) => {
     setSelectedClient(client)
     setShowDetailsDrawer(true)
   }
 
-  // Handle Manage Subscription
   const handleManageSubscription = (client) => {
     setSelectedClient(client)
     setShowSubscriptionModal(true)
   }
 
-  // Handle Login as Admin
   const handleLoginAsAdmin = (client) => {
     message.info(`Logging in as admin for ${client.organizationName}...`)
     // Add your login logic here
@@ -217,7 +222,7 @@ export default function ClientsPage() {
       setSelectedClient(null)
     }
   }
-  
+
 
   const handleDeleteConfirm = () => {
     if (selectedClient) {
@@ -232,13 +237,11 @@ export default function ClientsPage() {
     setSelectedClient(client)
     setShowDeactivateModal(true)
   }
-  
+
   const handleDelete = (client) => {
     setSelectedClient(client)
     setShowDeleteModal(true)
   }
-  
-  
 
   const handleEditSubmit = (values) => {
     message.success(`${values.organizationName} has been updated successfully`)
@@ -279,7 +282,7 @@ export default function ClientsPage() {
       <Menu.Item
         key="deactivate"
         icon={<StopOutlined />}
-        onClick={() => handleDeactivate(client)}   
+        onClick={() => handleDeactivate(client)}
       >
         Deactivate
       </Menu.Item>
@@ -288,13 +291,13 @@ export default function ClientsPage() {
         key="delete"
         icon={<DeleteOutlined />}
         danger
-        onClick={() => handleDelete(client)}   
+        onClick={() => handleDelete(client)}
       >
         Delete
       </Menu.Item>
     </Menu>
   )
-  
+
 
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
@@ -324,10 +327,84 @@ export default function ClientsPage() {
     }
   }
 
+  const generateCredentials = (organizationName, email) => {
+    // Generate username (first 4 chars of org name + random 4 digits)
+    const orgPrefix = organizationName.replace(/\s+/g, '').substring(0, 4).toLowerCase()
+    const randomDigits = Math.floor(1000 + Math.random() * 9000)
+    const username = `${orgPrefix}${randomDigits}`
+    
+    // Generate temporary password (8 characters)
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%"
+    let password = ""
+    for (let i = 0; i < 8; i++) {
+      password += charset.charAt(Math.floor(Math.random() * charset.length))
+    }
+    
+    return {
+      username,
+      password,
+      loginUrl: "https://app.yourplatform.com/login",
+      email: email
+    }
+  }
+
+
+  const handleCreateClient = (values) => {
+    const credentials = generateCredentials(values.organizationName, values.email)
+    
+    const newClient = {
+      id: Date.now().toString(),
+      organizationName: values.organizationName,
+      logo: uploadedLogo || "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=100&h=100&fit=crop&crop=center", // Use uploaded logo or default
+      primaryContact: values.primaryContact,
+      email: values.email,
+      phone: values.phone,
+      subscriptionPlan: values.subscriptionPlan,
+      subscriptionStatus: "Active",
+      activeUsers: 1,
+      coursesEnrolled: 0,
+      lastActivity: new Date().toISOString().split('T')[0],
+      totalRevenue: 0,
+      address: values.address,
+      establishedDate: new Date().toISOString().split('T')[0],
+      licenseNumber: values.licenseNumber,
+      specialties: values.specialties || [],
+      paymentMethods: [],
+      recentPayments: [],
+      users: [
+        { 
+          name: values.primaryContact, 
+          role: "Admin", 
+          status: "Active",
+          username: credentials.username,
+          email: values.email
+        }
+      ],
+      courses: [],
+      credentials: credentials 
+    }
+    
+    setClientsData(prev => [...prev, newClient])
+    setGeneratedCredentials(credentials)
+    setShowCredentialsModal(true)
+    setShowCreateModal(false)
+    setUploadedLogo(null) // Reset uploaded logo
+    message.success(`Client ${values.organizationName} created successfully!`)
+  }
+
+  const handleLogoUpload = (info) => {
+    if (info.file) {
+      // For demo purposes, we'll use a mock URL
+      // In a real app, you would upload to a server and get the URL
+      const mockLogoUrl = "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=100&h=100&fit=crop&crop=center"
+      setUploadedLogo(mockLogoUrl)
+      message.success('Logo uploaded successfully!')
+    }
+  }
+
   return (
     <div className="min-h-screen  p-3">
       <div className="">
-        {/* Header */}
         <div className="mb-5">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
@@ -471,89 +548,135 @@ export default function ClientsPage() {
         )}
 
         <Modal
-          title="Add New Client"
-          open={showCreateModal}
-          onCancel={() => {
-            setShowCreateModal(false)
-          }}
-          footer={null}
-          width={600}
-          className="dark-modal"
-        >
-          <Form layout="vertical" className="mt-6">
-            <div className="text-center mb-6">
-              <Upload name="logo" listType="picture-card" className="avatar-uploader" showUploadList={false}>
+        title="Add New Client"
+        open={showCreateModal}
+        onCancel={() => {
+          setShowCreateModal(false)
+          setUploadedLogo(null) // Reset on cancel
+        }}
+        footer={null}
+        width={600}
+        className="dark-modal"
+      >
+        <Form onFinish={handleCreateClient} layout="vertical" className="mt-6">
+          <div className="text-center mb-6">
+            <Upload 
+              name="logo" 
+              listType="picture-card" 
+              className="avatar-uploader" 
+              showUploadList={false}
+              beforeUpload={() => false} // Prevent automatic upload
+              onChange={handleLogoUpload}
+            >
+              {uploadedLogo ? (
+                <img src={uploadedLogo} alt="Logo" className="w-full h-full object-cover" />
+              ) : (
                 <div>
-                  <UploadOutlined />
+                  <PlusOutlined />
                   <div className="mt-2">Upload Logo</div>
                 </div>
-              </Upload>
-            </div>
+              )}
+            </Upload>
+          </div>
 
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item label="Organization Name" required>
-                  <Input placeholder="Enter organization name" size="large" />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item label="License Number" required>
-                  <Input placeholder="Enter license number" size="large" />
-                </Form.Item>
-              </Col>
-            </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item 
+                name="organizationName" 
+                label="Organization Name" 
+                rules={[{ required: true, message: 'Please enter organization name' }]}
+              >
+                <Input placeholder="Enter organization name" size="large" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item 
+                name="licenseNumber" 
+                label="License Number" 
+                rules={[{ required: true, message: 'Please enter license number' }]}
+              >
+                <Input placeholder="Enter license number" size="large" />
+              </Form.Item>
+            </Col>
+          </Row>
 
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item label="Primary Contact" required>
-                  <Input placeholder="Enter contact name" size="large" />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item label="Email" required>
-                  <Input type="email" placeholder="Enter email" size="large" />
-                </Form.Item>
-              </Col>
-            </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item 
+                name="primaryContact" 
+                label="Primary Contact" 
+                rules={[{ required: true, message: 'Please enter contact name' }]}
+              >
+                <Input placeholder="Enter contact name" size="large" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item 
+                name="email" 
+                label="Email" 
+                rules={[
+                  { required: true, message: 'Please enter email' },
+                  { type: 'email', message: 'Please enter valid email' }
+                ]}
+              >
+                <Input type="email" placeholder="Enter email" size="large" />
+              </Form.Item>
+            </Col>
+          </Row>
 
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item label="Phone" required>
-                  <Input placeholder="Enter phone number" size="large" />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item label="Subscription Plan" required>
-                  <Select placeholder="Select plan" size="large">
-                    <Option value="basic">Basic</Option>
-                    <Option value="standard">Standard</Option>
-                    <Option value="premium">Premium</Option>
-                  </Select>
-                </Form.Item>
-              </Col>
-            </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item 
+                name="phone" 
+                label="Phone" 
+                rules={[{ required: true, message: 'Please enter phone number' }]}
+              >
+                <Input placeholder="Enter phone number" size="large" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item 
+                name="subscriptionPlan" 
+                label="Subscription Plan" 
+                rules={[{ required: true, message: 'Please select a plan' }]}
+              >
+                <Select placeholder="Select plan" size="large">
+                  <Option value="basic">Basic</Option>
+                  <Option value="standard">Standard</Option>
+                  <Option value="premium">Premium</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
 
-            <Form.Item label="Address">
-              <Input.TextArea placeholder="Enter full address" rows={3} />
-            </Form.Item>
+          <Form.Item name="address" label="Address">
+            <Input.TextArea placeholder="Enter full address" rows={3} />
+          </Form.Item>
 
-            <Form.Item label="Specialties">
-              <Select mode="multiple" placeholder="Select specialties" size="large">
-                <Option value="general">General Medicine</Option>
-                <Option value="pediatrics">Pediatrics</Option>
-                <Option value="geriatrics">Geriatrics</Option>
-                <Option value="cardiology">Cardiology</Option>
-                <Option value="diabetes">Diabetes Care</Option>
-                <Option value="community">Community Health</Option>
-              </Select>
-            </Form.Item>
+          <Form.Item name="specialties" label="Specialties">
+            <Select mode="multiple" placeholder="Select specialties" size="large">
+              <Option value="General Medicine">General Medicine</Option>
+              <Option value="Pediatrics">Pediatrics</Option>
+              <Option value="Geriatrics">Geriatrics</Option>
+              <Option value="Cardiology">Cardiology</Option>
+              <Option value="Diabetes Care">Diabetes Care</Option>
+              <Option value="Community Health">Community Health</Option>
+            </Select>
+          </Form.Item>
 
-            <div className="flex justify-end gap-3 mt-6">
-              <Button onClick={() => setShowCreateModal(false)}>Cancel</Button>
-              <Button type="primary">Create Client</Button>
-            </div>
-          </Form>
-        </Modal>
+          <div className="flex justify-end gap-3 mt-6">
+            <Button onClick={() => {
+              setShowCreateModal(false)
+              setUploadedLogo(null)
+            }}>
+              Cancel
+            </Button>
+            <Button type="primary" htmlType="submit">
+              Create Client
+            </Button>
+          </div>
+        </Form>
+      </Modal>
 
         <Drawer
           title={
@@ -1090,34 +1213,91 @@ export default function ClientsPage() {
           )}
         </Modal>
 
-       {/* Deactivate Modal */}
-<Modal
-  title={`Deactivate ${selectedClient?.organizationName}?`}
-  open={showDeactivateModal}
-  onOk={handleDeactivateConfirm}
-  onCancel={() => setShowDeactivateModal(false)}
-  okText="Yes, Deactivate"
-  okType="danger"
-  cancelText="Cancel"
->
-  <p>
-    Are you sure you want to deactivate this client? They will lose access to all services immediately.
-  </p>
-</Modal>
+        <Modal
+          title={`Deactivate ${selectedClient?.organizationName}?`}
+          open={showDeactivateModal}
+          onOk={handleDeactivateConfirm}
+          onCancel={() => setShowDeactivateModal(false)}
+          okText="Yes, Deactivate"
+          okType="danger"
+          cancelText="Cancel"
+        >
+          <p>
+            Are you sure you want to deactivate this client? They will lose access to all services immediately.
+          </p>
+        </Modal>
 
-{/* Delete Modal */}
-<Modal
-  title={`Delete ${selectedClient?.organizationName}?`}
-  open={showDeleteModal}
-  onOk={handleDeleteConfirm}
-  onCancel={() => setShowDeleteModal(false)}
-  okText="Yes, Delete"
-  okType="danger"
-  cancelText="Cancel"
+        <Modal
+          title={`Delete ${selectedClient?.organizationName}?`}
+          open={showDeleteModal}
+          onOk={handleDeleteConfirm}
+          onCancel={() => setShowDeleteModal(false)}
+          okText="Yes, Delete"
+          okType="danger"
+          cancelText="Cancel"
+        >
+          <p>
+            Are you sure you want to permanently delete this client? This action cannot be undone.
+          </p>
+        </Modal>
+
+        <Modal
+  title="Client Created Successfully!"
+  open={showCredentialsModal}
+  onCancel={() => setShowCredentialsModal(false)}
+  footer={[
+    <Button key="close" onClick={() => setShowCredentialsModal(false)}>
+      Close
+    </Button>,
+    <Button 
+      key="copy" 
+      type="primary" 
+      icon={<CopyOutlined />}
+      onClick={() => {
+        const text = `Username: ${generatedCredentials.username}\nPassword: ${generatedCredentials.password}\nLogin URL: ${generatedCredentials.loginUrl}`
+        navigator.clipboard.writeText(text)
+        message.success('Credentials copied to clipboard!')
+      }}
+    >
+      Copy Credentials
+    </Button>
+  ]}
+  width={500}
 >
-  <p>
-    Are you sure you want to permanently delete this client? This action cannot be undone.
-  </p>
+  {generatedCredentials && (
+    <div className="space-y-4">
+      <Alert
+        message="Important: Save these credentials"
+        description="These login credentials should be shared with the client. They can change their password after first login."
+        type="warning"
+        showIcon
+        closable
+      />
+      
+      <div className="bg-gray-50 mt-2 p-4 rounded-lg space-y-3">
+        <div className="flex justify-between">
+          <Text strong>Username:</Text>
+          <Text code>{generatedCredentials.username}</Text>
+        </div>
+        <div className="flex justify-between">
+          <Text strong>Temporary Password:</Text>
+          <Text code>{generatedCredentials.password}</Text>
+        </div>
+        {/* <div className="flex justify-between">
+          <Text strong>Login URL:</Text>
+          <Text className="text-blue-500">{generatedCredentials.loginUrl}</Text>
+        </div> */}
+        <div className="flex justify-between">
+          <Text strong>Email:</Text>
+          <Text>{generatedCredentials.email}</Text>
+        </div>
+      </div>
+      
+      <Text type="secondary" className="text-sm">
+        The primary contact will receive an email with these credentials and login instructions.
+      </Text>
+    </div>
+  )}
 </Modal>
 
 

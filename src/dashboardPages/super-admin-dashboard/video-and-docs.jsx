@@ -1,3 +1,5 @@
+"use client"
+
 /* eslint-disable no-unused-vars */
 import { useState } from "react"
 import {
@@ -11,7 +13,6 @@ import {
   message,
   Dropdown,
   Space,
-  Switch,
   Divider,
   Typography,
   Tabs,
@@ -21,7 +22,6 @@ import {
   Avatar,
   List,
   Badge,
-  Tooltip,
   Row,
   Col,
 } from "antd"
@@ -51,6 +51,7 @@ import {
   RightOutlined,
   DownOutlined,
   MenuOutlined,
+  UpOutlined,
 } from "@ant-design/icons"
 import { newDocsData, newVideosData } from "../../utils/videosData"
 
@@ -75,7 +76,7 @@ export default function VideosAndDocs() {
   const [previewMode, setPreviewMode] = useState(false)
   const [draggedItem, setDraggedItem] = useState(null)
   const [dragOverIndex, setDragOverIndex] = useState(null)
-  const [currentView, setCurrentView] = useState('main') // 'main' or 'detail'
+  const [currentView, setCurrentView] = useState("main") // 'main' or 'detail'
   const [selectedContentForDetail, setSelectedContentForDetail] = useState(null)
   const [expandedModules, setExpandedModules] = useState(new Set())
   const [playingVideoId, setPlayingVideoId] = useState(null)
@@ -83,8 +84,7 @@ export default function VideosAndDocs() {
   const [contentItemForm] = Form.useForm()
   const [editContentItemForm] = Form.useForm()
 
-  const [searchQuery, setSearchQuery] = useState('')
-
+  const [searchQuery, setSearchQuery] = useState("")
 
   // Add these state variables near your existing state declarations (around line 40)
   const [isAddContentItemModalOpen, setIsAddContentItemModalOpen] = useState(false)
@@ -104,9 +104,23 @@ export default function VideosAndDocs() {
       expanded: true,
       description: "Introduction and basic concepts",
       children: [
-        { id: "1-1", type: "video", title: "Introduction Video", order: 1, parentId: "1", description: "Course overview video" },
-        { id: "1-2", type: "document", title: "Course Materials", order: 2, parentId: "1", description: "Downloadable resources" },
-      ]
+        {
+          id: "1-1",
+          type: "video",
+          title: "Introduction Video",
+          order: 1,
+          parentId: "1",
+          description: "Course overview video",
+        },
+        {
+          id: "1-2",
+          type: "document",
+          title: "Course Materials",
+          order: 2,
+          parentId: "1",
+          description: "Downloadable resources",
+        },
+      ],
     },
     {
       id: "2",
@@ -116,9 +130,23 @@ export default function VideosAndDocs() {
       expanded: false,
       description: "Deep dive into advanced concepts",
       children: [
-        { id: "2-1", type: "text", title: "Text Lesson", order: 1, parentId: "2", description: "Written content lesson" },
-        { id: "2-2", type: "quiz", title: "Knowledge Check", order: 2, parentId: "2", description: "Quiz with 5 questions" },
-      ]
+        {
+          id: "2-1",
+          type: "text",
+          title: "Text Lesson",
+          order: 1,
+          parentId: "2",
+          description: "Written content lesson",
+        },
+        {
+          id: "2-2",
+          type: "quiz",
+          title: "Knowledge Check",
+          order: 2,
+          parentId: "2",
+          description: "Quiz with 5 questions",
+        },
+      ],
     },
   ])
 
@@ -148,18 +176,20 @@ export default function VideosAndDocs() {
     form.setFieldsValue({ type: "document" })
   }
 
-  const filteredVideos = videos.filter(video =>
-    video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    video.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    video.tags.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    video.category.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredVideos = videos.filter(
+    (video) =>
+      video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      video.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      video.tags.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      video.category.toLowerCase().includes(searchQuery.toLowerCase()),
   )
 
-  const filteredDocs = docs.filter(doc =>
-    doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    doc.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    doc.tags.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    doc.category.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredDocs = docs.filter(
+    (doc) =>
+      doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      doc.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      doc.tags.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      doc.category.toLowerCase().includes(searchQuery.toLowerCase()),
   )
 
   const handleSubmit = (values) => {
@@ -186,8 +216,8 @@ export default function VideosAndDocs() {
           totalViews: 0,
           activeUsers: 0,
           completionRate: 0,
-          lastAccessed: new Date().toISOString().split("T")[0]
-        }
+          lastAccessed: new Date().toISOString().split("T")[0],
+        },
       }
 
       if (values.type === "video") {
@@ -234,7 +264,7 @@ export default function VideosAndDocs() {
 
   const openDetailPage = (item, type) => {
     setSelectedContentForDetail({ ...item, type })
-    setCurrentView('detail')
+    setCurrentView("detail")
   }
 
   const toggleModule = (moduleId) => {
@@ -290,135 +320,357 @@ export default function VideosAndDocs() {
     message.success("Content reordered successfully!")
   }
 
-  const addContentToStructure = (type) => {
+  const addContentToStructure = (type, parentId = null) => {
     setIsAddContentItemModalOpen(true)
-    contentItemForm.setFieldsValue({ type })
+    contentItemForm.setFieldsValue({ type, parentId })
   }
 
   const handleAddContentItem = (values) => {
     const newContent = {
       id: Date.now().toString(),
       ...values,
-      order: contentStructure.length + 1,
     }
 
-    if (values.type === 'module') {
-      newContent.expanded = false
-      newContent.children = []
-    }
+    setContentStructure((prev) => {
+      if (values.parentId) {
+        return prev.map((m) => {
+          if (m.id === values.parentId) {
+            const children = updateOrders([...(m.children || []), { ...newContent, parentId: values.parentId }])
+            return { ...m, children }
+          }
+          return m
+        })
+      }
+      // root add
+      return updateOrders([...prev, { ...newContent, parentId: null }])
+    })
 
-    setContentStructure([...contentStructure, newContent])
     setIsAddContentItemModalOpen(false)
     contentItemForm.resetFields()
     message.success("Content item added successfully!")
   }
 
-  const editContentItemHandler = (item) => {
+  const editContentItemHandlerDetail = (item, parentId = null) => {
     setEditContentItem(item)
+    setEditIsChild(!!parentId)
+    setEditParentId(parentId)
+    editContentItemForm.setFieldsValue(item)
+    setIsDetailEditContentItemModalOpen(true)
+  }
+
+  const editContentItemHandler = (item, parentId = null) => {
+    setEditContentItem(item)
+    setEditIsChild(!!parentId)
+    setEditParentId(parentId)
     editContentItemForm.setFieldsValue(item)
     setIsEditContentItemModalOpen(true)
   }
 
   const handleEditContentItem = (values) => {
-    const updatedItems = contentStructure.map((item) =>
-      item.id === editContentItem.id ? { ...item, ...values } : item
-    )
-    setContentStructure(updatedItems)
+    setContentStructure((prev) => {
+      if (editIsChild && editParentId) {
+        return prev.map((m) => {
+          if (m.id !== editParentId) return m
+          const children = (m.children || []).map((c) => (c.id === editContentItem.id ? { ...c, ...values } : c))
+          return { ...m, children }
+        })
+      }
+      return prev.map((i) => (i.id === editContentItem.id ? { ...i, ...values } : i))
+    })
     setIsEditContentItemModalOpen(false)
     setEditContentItem(null)
+    setEditIsChild(false)
+    setEditParentId(null)
     editContentItemForm.resetFields()
     message.success("Content item updated successfully!")
   }
 
-  const removeContentFromStructure = (id) => {
-    const updatedItems = contentStructure
-      .filter(item => item.id !== id)
-      .map((item, index) => ({
-        ...item,
-        order: index + 1,
-      }))
-    setContentStructure(updatedItems)
+  const handleEditContentItemDetail = (values) => {
+    setContentStructure((prev) => {
+      if (editIsChild && editParentId) {
+        return prev.map((m) => {
+          if (m.id !== editParentId) return m
+          const children = (m.children || []).map((c) => (c.id === editContentItem.id ? { ...c, ...values } : c))
+          return { ...m, children }
+        })
+      }
+      return prev.map((i) => (i.id === editContentItem.id ? { ...i, ...values } : i))
+    })
+    setIsDetailEditContentItemModalOpen(false)
+    setEditContentItem(null)
+    setEditIsChild(false)
+    setEditParentId(null)
+    editContentItemForm.resetFields()
+    message.success("Content item updated successfully!")
+  }
+
+  const removeChildFromStructure = (parentId, id) => {
+    setContentStructure((prev) =>
+      prev.map((m) => {
+        if (m.id !== parentId) return m
+        const children = updateOrders((m.children || []).filter((c) => c.id !== id))
+        return { ...m, children }
+      }),
+    )
     message.success("Content removed from structure!")
   }
 
+  const duplicateChildContentItem = (parentId, item) => {
+    const duplicatedItem = {
+      ...item,
+      id: `${Date.now()}-${Math.random()}`,
+      title: `${item.title} (Copy)`,
+    }
+    setContentStructure((prev) =>
+      prev.map((m) => {
+        if (m.id !== parentId) return m
+        const children = updateOrders([...(m.children || []), duplicatedItem])
+        return { ...m, children }
+      }),
+    )
+    message.success("Content item duplicated successfully!")
+  }
+
+  const buildMoveMenu = (currentParentId, itemId) => ({
+    items: [
+      {
+        key: "root",
+        label: "Move to Root",
+        onClick: () => moveItemInStructure(itemId, currentParentId, null),
+      },
+      ...contentStructure
+        .filter((m) => m.type === "module")
+        .map((m) => ({
+          key: m.id,
+          label: `Move to ${m.title}`,
+          onClick: () => moveItemInStructure(itemId, currentParentId, m.id),
+        })),
+    ],
+  })
+
+  const [editIsChild, setEditIsChild] = useState(false)
+  const [editParentId, setEditParentId] = useState(null)
+
+  const updateOrders = (arr) => arr.map((x, i) => ({ ...x, order: i + 1 }))
+
+  const moveItemInStructure = (itemId, fromParentId = null, toParentId = null) => {
+    setContentStructure((prev) => {
+      let movingItem = null
+      let next = prev.map((m) => ({ ...m, children: m.children ? [...m.children] : [] }))
+
+      if (!fromParentId) {
+        // remove from root
+        const idx = next.findIndex((i) => i.id === itemId)
+        if (idx > -1) {
+          movingItem = next[idx]
+          next.splice(idx, 1)
+          next = updateOrders(next)
+        }
+      } else {
+        // remove from a module's children
+        next = next.map((m) => {
+          if (m.id === fromParentId) {
+            const idx = (m.children || []).findIndex((c) => c.id === itemId)
+            if (idx > -1) {
+              movingItem = m.children[idx]
+              const children = [...m.children]
+              children.splice(idx, 1)
+              return { ...m, children: updateOrders(children) }
+            }
+          }
+          return m
+        })
+      }
+
+      if (!movingItem) return prev
+
+      // add to target
+      if (!toParentId) {
+        // to root
+        const root = updateOrders([...next, { ...movingItem, parentId: null }])
+        return root
+      }
+
+      return next.map((m) => {
+        if (m.id === toParentId) {
+          const children = updateOrders([...(m.children || []), { ...movingItem, parentId: toParentId }])
+          return { ...m, children }
+        }
+        return m
+      })
+    })
+    message.success("Content moved successfully!")
+  }
+
+  const reorderRootItem = (index, direction) => {
+    setContentStructure((prev) => {
+      const items = [...prev]
+      const target = direction === "up" ? index - 1 : index + 1
+      if (target < 0 || target >= items.length) return prev
+      const temp = items[index]
+      items[index] = items[target]
+      items[target] = temp
+      return updateOrders(items)
+    })
+  }
+
+  const reorderChildItem = (parentId, index, direction) => {
+    setContentStructure((prev) =>
+      prev.map((m) => {
+        if (m.id !== parentId) return m
+        const children = [...(m.children || [])]
+        const target = direction === "up" ? index - 1 : index + 1
+        if (target < 0 || target >= children.length) return m
+        const temp = children[index]
+        children[index] = children[target]
+        children[target] = temp
+        return { ...m, children: updateOrders(children) }
+      }),
+    )
+  }
+
+  // Fix for undeclared variables: duplicateContentItem, removeContentFromStructure, detailAddContentMenu, playVideo, handleAddContentItemDetail, addContentMenu
   const duplicateContentItem = (item) => {
     const duplicatedItem = {
       ...item,
-      id: Date.now().toString(),
+      id: `${Date.now()}-${Math.random()}`,
       title: `${item.title} (Copy)`,
-      order: contentStructure.length + 1,
     }
-    if (item.children) {
-      duplicatedItem.children = item.children.map(child => ({
-        ...child,
-        id: `${Date.now()}-${Math.random()}`,
-        parentId: duplicatedItem.id
-      }))
-    }
-    setContentStructure([...contentStructure, duplicatedItem])
+    setContentStructure((prev) =>
+      prev.map((m) => {
+        if (m.id === item.parentId) {
+          const children = updateOrders([...(m.children || []), duplicatedItem])
+          return { ...m, children }
+        }
+        return m
+      }),
+    )
     message.success("Content item duplicated successfully!")
+  }
+
+  const removeContentFromStructure = (id) => {
+    setContentStructure((prev) => prev.filter((item) => item.id !== id))
+    message.success("Content removed from structure!")
+  }
+
+  const detailAddContentMenu = {
+    items: [
+      {
+        key: "add-module",
+        label: "Module/Folder",
+        icon: <FolderOutlined />,
+        onClick: () => setIsDetailAddContentItemModalOpen(true),
+      },
+      {
+        key: "add-video",
+        label: "Video",
+        icon: <VideoCameraOutlined />,
+        onClick: () => setIsDetailAddContentItemModalOpen(true),
+      },
+      {
+        key: "add-document",
+        label: "Document",
+        icon: <FileTextOutlined />,
+        onClick: () => setIsDetailAddContentItemModalOpen(true),
+      },
+      {
+        key: "add-text",
+        label: "Text Lesson",
+        icon: <BookOutlined />,
+        onClick: () => setIsDetailAddContentItemModalOpen(true),
+      },
+      {
+        key: "add-quiz",
+        label: "Quiz",
+        icon: <QuestionCircleOutlined />,
+        onClick: () => setIsDetailAddContentItemModalOpen(true),
+      },
+      {
+        key: "add-assignment",
+        label: "Assignment",
+        icon: <FileOutlined />,
+        onClick: () => setIsDetailAddContentItemModalOpen(true),
+      },
+      {
+        key: "add-link",
+        label: "External Link",
+        icon: <LinkOutlined />,
+        onClick: () => setIsDetailAddContentItemModalOpen(true),
+      },
+    ],
   }
 
   const playVideo = (videoId) => {
     setPlayingVideoId(videoId)
   }
 
-  const addContentToStructureDetail = (type) => {
-    setIsDetailAddContentItemModalOpen(true)
-    contentItemForm.setFieldsValue({ type })
-  }
-
   const handleAddContentItemDetail = (values) => {
     const newContent = {
       id: Date.now().toString(),
       ...values,
-      order: contentStructure.length + 1,
+      parentId: selectedContentForDetail?.id, // Assuming we are adding to the currently viewed module
     }
 
-    if (values.type === 'module') {
-      newContent.expanded = false
-      newContent.children = []
-    }
+    setContentStructure((prev) => {
+      return prev.map((m) => {
+        if (m.id === newContent.parentId) {
+          const children = updateOrders([...(m.children || []), newContent])
+          return { ...m, children }
+        }
+        return m
+      })
+    })
 
-    setContentStructure([...contentStructure, newContent])
     setIsDetailAddContentItemModalOpen(false)
     contentItemForm.resetFields()
     message.success("Content item added successfully!")
   }
 
-  const editContentItemHandlerDetail = (item) => {
-    setEditContentItem(item)
-    editContentItemForm.setFieldsValue(item)
-    setIsDetailEditContentItemModalOpen(true)
-  }
-
-  const handleEditContentItemDetail = (values) => {
-    const updatedItems = contentStructure.map((item) =>
-      item.id === editContentItem.id ? { ...item, ...values } : item
-    )
-    setContentStructure(updatedItems)
-    setIsDetailEditContentItemModalOpen(false)
-    setEditContentItem(null)
-    editContentItemForm.resetFields()
-    message.success("Content item updated successfully!")
-  }
-
   const addContentMenu = {
-    items: contentTypes.map((type) => ({
-      key: type.key,
-      label: type.label,
-      icon: type.icon,
-      onClick: () => addContentToStructure(type.key),
-    })),
-  }
-
-  const detailAddContentMenu = {
-    items: contentTypes.map((type) => ({
-      key: type.key,
-      label: type.label,
-      icon: type.icon,
-      onClick: () => addContentToStructureDetail(type.key),
-    })),
+    items: [
+      {
+        key: "add-module",
+        label: "Module/Folder",
+        icon: <FolderOutlined />,
+        onClick: () => addContentToStructure("module"),
+      },
+      {
+        key: "add-video",
+        label: "Video",
+        icon: <VideoCameraOutlined />,
+        onClick: () => addContentToStructure("video"),
+      },
+      {
+        key: "add-document",
+        label: "Document",
+        icon: <FileTextOutlined />,
+        onClick: () => addContentToStructure("document"),
+      },
+      {
+        key: "add-text",
+        label: "Text Lesson",
+        icon: <BookOutlined />,
+        onClick: () => addContentToStructure("text"),
+      },
+      {
+        key: "add-quiz",
+        label: "Quiz",
+        icon: <QuestionCircleOutlined />,
+        onClick: () => addContentToStructure("quiz"),
+      },
+      {
+        key: "add-assignment",
+        label: "Assignment",
+        icon: <FileOutlined />,
+        onClick: () => addContentToStructure("assignment"),
+      },
+      {
+        key: "add-link",
+        label: "External Link",
+        icon: <LinkOutlined />,
+        onClick: () => addContentToStructure("link"),
+      },
+    ],
   }
 
   const renderContentStructureItem = (item, index) => (
@@ -431,13 +683,13 @@ export default function VideosAndDocs() {
         onDrop={(e) => handleDrop(e, index)}
         className={`
           p-3 bg-white border rounded-lg flex flex-col sm:flex-row sm:items-center justify-between cursor-move transition-all
-          ${draggedItem?.index === index ? 'opacity-50' : ''}
-          ${dragOverIndex === index ? 'border-blue-500 border-2 bg-blue-50' : 'shadow-sm hover:shadow-md'}
+          ${draggedItem?.index === index ? "opacity-50" : ""}
+          ${dragOverIndex === index ? "border-blue-500 border-2 bg-blue-50" : "shadow-sm hover:shadow-md"}
         `}
       >
         <div className="flex items-center gap-3 mb-2 sm:mb-0">
           <DragOutlined className="text-gray-400" />
-          {item.type === 'module' && (
+          {item.type === "module" && (
             <Button
               type="text"
               size="small"
@@ -449,36 +701,64 @@ export default function VideosAndDocs() {
           <div className="flex flex-col">
             <Text strong>{item.title}</Text>
             {item.description && (
-              <Text type="secondary" className="text-xs">{item.description}</Text>
+              <Text type="secondary" className="text-xs">
+                {item.description}
+              </Text>
             )}
           </div>
-          <Tag color={item.type === 'module' ? 'blue' : item.type === 'video' ? 'red' : 'green'}>
-            {item.type}
-          </Tag>
+          <Tag color={item.type === "module" ? "blue" : item.type === "video" ? "red" : "green"}>{item.type}</Tag>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <Text type="secondary" className="hidden sm:block">Order: {item.order}</Text>
+          <Text type="secondary" className="hidden sm:block">
+            Order: {item.order}
+          </Text>
+
           <Button
             size="small"
-            icon={<EditOutlined />}
-            onClick={() => editContentItemHandlerDetail(item)}
+            icon={<UpOutlined />}
+            onClick={() => reorderRootItem(index, "up")}
+            disabled={index === 0}
           />
           <Button
             size="small"
-            icon={<CopyOutlined />}
-            onClick={() => duplicateContentItem(item)}
+            icon={<DownOutlined />}
+            onClick={() => reorderRootItem(index, "down")}
+            disabled={index === contentStructure.length - 1}
           />
-          <Button
-            size="small"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => removeContentFromStructure(item.id)}
-          />
+
+          <Dropdown menu={buildMoveMenu(null, item.id)} trigger={["click"]} placement="bottomRight">
+            <Button size="small" icon={<MenuOutlined />}>
+              Move To
+            </Button>
+          </Dropdown>
+
+          {item.type === "module" && (
+            <Dropdown
+              menu={{
+                items: contentTypes.map((type) => ({
+                  key: type.key,
+                  label: type.label,
+                  icon: type.icon,
+                  onClick: () => addContentToStructure(type.key, item.id),
+                })),
+              }}
+              trigger={["click"]}
+              placement="bottomRight"
+            >
+              <Button size="small" type="dashed" icon={<PlusOutlined />}>
+                Add Inside
+              </Button>
+            </Dropdown>
+          )}
+
+          <Button size="small" icon={<EditOutlined />} onClick={() => editContentItemHandlerDetail(item)} />
+          <Button size="small" icon={<CopyOutlined />} onClick={() => duplicateContentItem(item)} />
+          <Button size="small" danger icon={<DeleteOutlined />} onClick={() => removeContentFromStructure(item.id)} />
         </div>
       </div>
 
       {/* Render children if it's a module and expanded */}
-      {item.type === 'module' && expandedModules.has(item.id) && item.children && (
+      {item.type === "module" && expandedModules.has(item.id) && item.children && (
         <div className="ml-4 sm:ml-8 mt-2 space-y-2">
           {item.children.map((child, childIndex) => (
             <div
@@ -491,15 +771,53 @@ export default function VideosAndDocs() {
                 <div className="flex flex-col">
                   <Text>{child.title}</Text>
                   {child.description && (
-                    <Text type="secondary" className="text-xs">{child.description}</Text>
+                    <Text type="secondary" className="text-xs">
+                      {child.description}
+                    </Text>
                   )}
                 </div>
                 <Tag size="small">{child.type}</Tag>
               </div>
-              <div className="flex items-center gap-1">
-                <Button size="small" icon={<EditOutlined />} />
-                <Button size="small" icon={<CopyOutlined />} />
-                <Button size="small" danger icon={<DeleteOutlined />} />
+              <div className="flex items-center gap-1 flex-wrap">
+                <Text type="secondary" className="hidden sm:block mr-2">
+                  Order: {child.order}
+                </Text>
+
+                <Button
+                  size="small"
+                  icon={<UpOutlined />}
+                  onClick={() => reorderChildItem(item.id, childIndex, "up")}
+                  disabled={childIndex === 0}
+                />
+                <Button
+                  size="small"
+                  icon={<DownOutlined />}
+                  onClick={() => reorderChildItem(item.id, childIndex, "down")}
+                  disabled={childIndex === item.children.length - 1}
+                />
+
+                <Dropdown menu={buildMoveMenu(item.id, child.id)} trigger={["click"]} placement="bottomRight">
+                  <Button size="small" icon={<MenuOutlined />}>
+                    Move To
+                  </Button>
+                </Dropdown>
+
+                <Button
+                  size="small"
+                  icon={<EditOutlined />}
+                  onClick={() => editContentItemHandlerDetail(child, item.id)}
+                />
+                <Button
+                  size="small"
+                  icon={<CopyOutlined />}
+                  onClick={() => duplicateChildContentItem(item.id, child)}
+                />
+                <Button
+                  size="small"
+                  danger
+                  icon={<DeleteOutlined />}
+                  onClick={() => removeChildFromStructure(item.id, child.id)}
+                />
               </div>
             </div>
           ))}
@@ -508,17 +826,12 @@ export default function VideosAndDocs() {
     </div>
   )
 
-  if (currentView === 'detail' && selectedContentForDetail) {
+  if (currentView === "detail" && selectedContentForDetail) {
     return (
       <>
-
         <div className="min-h-screen p-3">
           <div className="mb-6">
-            <Button
-              icon={<ArrowLeftOutlined />}
-              onClick={() => setCurrentView('main')}
-              className="mb-4"
-            >
+            <Button icon={<ArrowLeftOutlined />} onClick={() => setCurrentView("main")} className="mb-4">
               Back to Videos & Docs
             </Button>
 
@@ -546,11 +859,12 @@ export default function VideosAndDocs() {
                             Add Content
                           </Button>
                         </Dropdown>
-                        <Button icon={<SaveOutlined />} className="hidden sm:inline-flex">Save Draft</Button>
+                        <Button icon={<SaveOutlined />} className="hidden sm:inline-flex">
+                          Save Draft
+                        </Button>
                         <Button type="primary" icon={<SendOutlined />} className="hidden sm:inline-flex">
                           Publish Update
                         </Button>
-
                       </Space>
                     }
                   >
@@ -595,7 +909,7 @@ export default function VideosAndDocs() {
               <div className="space-y-4">
                 {/* Preview/Thumbnail */}
                 <Card title="Preview">
-                  {selectedContentForDetail.type === 'video' && (
+                  {selectedContentForDetail.type === "video" && (
                     <div className="text-center">
                       {playingVideoId === selectedContentForDetail.id ? (
                         <video
@@ -625,7 +939,7 @@ export default function VideosAndDocs() {
                       )}
                     </div>
                   )}
-                  {selectedContentForDetail.type === 'document' && (
+                  {selectedContentForDetail.type === "document" && (
                     <div className="text-center p-8 bg-gray-50 rounded-lg">
                       <FileTextOutlined className="text-6xl text-gray-400 mb-3" />
                       <div className="space-y-2">
@@ -633,9 +947,7 @@ export default function VideosAndDocs() {
                           View Document
                         </Button>
                         <br />
-                        <Button icon={<DownloadOutlined />}>
-                          Download
-                        </Button>
+                        <Button icon={<DownloadOutlined />}>Download</Button>
                       </div>
                     </div>
                   )}
@@ -664,7 +976,7 @@ export default function VideosAndDocs() {
                     </div>
                     <div>
                       <Text type="secondary">Last Accessed: </Text>
-                      <Text>{selectedContentForDetail.usageStats?.lastAccessed || 'Never'}</Text>
+                      <Text>{selectedContentForDetail.usageStats?.lastAccessed || "Never"}</Text>
                     </div>
                   </div>
                 </Card>
@@ -674,9 +986,9 @@ export default function VideosAndDocs() {
                   <List
                     size="small"
                     dataSource={[
-                      { name: 'John Doe', progress: 75, lastSeen: '2h ago' },
-                      { name: 'Jane Smith', progress: 100, lastSeen: '1d ago' },
-                      { name: 'Mike Johnson', progress: 45, lastSeen: '3h ago' },
+                      { name: "John Doe", progress: 75, lastSeen: "2h ago" },
+                      { name: "Jane Smith", progress: 100, lastSeen: "1d ago" },
+                      { name: "Mike Johnson", progress: 45, lastSeen: "3h ago" },
                     ]}
                     renderItem={(item) => (
                       <List.Item>
@@ -686,7 +998,9 @@ export default function VideosAndDocs() {
                           description={
                             <div>
                               <Progress percent={item.progress} size="small" />
-                              <Text type="secondary" className="text-xs">{item.lastSeen}</Text>
+                              <Text type="secondary" className="text-xs">
+                                {item.lastSeen}
+                              </Text>
                             </div>
                           }
                         />
@@ -711,6 +1025,10 @@ export default function VideosAndDocs() {
           style={{ maxWidth: 500 }}
         >
           <Form form={contentItemForm} layout="vertical" onFinish={handleAddContentItemDetail} className="mt-4">
+            <Form.Item name="parentId" style={{ display: "none" }}>
+              <Input />
+            </Form.Item>
+
             <Form.Item
               name="type"
               label="Content Type"
@@ -738,9 +1056,23 @@ export default function VideosAndDocs() {
 
             <Form.Item shouldUpdate={(prevValues, curValues) => prevValues.type !== curValues.type}>
               {({ getFieldValue }) => {
-                const selectedType = getFieldValue('type')
+                const selectedType = getFieldValue("type")
 
-                if (selectedType === 'link') {
+                if (selectedType === "document" || selectedType === "video") {
+                  return (
+                    <Form.Item name="file" label="Upload File">
+                      <Upload.Dragger name="file" multiple={false} beforeUpload={() => false} className="!bg-gray-50">
+                        <p className="ant-upload-drag-icon">
+                          <UploadOutlined />
+                        </p>
+                        <p className="ant-upload-text">Click or drag file to upload</p>
+                        <p className="ant-upload-hint">Support for a single file</p>
+                      </Upload.Dragger>
+                    </Form.Item>
+                  )
+                }
+
+                if (selectedType === "link") {
                   return (
                     <Form.Item name="url" label="URL" rules={[{ required: true, message: "Please enter URL!" }]}>
                       <Input placeholder="https://example.com" />
@@ -748,7 +1080,7 @@ export default function VideosAndDocs() {
                   )
                 }
 
-                if (selectedType === 'text') {
+                if (selectedType === "text") {
                   return (
                     <Form.Item name="content" label="Text Content">
                       <TextArea rows={4} placeholder="Enter text content" />
@@ -756,7 +1088,7 @@ export default function VideosAndDocs() {
                   )
                 }
 
-                if (selectedType === 'quiz') {
+                if (selectedType === "quiz") {
                   return (
                     <Form.Item name="questions" label="Number of Questions">
                       <Input type="number" placeholder="5" />
@@ -842,7 +1174,7 @@ export default function VideosAndDocs() {
               <Search
                 placeholder="Search videos and docs..."
                 allowClear
-                style={{ width: '100%', maxWidth: 300 }}
+                style={{ width: "100%", maxWidth: 300 }}
                 prefix={<SearchOutlined />}
                 onChange={(e) => handleSearch(e.target.value)}
                 onSearch={handleSearch}
@@ -864,11 +1196,12 @@ export default function VideosAndDocs() {
                     Add Content
                   </Button>
                 </Dropdown>
-                <Button icon={<SaveOutlined />} className="hidden sm:inline-flex">Save Draft</Button>
+                <Button icon={<SaveOutlined />} className="hidden sm:inline-flex">
+                  Save Draft
+                </Button>
                 <Button type="primary" icon={<SendOutlined />} className="hidden sm:inline-flex">
                   Publish Update
                 </Button>
-
               </Space>
             }
           >
@@ -900,10 +1233,7 @@ export default function VideosAndDocs() {
                     className="overflow-hidden"
                     cover={
                       <div className="h-48 bg-gray-200 flex items-center justify-center relative">
-                        <img
-                          src={video.thumbnail}
-                          className="w-full h-full object-cover"
-                        />
+                        <img src={video.thumbnail || "/placeholder.svg"} className="w-full h-full object-cover" />
                         <Button
                           type="primary"
                           shape="circle"
@@ -911,9 +1241,9 @@ export default function VideosAndDocs() {
                           icon={<PlayCircleOutlined />}
                           className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                           onClick={(e) => {
-                            e.stopPropagation();
-                            playVideo(video.id);
-                            openDetailPage(video, "video");
+                            e.stopPropagation()
+                            playVideo(video.id)
+                            openDetailPage(video, "video")
                           }}
                         />
                       </div>
@@ -1147,11 +1477,7 @@ export default function VideosAndDocs() {
                   />
                   <div>
                     <Text strong>Completion Rate</Text>
-                    <Progress
-                      percent={selectedContent.usageStats?.completionRate || 0}
-                      size="small"
-                      className="mt-1"
-                    />
+                    <Progress percent={selectedContent.usageStats?.completionRate || 0} size="small" className="mt-1" />
                   </div>
                 </div>
               </Col>
@@ -1297,7 +1623,9 @@ export default function VideosAndDocs() {
         width="90%"
         style={{ maxWidth: 400 }}
       >
-        <p>Are you sure you want to delete <strong>"{deleteItemData?.title}"</strong>?</p>
+        <p>
+          Are you sure you want to delete <strong>"{deleteItemData?.title}"</strong>?
+        </p>
         <p className="text-gray-500">This action cannot be undone.</p>
       </Modal>
 
@@ -1314,6 +1642,10 @@ export default function VideosAndDocs() {
         style={{ maxWidth: 500 }}
       >
         <Form form={contentItemForm} layout="vertical" onFinish={handleAddContentItem} className="mt-4">
+          <Form.Item name="parentId" style={{ display: "none" }}>
+            <Input />
+          </Form.Item>
+
           <Form.Item
             name="type"
             label="Content Type"
@@ -1339,12 +1671,25 @@ export default function VideosAndDocs() {
             <TextArea rows={2} placeholder="Enter description (optional)" />
           </Form.Item>
 
-          {/* Show additional fields based on content type */}
           <Form.Item shouldUpdate={(prevValues, curValues) => prevValues.type !== curValues.type}>
             {({ getFieldValue }) => {
-              const selectedType = getFieldValue('type')
+              const selectedType = getFieldValue("type")
 
-              if (selectedType === 'link') {
+              if (selectedType === "document" || selectedType === "video") {
+                return (
+                  <Form.Item name="file" label="Upload File">
+                    <Upload.Dragger name="file" multiple={false} beforeUpload={() => false} className="!bg-gray-50">
+                      <p className="ant-upload-drag-icon">
+                        <UploadOutlined />
+                      </p>
+                      <p className="ant-upload-text">Click or drag file to upload</p>
+                      <p className="ant-upload-hint">Support for a single file</p>
+                    </Upload.Dragger>
+                  </Form.Item>
+                )
+              }
+
+              if (selectedType === "link") {
                 return (
                   <Form.Item name="url" label="URL" rules={[{ required: true, message: "Please enter URL!" }]}>
                     <Input placeholder="https://example.com" />
@@ -1352,7 +1697,7 @@ export default function VideosAndDocs() {
                 )
               }
 
-              if (selectedType === 'text') {
+              if (selectedType === "text") {
                 return (
                   <Form.Item name="content" label="Text Content">
                     <TextArea rows={4} placeholder="Enter text content" />
@@ -1360,7 +1705,7 @@ export default function VideosAndDocs() {
                 )
               }
 
-              if (selectedType === 'quiz') {
+              if (selectedType === "quiz") {
                 return (
                   <Form.Item name="questions" label="Number of Questions">
                     <Input type="number" placeholder="5" />
