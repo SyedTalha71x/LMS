@@ -1,4 +1,6 @@
-import { Button, Typography, Progress, Collapse, List } from "antd"
+/* eslint-disable no-unused-vars */
+"use client"
+import { Button, Typography, Progress, Collapse, List, Badge } from "antd"
 import {
   CloseOutlined,
   PlayCircleOutlined,
@@ -8,21 +10,40 @@ import {
   BookOutlined,
   ClockCircleOutlined,
   CheckCircleOutlined,
+  FilePdfOutlined,
 } from "@ant-design/icons"
 
 const { Title, Text } = Typography
-const { Panel } = Collapse
 
-const ContentSidebar = ({
+const EnhancedContentSidebar = ({
   currentCourse,
   isMobile,
   setSidebarVisible,
   calculateProgress,
   completedItems,
-  currentVideo,
-  selectVideo,
+  currentItem,
+  selectItem,
   markAsCompleted,
 }) => {
+  const getItemIcon = (type) => {
+    switch (type) {
+      case "video":
+        return <PlayCircleOutlined className="text-blue-500" />
+      case "pdf":
+        return <FilePdfOutlined className="text-red-500" />
+      case "quiz":
+        return <QuestionCircleOutlined className="text-green-500" />
+      case "assignment":
+        return <TrophyOutlined className="text-orange-500" />
+      case "text":
+        return <BookOutlined className="text-purple-500" />
+      case "policy":
+        return <FileTextOutlined className="text-indigo-500" />
+      default:
+        return <FileTextOutlined className="text-gray-500" />
+    }
+  }
+
   return (
     <div className="h-full bg-white">
       <div className="p-4 border-b">
@@ -55,7 +76,7 @@ const ContentSidebar = ({
       <div className="overflow-y-auto" style={{ height: "calc(100vh - 200px)" }}>
         <Collapse defaultActiveKey={["0"]} ghost expandIconPosition="right">
           {currentCourse?.modules?.map((module, moduleIndex) => (
-            <Panel
+            <Collapse.Panel
               key={moduleIndex}
               header={
                 <div className="flex items-center justify-between w-full pr-4">
@@ -81,19 +102,13 @@ const ContentSidebar = ({
                     renderItem={(item) => (
                       <List.Item
                         className={`cursor-pointer hover:bg-gray-50 px-3 py-2 rounded transition-colors ${
-                          currentVideo?.id === item.id ? "bg-blue-50 border-l-4 border-blue-500" : ""
+                          currentItem?.id === item.id ? "bg-blue-50 border-l-4 border-blue-500" : ""
                         }`}
-                        onClick={() => item.type === "video" && selectVideo(item)}
+                        onClick={() => selectItem(item)}
                       >
                         <div className="flex items-center justify-between w-full">
                           <div className="flex items-center space-x-3">
-                            <div className="flex-shrink-0">
-                              {item.type === "video" && <PlayCircleOutlined className="text-blue-500" />}
-                              {item.type === "pdf" && <FileTextOutlined className="text-red-500" />}
-                              {item.type === "quiz" && <QuestionCircleOutlined className="text-green-500" />}
-                              {item.type === "assignment" && <TrophyOutlined className="text-orange-500" />}
-                              {item.type === "text" && <BookOutlined className="text-purple-500" />}
-                            </div>
+                            <div className="flex-shrink-0">{getItemIcon(item.type)}</div>
                             <div className="flex-1 min-w-0">
                               <Text className="block truncate text-sm">{item.title}</Text>
                               {item.duration && (
@@ -106,20 +121,8 @@ const ContentSidebar = ({
                           </div>
                           <div className="flex items-center space-x-2">
                             {completedItems.has(item.id) ? (
-                              <CheckCircleOutlined className="text-green-500" />
-                            ) : (
-                              <Button
-                                type="text"
-                                size="small"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  markAsCompleted(item.id)
-                                }}
-                                className="opacity-0 group-hover:opacity-100"
-                              >
-                                Mark Complete
-                              </Button>
-                            )}
+                              <Badge count={<CheckCircleOutlined className="text-green-500" />} />
+                            ) : null}
                           </div>
                         </div>
                       </List.Item>
@@ -127,7 +130,7 @@ const ContentSidebar = ({
                   />
                 </div>
               ))}
-            </Panel>
+            </Collapse.Panel>
           ))}
         </Collapse>
       </div>
@@ -135,4 +138,4 @@ const ContentSidebar = ({
   )
 }
 
-export default ContentSidebar
+export default EnhancedContentSidebar

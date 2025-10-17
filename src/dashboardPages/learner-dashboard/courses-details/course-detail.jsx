@@ -1,14 +1,18 @@
+"use client"
 
 import { useState, useEffect } from "react"
 import { Layout, Typography, Button, Progress, Card, Rate, Row, Col, Modal, Input, Form, message } from "antd"
-import { ClockCircleOutlined, UserOutlined, StarOutlined } from "@ant-design/icons"
+import { ClockCircleOutlined, UserOutlined } from "@ant-design/icons"
 import coursesData from "../../../utils/courseData"
 import { useParams } from "react-router-dom"
-import VideoPlayer from "../../../components/learner-dashboard/VideoPlayer"
-import CourseHeader from "../../../components/learner-dashboard/CourseHeader"
-import ContentSidebar from "../../../components/learner-dashboard/ContentSidebar"
-import TabContent from "../../../components/learner-dashboard/TabContent"
-
+import EnhancedVideoPlayer from '../../../components/learner-dashboard/VideoPlayer'
+import AssignmentViewer from "../../../components/learner-dashboard/AssignmentViewer"
+import QuizViewer from "../../../components/learner-dashboard/QuizViewer"
+import PDFViewer from "../../../components/learner-dashboard/PDFViewer"
+import TextContentViewer from "../../../components/learner-dashboard/TextContentViewer"
+import CourseHeader from '../../../components/learner-dashboard/CourseHeader'
+import TabContent from '../../../components/learner-dashboard/TabContent'
+import EnhancedContentSidebar from '../../../components/learner-dashboard/ContentSidebar'
 
 const { Header, Content } = Layout
 const { Title } = Typography
@@ -16,8 +20,7 @@ const { Title } = Typography
 const CourseDetailPage = () => {
   const { id } = useParams()
   const [currentCourse, setCurrentCourse] = useState(null)
-  const [currentVideo, setCurrentVideo] = useState(null)
-  const [isPlaying, setIsPlaying] = useState(false)
+  const [currentItem, setCurrentItem] = useState(null)
   const [sidebarVisible, setSidebarVisible] = useState(true)
   const [completedItems, setCompletedItems] = useState(new Set())
   const [activeTab, setActiveTab] = useState("overview")
@@ -38,9 +41,9 @@ const CourseDetailPage = () => {
       const firstModule = course.modules[0]
       if (firstModule.lessons.length > 0) {
         const firstLesson = firstModule.lessons[0]
-        const firstVideoItem = firstLesson.items.find((item) => item.type === "video")
-        if (firstVideoItem) {
-          setCurrentVideo(firstVideoItem)
+        const firstItem = firstLesson.items[0]
+        if (firstItem) {
+          setCurrentItem(firstItem)
         }
       }
     }
@@ -58,13 +61,8 @@ const CourseDetailPage = () => {
     return () => window.removeEventListener("resize", checkMobile)
   }, [id])
 
-  const togglePlay = () => {
-    setIsPlaying(!isPlaying)
-  }
-
-  const selectVideo = (item) => {
-    setCurrentVideo(item)
-    setIsPlaying(false)
+  const selectItem = (item) => {
+    setCurrentItem(item)
     if (isMobile) {
       setSidebarVisible(false)
     }
@@ -99,7 +97,6 @@ const CourseDetailPage = () => {
     if (resource.type === "link") {
       window.open(resource.url || "#", "_blank")
     } else {
-      // Create a temporary download link
       const link = document.createElement("a")
       link.href = resource.url || "#"
       link.download = resource.title || "download"
@@ -107,6 +104,70 @@ const CourseDetailPage = () => {
       link.click()
       document.body.removeChild(link)
       message.success(`Downloading ${resource.title}...`)
+    }
+  }
+
+  const renderMainContent = () => {
+    if (!currentItem) {
+      return (
+        <Card>
+          <div className="text-center py-12">
+            <Title level={4}>Select a lesson to begin</Title>
+          </div>
+        </Card>
+      )
+    }
+
+    switch (currentItem.type) {
+      case "video":
+        return (
+          <div className="space-y-6">
+            <EnhancedVideoPlayer
+              currentVideo={currentItem}
+              onComplete={markAsCompleted}
+              markAsCompleted={markAsCompleted}
+            />
+            <Card>
+              <Title level={3} className="mb-2">
+                {currentItem.title}
+              </Title>
+              <div className="flex items-center space-x-4 text-sm text-gray-600 mb-4">
+                <span className="flex items-center space-x-1">
+                  <UserOutlined />
+                  <span>{currentCourse.instructor}</span>
+                </span>
+                <span className="flex items-center space-x-1">
+                  <ClockCircleOutlined />
+                  <span>{currentItem.duration}</span>
+                </span>
+              </div>
+              <Progress percent={calculateProgress()} strokeColor="#52c41a" />
+            </Card>
+          </div>
+        )
+
+      case "assignment":
+        return <AssignmentViewer assignment={currentItem} onComplete={markAsCompleted} />
+
+      case "quiz":
+        return <QuizViewer quiz={currentItem} onComplete={markAsCompleted} />
+
+      case "pdf":
+        return <PDFViewer document={currentItem} onComplete={markAsCompleted} />
+
+      case "text":
+        return <TextContentViewer content={currentItem} onComplete={markAsCompleted} />
+
+      case "policy":
+        return <TextContentViewer content={currentItem} onComplete={markAsCompleted} isPolicy={true} />
+
+      default:
+        return (
+          <Card>
+            <Title level={4}>{currentItem.title}</Title>
+            <p>Content type not supported</p>
+          </Card>
+        )
     }
   }
 
@@ -123,68 +184,36 @@ const CourseDetailPage = () => {
           <Row gutter={[24, 24]}>
             <Col xs={24} lg={sidebarVisible ? 16 : 24}>
               <div className="space-y-6">
-                <VideoPlayer currentVideo={currentVideo} isPlaying={isPlaying} togglePlay={togglePlay} />
+                {renderMainContent()}
 
-                <Card>
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <Title level={3} className="mb-2">
-                        {currentVideo?.title || "Course Introduction"}
-                      </Title>
-                      <div className="flex items-center space-x-4 text-sm text-gray-600">
-                        <span className="flex items-center space-x-1">
-                          <UserOutlined />
-                          <span>{currentCourse.instructor}</span>
-                        </span>
-                        <span className="flex items-center space-x-1">
-                          <ClockCircleOutlined />
-                          <span>{currentCourse.duration}</span>
-                        </span>
-                        <span className="flex items-center space-x-1">
-                          <StarOutlined />
-                          <span>4.5 (1,234 reviews)</span>
-                        </span>
-                      </div>
-                    </div>
-
-                    {!isMobile && (
-                      <Button type="default" onClick={() => setSidebarVisible(!sidebarVisible)}>
-                        {sidebarVisible ? "Hide" : "Show"} Content
-                      </Button>
-                    )}
-                  </div>
-
-                  <Progress percent={calculateProgress()} strokeColor="#52c41a" className="mb-4" />
-                </Card>
-
-                <TabContent
-                  activeTab={activeTab}
-                  setActiveTab={setActiveTab}
-                  currentCourse={currentCourse}
-                  setReviewModalVisible={setReviewModalVisible}
-                  handleDownload={handleDownload}
-                />
+                {currentItem?.type === "video" && (
+                  <TabContent
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                    currentCourse={currentCourse}
+                    setReviewModalVisible={setReviewModalVisible}
+                    handleDownload={handleDownload}
+                  />
+                )}
               </div>
             </Col>
 
-            <Col
-              xs={24}
-              lg={8}
-              className={`transition-all duration-500 ease-in-out `}
-            >
+            <Col xs={24} lg={8} className="transition-all duration-500 ease-in-out">
               <div
-                className={`${isMobile ? "fixed inset-0 z-50 bg-white transform transition-transform duration-500 ease-in-out" : "sticky top-4"} ${
-                  isMobile && sidebarVisible ? "translate-x-0" : isMobile ? "translate-x-full" : ""
-                }`}
+                className={`${
+                  isMobile
+                    ? "fixed inset-0 z-50 bg-white transform transition-transform duration-500 ease-in-out"
+                    : "sticky top-4"
+                } ${isMobile && sidebarVisible ? "translate-x-0" : isMobile ? "translate-x-full" : ""}`}
               >
-                <ContentSidebar
+                <EnhancedContentSidebar
                   currentCourse={currentCourse}
                   isMobile={isMobile}
                   setSidebarVisible={setSidebarVisible}
                   calculateProgress={calculateProgress}
                   completedItems={completedItems}
-                  currentVideo={currentVideo}
-                  selectVideo={selectVideo}
+                  currentItem={currentItem}
+                  selectItem={selectItem}
                   markAsCompleted={markAsCompleted}
                 />
               </div>

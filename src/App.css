@@ -89,4 +89,31 @@ html{
 
 
 
+.enhanced-video-player .ant-btn,
+.enhanced-video-player .ant-input,
+.enhanced-video-player .ant-modal,
+.enhanced-video-player .ant-list,
+.enhanced-video-player .ant-dropdown-menu {
+  color: white !important;
+  background-color: transparent !important;
+}
+
+.enhanced-video-player .ant-dropdown-menu {
+  background-color: #1f1f1f !important;
+}
+
+.enhanced-video-player .ant-slider-track {
+  background-color: #3b82f6 !important;
+}
+
+.enhanced-video-player .ant-slider-handle::after {
+  background-color: white !important;
+}
+
+.enhanced-video-player .ant-modal-content {
+  background-color: #181818 !important;
+  color: white !important;
+}
+
+
 

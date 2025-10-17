@@ -1,10 +1,6 @@
-/* eslint-disable no-unused-vars */
 // for super admin vide and docs section
 // Helper function
-const generateThumbnail = (title) => {
-  const encodedTitle = encodeURIComponent(title);
-  return `https://via.placeholder.com/300x200/0000FF/FFFFFF?text=${encodedTitle}`;
-};
+
 
 export const newVideosData = [
   {
